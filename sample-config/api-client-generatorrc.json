@@ -1,0 +1,26 @@
+﻿{
+  "//": "Example configuration for generate-api-client CLI",
+  "template": "client-api",
+  "targetDirectory": "./packages/nestjs-api-hooks",
+  "projectName": "nestjs-api-hooks",
+  "packageManager": "npm",
+  "swaggerPath": "./swagger-specs/petstore.yaml",
+  "swaggerCopyTarget": "swagger-spec.json",
+  "installDependencies": true,
+  "runGenerate": true,
+  "orval": {
+    "configPath": "orval.config.ts",
+    "workspace": "./src/",
+    "targetFile": "./dogs.ts",
+    "mode": "tags-split",
+    "client": "react-query",
+    "baseUrl": "http://localhost:3000",
+    "mock": true,
+    "prettier": true,
+    "command": "generate",
+    "postGenerateScript": "build"
+  },
+  "templateVariables": {
+    "API_DESCRIPTION": "Dog API React Query hooks"
+  }
+}

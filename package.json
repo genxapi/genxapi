@@ -1,0 +1,56 @@
+﻿{
+    "name":  "generate-api-client",
+    "version":  "0.1.0",
+    "description":  "CLI to scaffold Orval-based API client projects from reusable templates.",
+    "author":  "",
+    "license":  "MIT",
+    "type":  "commonjs",
+    "main":  "./dist/index.js",
+    "bin":  {
+                "generate-api-client":  "./dist/index.js"
+            },
+    "exports":  {
+                    ".":  {
+                              "import":  "./dist/index.mjs",
+                              "require":  "./dist/index.js"
+                          }
+                },
+    "scripts":  {
+                    "build":  "tsup src/index.ts --out-dir dist --format cjs,esm --dts --shims --target node18",
+                    "clean":  "rimraf dist",
+                    "dev":  "tsup src/index.ts --watch --out-dir dist --format cjs,esm --shims --target node18",
+                    "prepare":  "npm run build"
+                },
+    "files":  [
+                  "dist",
+                  "templates",
+                  "README.md",
+                  "sample-config"
+              ],
+    "keywords":  [
+                     "openapi",
+                     "orval",
+                     "generator",
+                     "cli",
+                     "api-client",
+                     "scaffolding"
+                 ],
+    "engines":  {
+                    "node":  "\u003e=18.18"
+                },
+    "dependencies":  {
+                         "@stricli/core":  "^1.2.4",
+                         "chalk":  "^5.3.0",
+                         "cosmiconfig":  "^9.0.0",
+                         "execa":  "^8.0.1",
+                         "fs-extra":  "^11.2.0",
+                         "yaml":  "^2.5.1",
+                         "zod":  "^3.23.8"
+                     },
+    "devDependencies":  {
+                            "@types/node":  "^20.12.12",
+                            "rimraf":  "^5.0.5",
+                            "tsup":  "^8.1.0",
+                            "typescript":  "^5.5.4"
+                        }
+}
