@@ -12,6 +12,13 @@ export default defineConfig({
         __dirname,
         "../api-client-template/src"
       )
+    },
+    deps: {
+      optimizer: {
+        web: {
+          considerBuiltins: true
+        }
+      }
     }
   }
 });

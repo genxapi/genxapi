@@ -59,3 +59,18 @@ This command will:
 2. Call `@eduardoac/api-client-template` to scaffold the template, apply replacements, copy swagger files, run Orval, and execute hooks.
 3. Commit and push the generated changes to GitHub and open a pull request if `project.repository` exists.
 4. Publish the package if `project.publish.npm.enabled` is `true`.
+
+### Semantic-release examples
+
+After running the generator, you can compare swagger revisions and generate a commit message for semantic-release:
+
+```bash
+# Compare swagger files and classify the change
+node -e "import base from './packages/generate-api-client/src/utils/swaggerDiff/fixtures/base.json' assert { type: 'json' };
+import { analyzeSwaggerDiff } from './packages/generate-api-client/src/utils/swaggerDiff/index.js';
+const next = structuredClone(base);
+next.paths['/pets/{id}'] = { get: { operationId: 'getPet', responses: { '200': { description: 'single pet' } } } };
+console.log(analyzeSwaggerDiff(base, next));"
+```
+
+This prints the commit suggestion (`feat`, `fix`, or `chore`) that feeds semantic-release version bumps.

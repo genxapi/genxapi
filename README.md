@@ -90,3 +90,23 @@ This will:
 - Publish the generated package if `publish.npm.enabled` is `true`.
 
 4. Inspect the generated project (e.g. under `examples/petstore/output`) to review artefacts or run additional commands (`npm test`, `npm run build`, etc.). The generator already installs dependencies and runs Orval using the remote Petstore schema.
+
+<details>
+  <summary>Example: derive semantic-release bump from swagger changes</summary>
+
+```bash
+# assume commits already exist for previous swagger snapshot
+npx @eduardoac/generate-api-client generate --config examples/petstore/api-client-generator.config.json --target ./examples/petstore/output --log-level info
+
+# classify swagger diff (feat | fix | chore)
+node -e "import base from './packages/generate-api-client/src/utils/swaggerDiff/fixtures/base.json' assert { type: 'json' };
+import { analyzeSwaggerDiff } from './packages/generate-api-client/src/utils/swaggerDiff/index.js';
+const next = structuredClone(base);
+next.paths['/pets/{id}'] = { get: { operationId: 'getPet', responses: { '200': { description: 'single pet' } } } };
+console.log(analyzeSwaggerDiff(base, next));
+"
+```
+
+This prints the recommended commit message (e.g. `feat(api): GET /pets/{id}`) that feeds semantic-release for the correct version bump.
+
+</details>
