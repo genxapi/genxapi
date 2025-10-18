@@ -18,7 +18,8 @@
     "format": "prettier --write \"{packages,samples}/**/*.{ts,tsx,js,json,md}\"",
     "lint": "eslint \"packages/**/*.{ts,tsx,js}\"",
     "npm-publish": "npm run npm-publish --workspaces",
-    "test": "npm run test --workspace @eduardoac/api-client-template && npm run test --workspace @eduardoac/generate-api-client"
+    "test": "npm run test --workspace @eduardoac/api-client-template && npm run test --workspace @eduardoac/generate-api-client",
+    "typecheck": "tsc -p packages/api-client-template/tsconfig.json --noEmit && tsc -p packages/generate-api-client/tsconfig.json --noEmit"
   },
   "devDependencies": {
     "@types/node": "^22.9.0",

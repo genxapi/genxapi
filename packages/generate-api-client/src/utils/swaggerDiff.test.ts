@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
-import baseSpec from "./swaggerDiff/fixtures/base.json";
+import baseSpecJson from "./swaggerDiff/fixtures/base.json";
 import { analyzeSwaggerDiff } from "./swaggerDiff/index.js";
+
+type AnySpec = Record<string, any>;
+const baseSpec = baseSpecJson as AnySpec;
 
 describe("analyzeSwaggerDiff", () => {
   it("marks new endpoints as feat", () => {
@@ -60,7 +63,7 @@ describe("analyzeSwaggerDiff", () => {
 
   it("detects schema removals as fix", () => {
     const nextSpec = structuredClone(baseSpec);
-    delete nextSpec.components.schemas.Pet;
+    delete (nextSpec.components.schemas).Pet;
 
     const result = analyzeSwaggerDiff(baseSpec, nextSpec);
     expect(result.type).toBe("fix");

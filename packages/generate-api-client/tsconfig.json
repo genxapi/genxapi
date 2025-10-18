@@ -1,7 +1,7 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "rootDir": "src",
+    "rootDir": "../",
     "outDir": "dist",
     "declaration": true,
     "emitDeclarationOnly": true,
@@ -11,6 +11,5 @@
       "@eduardoac/api-client-template": ["../api-client-template/src/index.ts"]
     }
   },
-  "include": ["src"],
-  "references": [{ "path": "../api-client-template" }]
+  "include": ["src"]
 }

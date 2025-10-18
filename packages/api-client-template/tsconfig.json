@@ -4,7 +4,6 @@
     "rootDir": "src",
     "outDir": "dist",
     "declaration": true,
-    "emitDeclarationOnly": false,
     "composite": true,
     "tsBuildInfoFile": "./dist/.tsbuildinfo"
   },
