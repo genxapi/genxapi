@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { resolve as resolvePath } from "node:path";
+import { relative as relativePath } from "pathe";
 import { Command } from "commander";
 import { loadCliConfig } from "./config/loader.js";
 import { runGenerateCommand } from "./commands/generate.js";
@@ -33,11 +34,14 @@ program
 
       if (options.target) {
         const resolvedTarget = resolvePath(process.cwd(), options.target);
+        const relativeTarget = relativePath(configDir, resolvedTarget) || "./";
         config = {
           ...config,
           project: {
             ...config.project,
-            directory: resolvedTarget
+            directory: relativeTarget.startsWith("./") || relativeTarget.startsWith("../")
+              ? relativeTarget
+              : `./${relativeTarget}`
           }
         };
       }
