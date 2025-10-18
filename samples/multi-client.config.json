@@ -1,0 +1,43 @@
+{
+  "$schema": "https://raw.githubusercontent.com/eduardoac/api-clients/main/schemas/generate-api-client.schema.json",
+  "project": {
+    "name": "multi-client-demo",
+    "directory": "./examples/multi-client-demo",
+    "packageManager": "pnpm",
+    "template": {
+      "name": "@eduardoac/api-client-template"
+    }
+  },
+  "clients": [
+    {
+      "name": "pets",
+      "swagger": "./specs/petstore.yaml",
+      "output": {
+        "workspace": "./src/pets",
+        "target": "./src/pets/client.ts"
+      },
+      "orval": {
+        "mode": "split",
+        "client": "react-query",
+        "baseUrl": "https://api.pets.local",
+        "mock": true,
+        "prettier": true
+      }
+    },
+    {
+      "name": "store",
+      "swagger": "./specs/store.yaml",
+      "output": {
+        "workspace": "./src/store",
+        "target": "./src/store/client.ts"
+      },
+      "orval": {
+        "mode": "split",
+        "client": "axios",
+        "baseUrl": "https://api.store.local",
+        "mock": false,
+        "prettier": true
+      }
+    }
+  ]
+}

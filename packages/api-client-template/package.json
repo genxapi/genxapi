@@ -1,0 +1,59 @@
+{
+  "name": "@eduardoac/api-client-template",
+  "version": "0.1.0",
+  "description": "Reusable Orval-based template for generating multiple API clients.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "src/template"
+  ],
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "rollup -c",
+    "clean": "rimraf dist",
+    "npm-publish": "npm publish --access public",
+    "prebuild": "npm run clean",
+    "test": "vitest run"
+  },
+  "keywords": [
+    "orval",
+    "api-client",
+    "template",
+    "generator"
+  ],
+  "dependencies": {
+    "@orval/core": "^7.13.2",
+    "@orval/core-utils": "^7.13.2",
+    "cosmiconfig": "^9.0.0",
+    "execa": "^9.3.0",
+    "fs-extra": "^11.2.0",
+    "globby": "^14.0.1",
+    "merge-deep": "^3.0.3",
+    "pathe": "^1.1.2",
+    "zod": "^3.23.8"
+  },
+  "peerDependencies": {
+    "orval": "^7.13.2"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.9.0",
+    "@vitest/coverage-v8": "^1.6.0",
+    "rimraf": "^5.0.10",
+    "rollup": "^4.34.0",
+    "rollup-plugin-dts": "^6.1.1",
+    "rollup-plugin-delete": "^2.1.0",
+    "tslib": "^2.8.1",
+    "typescript": "^5.6.3",
+    "vitest": "^1.6.0"
+  }
+}
