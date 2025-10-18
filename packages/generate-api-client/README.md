@@ -93,3 +93,18 @@ npm run publish:github --workspace @eduardoac/generate-api-client
 ```
 
 Publishing to GitHub Packages requires a PAT with `read:packages` and `write:packages` scopes.
+
+### Installing from GitHub Packages
+
+1. Authenticate (requires `GITHUB_TOKEN` with `read:packages` + `write:packages`):
+   ```bash
+   npm config set @eduardoac:registry https://npm.pkg.github.com/
+   npm config set //npm.pkg.github.com/:_authToken ${GITHUB_TOKEN}
+   ```
+2. Run the bundled sample:
+   ```bash
+   npx @eduardoac/generate-api-client generate \
+     --config samples/multi-client.config.json \
+     --target ./examples/multi-client-demo \
+     --log-level info
+   ```
