@@ -35,11 +35,11 @@ export default defineConfig([
     ]
   },
   {
-    input: "dist/index.d.ts",
+    input: "dist/types/index.d.ts",
     output: [{ file: "dist/index.d.ts", format: "es" }],
     plugins: [
       dts(),
-      del({ hook: "buildEnd", targets: "dist/src", verbose: true })
+      del({ hook: "buildEnd", targets: ["dist/types", "dist/src"], verbose: true })
     ]
   }
 ]);
