@@ -222,6 +222,7 @@ export async function generateClients(config: MultiClientConfig, options: Genera
   - `schemas/generate-api-client.schema.json`: JSON schema for configs.
   - `src/services/github.ts`: GitHub automation (repo bootstrap, branch push, PR creation).
   - `src/services/npm.ts`: Optional npm publish workflow.
+  - `src/utils/swaggerDiff.ts`: Analyzes Swagger diffs and classifies semantic-release commit type (`feat`/`fix`/`chore`).
   - Depends on `chalk`, `commander`, `cosmiconfig`, `octokit`, `ora`, `execa`, `zod`, and of course `@eduardoac/api-client-template`.
 
 ```ts

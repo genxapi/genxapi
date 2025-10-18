@@ -34,6 +34,7 @@ This reference keeps the assistant aligned with the actual tooling, stack, and a
 - Spinner feedback via **Ora**, colored logs with **Chalk**.
 - Ships a JSON schema (`schemas/generate-api-client.schema.json`) for editor integration.
 - GitHub automation lives in `src/services/github.ts`; npm publish orchestration in `src/services/npm.ts`.
+- Swagger diff analysis (`src/utils/swaggerDiff.ts`) classifies OpenAPI changes for semantic-release (`feat` / `fix` / `chore`).
 
 ---
 
