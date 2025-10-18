@@ -12,5 +12,7 @@ export type {
   GenerateClientsOptions,
   RepositoryConfig,
   PullRequestConfig,
-  NpmPublishConfig
+  NpmPublishConfig,
+  ProjectReadmeConfig,
+  ReadmeSection
 } from "./types.js";

@@ -40,6 +40,15 @@ await generateClients(config);
         "command": "npm",
         "tag": "latest"
       }
+    },
+    "readme": {
+      "introduction": "Demo SDK generated from the public Petstore API.",
+      "additionalSections": [
+        {
+          "title": "Support",
+          "body": "Contact the platform team if you need additional endpoints exposed in this client."
+        }
+      ]
     }
   },
   "clients": [

@@ -6,11 +6,19 @@ import fs from "fs-extra";
 import { execa } from "execa";
 import merge from "merge-deep";
 import { globby } from "globby";
+import YAML from "yaml";
 import {
   ClientConfig,
   MultiClientConfig,
   GenerateClientsOptions
 } from "./types.js";
+
+interface SwaggerInfo {
+  readonly title?: string;
+  readonly description?: string;
+  readonly version?: string;
+  readonly source: string;
+}
 
 const TEMPLATE_ROOT = fileURLToPath(new URL("./template", import.meta.url));
 const TEXT_EXTENSIONS = new Set([
@@ -48,8 +56,14 @@ export async function generateClients(
   await applyPackageJson(projectDir, config);
   await applyTemplateVariables(projectDir, config);
   await ensureClientWorkspaces(projectDir, config.clients);
-  const swaggerTargets = await handleSwaggerDocuments(projectDir, config, options, logger);
+  const { targets: swaggerTargets, infos: swaggerInfos } = await handleSwaggerDocuments(
+    projectDir,
+    config,
+    options,
+    logger
+  );
   await writeOrvalConfig(projectDir, config, swaggerTargets);
+  await generateReadme(projectDir, config, swaggerInfos);
 
   if (config.project.template.installDependencies) {
     await installDependencies(projectDir, config.project.packageManager, logger);
@@ -127,8 +141,10 @@ async function handleSwaggerDocuments(
   config: MultiClientConfig,
   options: GenerateClientsOptions,
   logger: GenerateClientsOptions["logger"]
-): Promise<Record<string, string>> {
-  const results: Record<string, string> = {};
+): Promise<{ targets: Record<string, string>; infos: Record<string, SwaggerInfo | null> }> {
+  const targets: Record<string, string> = {};
+  const infos: Record<string, SwaggerInfo | null> = {};
+
   for (const client of config.clients) {
     const sourceAbsolute = resolve(options.configDir ?? process.cwd(), client.swagger);
     if (client.copySwagger && !isHttp(client.swagger)) {
@@ -136,12 +152,18 @@ async function handleSwaggerDocuments(
       logger?.info?.(`Copying ${client.swagger} -> ${client.swaggerCopyTarget}`);
       await fs.ensureDir(resolve(destination, ".."));
       await fs.copyFile(sourceAbsolute, destination);
-      results[client.name] = client.swaggerCopyTarget;
+      targets[client.name] = client.swaggerCopyTarget;
+      infos[client.name] = await readSwaggerInfoFromFile(destination, client.swagger);
+    } else if (!client.copySwagger && !isHttp(client.swagger)) {
+      targets[client.name] = toProjectRelative(projectDir, sourceAbsolute, client.swagger);
+      infos[client.name] = await readSwaggerInfoFromFile(sourceAbsolute, client.swagger);
     } else {
-      results[client.name] = toProjectRelative(projectDir, sourceAbsolute, client.swagger);
+      targets[client.name] = client.swagger;
+      infos[client.name] = await readSwaggerInfoFromRemote(client.swagger);
     }
   }
-  return results;
+
+  return { targets, infos };
 }
 
 function isHttp(value: string): boolean {
@@ -189,6 +211,125 @@ async function writeOrvalConfig(
 export default defineConfig(${JSON.stringify(merged, null, 2)});
 `;
   await writeFile(join(projectDir, "orval.config.ts"), source);
+}
+
+async function generateReadme(
+  projectDir: string,
+  config: MultiClientConfig,
+  swaggerInfos: Record<string, SwaggerInfo | null>
+): Promise<void> {
+  const readmeConfig = config.project.readme;
+  const lines: string[] = [];
+  const projectName = config.project.name;
+  lines.push(`# ${projectName}`);
+  lines.push("");
+
+  const intro = readmeConfig?.introduction
+    ? readmeConfig.introduction
+    : `This package contains generated API clients produced by \`@eduardoac/generate-api-client\` using the Orval toolchain.`;
+  lines.push(intro);
+  lines.push("");
+
+  lines.push("## Clients");
+  lines.push("");
+  lines.push("| Client | OpenAPI Source | Base URL | Description |");
+  lines.push("| ------ | -------------- | -------- | ----------- |");
+  for (const client of config.clients) {
+    const info = swaggerInfos[client.name];
+    const swaggerLabel = info?.title ?? client.swagger;
+    const swaggerLink = `[${swaggerLabel}](${info?.source ?? client.swagger})`;
+    const baseUrl = client.orval?.baseUrl ?? "—";
+    const description = info?.description ? info.description.replace(/\n+/g, " ") : "—";
+    lines.push(`| ${client.name} | ${swaggerLink} | ${baseUrl} | ${description} |`);
+  }
+  lines.push("");
+
+  const usageLines: string[] = [];
+  if (readmeConfig?.usage) {
+    usageLines.push(readmeConfig.usage);
+  } else {
+    usageLines.push("Install dependencies and regenerate clients:");
+    usageLines.push("");
+    usageLines.push("```bash");
+    usageLines.push("npm install");
+    usageLines.push("npm run generate-clients");
+    usageLines.push("```");
+    usageLines.push("");
+    usageLines.push("The generated Orval configuration is available at `orval.config.ts`.");
+  }
+  lines.push("## Usage");
+  lines.push("");
+  lines.push(...usageLines);
+  lines.push("");
+
+  if (readmeConfig?.additionalSections) {
+    for (const section of readmeConfig.additionalSections) {
+      lines.push(`## ${section.title}`);
+      lines.push("");
+      lines.push(section.body);
+      lines.push("");
+    }
+  }
+
+  await writeFile(join(projectDir, "README.md"), `${lines.join("\n")}\n`);
+}
+
+async function readSwaggerInfoFromFile(path: string, source: string): Promise<SwaggerInfo | null> {
+  try {
+    const content = await fs.readFile(path, "utf8");
+    const parsed = parseSwaggerSpec(content);
+    if (!parsed) return { source };
+    return { ...parsed, source };
+  } catch {
+    return { source };
+  }
+}
+
+async function readSwaggerInfoFromRemote(url: string): Promise<SwaggerInfo | null> {
+  if (typeof fetch !== "function") {
+    return { source: url };
+  }
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      return { source: url };
+    }
+    const text = await response.text();
+    const parsed = parseSwaggerSpec(text);
+    if (!parsed) return { source: url };
+    return { ...parsed, source: url };
+  } catch {
+    return { source: url };
+  }
+}
+
+function parseSwaggerSpec(text: string): Omit<SwaggerInfo, "source"> | null {
+  try {
+    const asJson = JSON.parse(text);
+    if (typeof asJson === "object" && asJson !== null) {
+      const info = (asJson as { info?: Record<string, unknown> }).info ?? {};
+      return {
+        title: typeof info.title === "string" ? info.title : undefined,
+        description: typeof info.description === "string" ? info.description : undefined,
+        version: typeof info.version === "string" ? info.version : undefined
+      };
+    }
+  } catch {
+    try {
+      const asYaml = YAML.parse(text);
+      if (typeof asYaml === "object" && asYaml !== null) {
+        const info = (asYaml as { info?: Record<string, unknown> }).info ?? {};
+        return {
+          title: typeof info.title === "string" ? info.title : undefined,
+          description: typeof info.description === "string" ? info.description : undefined,
+          version: typeof info.version === "string" ? info.version : undefined
+        };
+      }
+    } catch {
+      return null;
+    }
+  }
+  return null;
 }
 
 async function runOrval(projectDir: string, packageManager: string, logger: GenerateClientsOptions["logger"]) {

@@ -55,6 +55,19 @@ const NpmPublishConfigSchema = z.object({
   command: z.enum(["npm", "pnpm", "yarn", "bun"]).default("npm")
 });
 
+const ReadmeSectionSchema = z.object({
+  title: z.string().min(1),
+  body: z.string().min(1)
+});
+
+const ProjectReadmeSchema = z
+  .object({
+    introduction: z.string().optional(),
+    usage: z.string().optional(),
+    additionalSections: z.array(ReadmeSectionSchema).default([])
+  })
+  .default({});
+
 export const ProjectConfigSchema = z.object({
   name: z.string().min(1),
   directory: z.string().min(1),
@@ -73,7 +86,8 @@ export const ProjectConfigSchema = z.object({
     .object({
       npm: NpmPublishConfigSchema.default({})
     })
-    .default({})
+    .default({}),
+  readme: ProjectReadmeSchema.optional()
 });
 
 export const MultiClientConfigSchema = z.object({
@@ -93,6 +107,8 @@ export type MultiClientConfig = z.infer<typeof MultiClientConfigSchema>;
 export type RepositoryConfig = z.infer<typeof RepositoryConfigSchema>;
 export type PullRequestConfig = z.infer<typeof PullRequestConfigSchema>;
 export type NpmPublishConfig = z.infer<typeof NpmPublishConfigSchema>;
+export type ProjectReadmeConfig = z.infer<typeof ProjectReadmeSchema>;
+export type ReadmeSection = z.infer<typeof ReadmeSectionSchema>;
 
 export interface GenerateClientsOptions {
   readonly runOrval?: boolean;

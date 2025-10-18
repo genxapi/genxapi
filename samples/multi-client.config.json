@@ -22,6 +22,15 @@
         "tag": "latest",
         "access": "public"
       }
+    },
+    "readme": {
+      "introduction": "Demo SDK generated from the public Petstore API using @eduardoac/generate-api-client.",
+      "additionalSections": [
+        {
+          "title": "Regeneration",
+          "body": "Run `npm run generate-clients` inside this package to regenerate the API bindings after updating the OpenAPI spec."
+        }
+      ]
     }
   },
   "clients": [

@@ -19,6 +19,8 @@ CLI to scaffold, regenerate, synchronise, and release multiple API clients using
 
 > Ensure `project.repository.owner` matches your GitHub login (case-insensitive). Leading `@` characters are stripped automatically before syncing.
 
+Use `project.readme` in your configuration to customise the generated package README (introduction, usage text, extra sections).
+
 <details>
   <summary>How to create a <code>GITHUB_TOKEN</code> with the correct permissions</summary>
 

@@ -58,6 +58,7 @@ npm run npm-publish --workspace @eduardoac/generate-api-client
 - `project.repository.owner` should match your GitHub login (case-insensitive; leading <code>@</code> is ignored automatically).
 - Configure `publish.npm` to publish the generated client with npm, pnpm, yarn, or bun.
 - Hooks integrate with `execa`, so custom before/after commands run in the generated project directory.
+- Customise the generated README via `project.readme` (introduction, usage text, additional sections) – see the sample config for a template.
 
 ## Example Walkthrough
 
