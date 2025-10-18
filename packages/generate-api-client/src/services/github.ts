@@ -74,7 +74,8 @@ async function ensureRepository(
         throw new Error(`Repository ${owner}/${name} not found.`);
       }
       const authenticated = await octokit.rest.users.getAuthenticated();
-      if (authenticated.data.login === owner) {
+      const authenticatedLogin = authenticated.data.login;
+      if (authenticatedLogin?.toLowerCase() === owner.toLowerCase()) {
         logger.info(`Creating GitHub repository ${owner}/${name}`);
         return await octokit.rest.repos.createForAuthenticatedUser({
           name,

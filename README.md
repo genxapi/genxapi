@@ -55,6 +55,7 @@ npm run npm-publish --workspace @eduardoac/generate-api-client
 ## Automation Hooks
 
 - Add a `repository` section to your configuration to initialise or synchronize a GitHub repository, push commits, and open pull requests automatically.
+- `project.repository.owner` should match your GitHub login (case-insensitive; leading <code>@</code> is ignored automatically).
 - Configure `publish.npm` to publish the generated client with npm, pnpm, yarn, or bun.
 - Hooks integrate with `execa`, so custom before/after commands run in the generated project directory.
 

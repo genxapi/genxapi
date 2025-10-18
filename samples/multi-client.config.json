@@ -8,7 +8,7 @@
       "name": "@eduardoac/api-client-template"
     },
     "repository": {
-      "owner": "your-github-handle",
+      "owner": "eduardoac",
       "name": "multi-client-demo",
       "defaultBranch": "main",
       "pullRequest": {

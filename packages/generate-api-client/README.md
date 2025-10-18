@@ -17,6 +17,8 @@ CLI to scaffold, regenerate, synchronise, and release multiple API clients using
 - `GITHUB_TOKEN` (configurable via `project.repository.tokenEnv`) – required to push commits or open pull requests.
 - `NPM_TOKEN` (configurable via `project.publish.npm.tokenEnv`) – required to publish the generated package to npm.
 
+> Ensure `project.repository.owner` matches your GitHub login (case-insensitive). Leading `@` characters are stripped automatically before syncing.
+
 <details>
   <summary>How to create a <code>GITHUB_TOKEN</code> with the correct permissions</summary>
 

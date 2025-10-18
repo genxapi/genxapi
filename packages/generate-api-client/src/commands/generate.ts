@@ -41,9 +41,13 @@ async function runPostGenerationTasks(options: GenerateCommandOptions): Promise<
   const { repository, publish } = options.config.project;
 
   if (repository) {
+    const normalisedRepository = {
+      ...repository,
+      owner: repository.owner.replace(/^@/, "")
+    };
     await synchronizeRepository({
       projectDir,
-      repository,
+      repository: normalisedRepository,
       logger: options.logger
     });
   }
