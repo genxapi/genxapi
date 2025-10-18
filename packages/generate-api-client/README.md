@@ -1,6 +1,6 @@
 # @eduardoac/generate-api-client
 
-CLI to scaffold and generate multiple API clients using Orval templates.
+CLI to scaffold, regenerate, synchronise, and release multiple API clients using Orval templates.
 
 ## Commands
 
@@ -11,3 +11,19 @@ CLI to scaffold and generate multiple API clients using Orval templates.
 
 - `GITHUB_TOKEN` (configurable via `project.repository.tokenEnv`) – required to push commits or open pull requests.
 - `NPM_TOKEN` (configurable via `project.publish.npm.tokenEnv`) – required to publish the generated package to npm.
+
+### Sample Usage
+
+```bash
+GITHUB_TOKEN=ghp_xxx NPM_TOKEN=xxx \
+generate-api-client generate \
+  --config examples/petstore/api-client-generator.config.json \
+  --log-level debug
+```
+
+This command will:
+
+1. Load the config (including repository/publish settings) from the provided path or cosmiconfig search.
+2. Call `@eduardoac/api-client-template` to scaffold the template, apply replacements, copy swagger files, run Orval, and execute hooks.
+3. Commit and push the generated changes to GitHub and open a pull request if `project.repository` exists.
+4. Publish the package if `project.publish.npm.enabled` is `true`.
