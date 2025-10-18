@@ -45,7 +45,7 @@ await generateClients(config);
   "clients": [
     {
       "name": "pets",
-      "swagger": "./specs/petstore.yaml",
+      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
       "output": {
         "workspace": "./src/pets",
         "target": "./src/pets/client.ts"

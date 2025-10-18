@@ -13,6 +13,8 @@ npm run build
 npm test
 ```
 
+> **Requirement:** Orval 7.x depends on Commander 14 which targets Node v20+. Running the generator on Node 18 works but prints engine warnings; upgrade to Node 20 for a clean run.
+
 To generate clients (with GitHub + npm automation):
 
 ```bash
@@ -64,4 +66,4 @@ This will:
 - Push changes to GitHub and open a pull request if `repository` is configured.
 - Publish the generated package if `publish.npm.enabled` is `true`.
 
-4. Inspect the generated project (e.g. under `examples/petstore/output`) to review artefacts or run additional commands (`npm test`, `npm run build`, etc.).
+4. Inspect the generated project (e.g. under `examples/petstore/output`) to review artefacts or run additional commands (`npm test`, `npm run build`, etc.). The generator already installs dependencies and runs Orval using the remote Petstore schema.

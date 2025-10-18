@@ -2,6 +2,11 @@
 
 CLI to scaffold, regenerate, synchronise, and release multiple API clients using Orval templates.
 
+## Requirements
+
+- Node.js **v20+** (required by Orval's Commander dependency; older runtimes will emit engine warnings).
+- Access tokens if you plan to push to GitHub (`GITHUB_TOKEN`) or publish to npm (`NPM_TOKEN`).
+
 ## Commands
 
 - `generate-api-client generate` – Generate clients defined in configuration, optionally override the output directory (`--target`), initialise/synchronise a GitHub repository, and publish to npm.

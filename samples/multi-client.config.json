@@ -3,7 +3,7 @@
   "project": {
     "name": "multi-client-demo",
     "directory": "./examples/multi-client-demo",
-    "packageManager": "pnpm",
+    "packageManager": "npm",
     "template": {
       "name": "@eduardoac/api-client-template"
     },
@@ -27,7 +27,7 @@
   "clients": [
     {
       "name": "pets",
-      "swagger": "./specs/petstore.yaml",
+      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
       "output": {
         "workspace": "./src/pets",
         "target": "./src/pets/client.ts"
@@ -42,7 +42,7 @@
     },
     {
       "name": "store",
-      "swagger": "./specs/store.yaml",
+      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
       "output": {
         "workspace": "./src/store",
         "target": "./src/store/client.ts"

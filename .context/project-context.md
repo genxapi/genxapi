@@ -97,7 +97,7 @@ Monorepo that hosts:
   "project": {
     "name": "multi-client-demo",
     "directory": "./examples/multi-client-demo",
-    "packageManager": "pnpm"
+    "packageManager": "npm"
   },
   "clients": [
     {
@@ -260,6 +260,8 @@ demonstrates configuration validation and log output without touching the filesy
 | `npm run npm-publish --workspace <pkg>` | Publishes template or CLI (replaces old “npm publish” command naming). |
 | `generate-api-client generate` | Generates clients, optionally syncs GitHub repositories and runs npm publish. |
 | `generate-api-client publish` | Uses Octokit to create GitHub releases (token required). |
+
+**Runtime note:** Orval 7.x bundles Commander 14, which requires Node 20+. Running generation on Node 18 works but prints engine warnings; encourage contributors to use Node ≥20 for a clean experience.
 
 Security snapshot (as of 2025-10-18):
 - `npm audit` → **0 vulnerabilities** after removing direct `@orval/core` dependency.

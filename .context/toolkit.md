@@ -11,6 +11,7 @@ This reference keeps the assistant aligned with the actual tooling, stack, and a
 - **TypeScript** targets ES2022; package configs extend `tsconfig.base.json`.
 - **Vitest v3** supplies the test runner (configured globally in `vitest.config.ts`).
 - **ESLint + Prettier** enforce style and lint rules (see `.eslintrc.cjs`, `.prettierrc.json`).
+- **Node 20+** recommended when running the generator: Orval 7 uses Commander 14 and prints engine warnings on older runtimes.
 
 ---
 

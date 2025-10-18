@@ -184,7 +184,7 @@ async function writeOrvalConfig(
   }, {});
 
   const merged = merge({} as Record<string, unknown>, baseConfig);
-  const source = `import { defineConfig } from "@orval/core";
+  const source = `import { defineConfig } from "orval";
 
 export default defineConfig(${JSON.stringify(merged, null, 2)});
 `;
