@@ -4,7 +4,7 @@ CLI to scaffold, regenerate, synchronise, and release multiple API clients using
 
 ## Commands
 
-- `generate-api-client generate` – Generate clients defined in configuration, optionally initialise/synchronise a GitHub repository and publish to npm.
+- `generate-api-client generate` – Generate clients defined in configuration, optionally override the output directory (`--target`), initialise/synchronise a GitHub repository, and publish to npm.
 - `generate-api-client publish` – Create GitHub releases using Octokit.
 
 ### Environment Variables
@@ -18,6 +18,7 @@ CLI to scaffold, regenerate, synchronise, and release multiple API clients using
 GITHUB_TOKEN=ghp_xxx NPM_TOKEN=xxx \
 generate-api-client generate \
   --config examples/petstore/api-client-generator.config.json \
+  --target ./examples/petstore/output \
   --log-level debug
 ```
 

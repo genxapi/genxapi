@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { resolve as resolvePath } from "node:path";
 import { Command } from "commander";
 import { loadCliConfig } from "./config/loader.js";
 import { runGenerateCommand } from "./commands/generate.js";
@@ -17,15 +18,28 @@ program
   .option("-c, --config <path>", "Path to configuration file")
   .option("--dry-run", "Validate configuration without generating", false)
   .option("--log-level <level>", "Log level", "info")
+  .option("--target <dir>", "Override the project directory output")
   .action(async function (this: Command, options) {
     const logger = new Logger();
     try {
-      const { config, configDir } = await loadCliConfig({ file: options.config });
+      const { config: loadedConfig, configDir } = await loadCliConfig({ file: options.config });
+      let config = loadedConfig;
       logger.setLevel(config.logLevel as LogLevel);
 
       const source = this.getOptionValueSource("logLevel");
       if (source === "cli") {
         logger.setLevel(options.logLevel as LogLevel);
+      }
+
+      if (options.target) {
+        const resolvedTarget = resolvePath(process.cwd(), options.target);
+        config = {
+          ...config,
+          project: {
+            ...config.project,
+            directory: resolvedTarget
+          }
+        };
       }
 
       await runGenerateCommand({

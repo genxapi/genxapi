@@ -46,12 +46,13 @@ cp samples/multi-client.config.json examples/petstore/api-client-generator.confi
 
 2. Edit the config so `project.directory` points to a writable folder (e.g. `./examples/petstore/output`) and update `repository.owner/name` if you want automatic GitHub sync.
 
-3. Run the generator:
+3. Run the generator (optionally overriding the target directory with `--target`):
 
 ```bash
 GITHUB_TOKEN=ghp_xxx NPM_TOKEN=xxx \
 npx @eduardoac/generate-api-client generate \
   --config examples/petstore/api-client-generator.config.json \
+  --target ./examples/petstore/output \
   --log-level info
 ```
 
