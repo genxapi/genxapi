@@ -23,7 +23,10 @@
   "scripts": {
     "build": "rollup -c",
     "clean": "rimraf dist",
-    "npm-publish": "npm publish --access restricted",
+    "npm-publish": "npm run publish:npm",
+    "publish:npm": "npm publish --access restricted",
+    "publish:npm-public": "echo \"Public publish disabled until GA\"",
+    "publish:github": "npm publish --registry https://npm.pkg.github.com",
     "prebuild": "npm run clean",
     "test": "vitest run"
   },

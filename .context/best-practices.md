@@ -21,3 +21,5 @@
 10. **Avoid Test-Only Re-exports**: Import modules directly within tests instead of re-exporting internals solely for testing; this keeps the public API intentional.
 
 11. **Run Type Checks**: Execute `npm run typecheck` before publishing or submitting PRs to ensure both packages compile cleanly against their TypeScript configurations.
+
+12. **Document Publish Targets**: When adding a new package or command, provide npm and GitHub publishing scripts (`publish:npm`, `publish:github`, etc.) so consumers can choose the appropriate registry.

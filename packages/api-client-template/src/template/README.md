@@ -27,7 +27,9 @@ npm run generate-clients
 | `npm run build` | Builds the distributable bundle (Rollup). |
 | `npm test` | Runs the project’s Vitest suite. |
 | `npm run clean` | Removes `dist/` output. |
-| `npm publish` | Publishes this package (configured for public access by default). |
+| `npm run publish:npm` | Publish to npm as a private (restricted) package. |
+| `npm run publish:npm-public` | Publish to npm publicly. |
+| `npm run publish:github` | Publish to GitHub Packages. |
 
 ## Publishing
 

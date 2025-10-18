@@ -203,6 +203,7 @@ module.exports = {
   - `src/template/`: Base project (Rollup config, TypeScript configs, placeholder runtime).
   - `rollup.config.mjs`: Bundles ESM + types.
   - `package.json`: Runs on Node ≥18, depends on `cosmiconfig`, `fs-extra`, `globby`, optional peer `orval`, publishes with `publishConfig.access = restricted`.
+  - Scripts include `publish:npm`, `publish:npm-public`, and `publish:github` for whichever registry you target.
 
 ```ts
 export async function generateClients(config: MultiClientConfig, options: GenerateClientsOptions = {}) {
@@ -226,6 +227,7 @@ export async function generateClients(config: MultiClientConfig, options: Genera
   - `src/services/npm.ts`: Optional npm publish workflow.
   - `src/utils/swaggerDiff.ts`: Analyzes Swagger diffs and classifies semantic-release commit type (`feat`/`fix`/`chore`).
   - `package.json`: ships CLI binaries, marks publishConfig as `restricted` while under development.
+  - Scripts include `publish:npm`, `publish:npm-public`, and `publish:github` to push releases to private npm or GitHub Packages.
   - Depends on `chalk`, `commander`, `cosmiconfig`, `octokit`, `ora`, `execa`, `zod`, and of course `@eduardoac/api-client-template`.
 
 ```ts

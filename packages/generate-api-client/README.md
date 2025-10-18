@@ -78,3 +78,18 @@ This prints the commit suggestion (`feat`, `fix`, or `chore`) that feeds semanti
 ### Type safety
 
 Run `npm run typecheck` at the repository root to validate both packages before raising a PR or publishing.
+
+### Publishing the CLI
+
+```bash
+# Default: private/npm restricted
+npm run npm-publish --workspace @eduardoac/generate-api-client
+
+# Public npm release (if you decide to open source it)
+npm run publish:npm-public --workspace @eduardoac/generate-api-client
+
+# GitHub Packages
+npm run publish:github --workspace @eduardoac/generate-api-client
+```
+
+Publishing to GitHub Packages requires a PAT with `read:packages` and `write:packages` scopes.

@@ -55,7 +55,40 @@ npm run npm-publish --workspace @eduardoac/generate-api-client
 
 Both workspace packages use `publishConfig.access = restricted` so the CLI and template remain private while iterating. Generated SDKs created by the template default to public publish settings.
 
+Other options:
+
+```bash
+# From the monorepo root
+npm run publish:template:npm
+npm run publish:cli:npm
+
+# Publish the CLI to GitHub Packages
+npm run publish:github --workspace @eduardoac/generate-api-client
+
+# Publish the template publicly to npm (if desired)
+npm run publish:npm-public --workspace @eduardoac/api-client-template
+```
+
 The root `.npmrc` expects `NPM_TOKEN`; edit the registry lines if you publish to a private Verdaccio or other internal registry.
+
+### Installing from GitHub Packages
+
+```bash
+# Authenticate (requires GITHUB_TOKEN with read:packages + write:packages to publish)
+npm config set @eduardoac:registry https://npm.pkg.github.com/
+npm config set //npm.pkg.github.com/:_authToken ${GITHUB_TOKEN}
+
+# Install the CLI from GitHub Packages
+npm install @eduardoac/generate-api-client
+
+# Use the CLI with the sample config included in this repo
+npx @eduardoac/generate-api-client generate \
+  --config samples/multi-client.config.json \
+  --target ./examples/multi-client-demo \
+  --log-level info
+```
+
+GitHub Packages requires a personal access token with at least `read:packages` and `write:packages` scopes when publishing the CLI/template privately.
 
 ## Automation Hooks
 
