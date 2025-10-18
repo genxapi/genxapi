@@ -28,7 +28,7 @@
     "build": "rollup -c",
     "clean": "rimraf dist",
     "lint": "eslint 'src/**/*.ts'",
-    "npm-publish": "npm publish",
+    "npm-publish": "npm publish --access restricted",
     "prebuild": "npm run clean",
     "test": "vitest run"
   },

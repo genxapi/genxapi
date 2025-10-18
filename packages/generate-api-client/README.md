@@ -58,7 +58,7 @@ This command will:
 1. Load the config (including repository/publish settings) from the provided path or cosmiconfig search.
 2. Call `@eduardoac/api-client-template` to scaffold the template, apply replacements, copy swagger files, run Orval, and execute hooks.
 3. Commit and push the generated changes to GitHub and open a pull request if `project.repository` exists.
-4. Publish the package if `project.publish.npm.enabled` is `true`.
+4. Publish the package if `project.publish.npm.enabled` is `true` (generated clients default to public access, whereas the CLI/template publish scripts use `--access restricted`).
 
 ### Semantic-release examples
 

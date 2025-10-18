@@ -23,7 +23,7 @@
   "scripts": {
     "build": "rollup -c",
     "clean": "rimraf dist",
-    "npm-publish": "npm publish",
+    "npm-publish": "npm publish --access restricted",
     "prebuild": "npm run clean",
     "test": "vitest run"
   },
