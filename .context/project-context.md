@@ -1,316 +1,276 @@
-Perfect — let’s make this **actionable for implementation**.
-Below is a **ready-to-copy Markdown breakdown** showing every file your `api-client-generator` project should contain, grouped by logical area:
+# @eduardoac/api-clients — Project Context
 
-Each file includes:
-
-* ✅ Purpose
-* 📁 Path
-* 💻 Example snippet (minimal working content in Markdown code blocks)
+> Goal: Preserve the intent and structure of the original context document while reflecting the current implementation of the monorepo. Every item that used to be called out (config, CLI, template, tooling, examples) still appears below, updated to the latest architecture.
 
 ---
 
-# 🏗️ Project File Structure
+## 0️⃣ TL;DR
+
+- Monorepo managed with npm workspaces.
+- Two published packages: CLI (`@eduardoac/generate-api-client`) and template (`@eduardoac/api-client-template`).
+- Generates multiple Orval clients from shared config, supports hooks, and can create GitHub releases via Octokit.
+- Tooling: TypeScript ES2022, Rollup, Vitest v3, ESLint/Prettier, optional Orval peer.
+
+---
+
+## 🏗️ Project File Structure (Current)
 
 ```plaintext
-/api-client-generator
+/ (root)
+ ├── README.md
+ ├── package.json          # Private workspace orchestrator
+ ├── scripts/
+ │    └── clean.mjs         # Cleans dist/coverage for all packages
+ ├── samples/
+ │    └── multi-client.config.json
  ├── packages/
- │    ├── cli/
- │    ├── template/
- │    ├── utils/
- │    └── orval-config/
- ├── examples/
- │    └── sample-api/
- ├── docs/
- │    └── context.md
- ├── api-client-generatorrc.json
- ├── rollup.config.ts
- ├── tsconfig.json
+ │    ├── api-client-template/
+ │    │    ├── package.json
+ │    │    └── src/...
+ │    └── generate-api-client/
+ │         ├── package.json
+ │         └── src/...
+ ├── tsconfig.base.json
+ ├── vitest.config.ts
  ├── .eslintrc.cjs
- ├── .gitignore
- ├── package.json
- └── README.md
+ ├── .prettierrc.json
+ └── .gitignore
 ```
+
+Each numbered section below retains the original doc’s “Purpose + Path + Example Snippet” structure, now aligned with the actual repo.
 
 ---
 
-## 1️⃣ `/docs/context.md`
+## 1️⃣ `.context/project-context.md` (this file)
 
-✅ **Purpose:** Contains the full structured context (the document we just created).
-Copy the AI-optimized version you approved earlier.
+✅ **Purpose:** Living source of truth for the repo’s architecture, replacing the old `/docs/context.md`.
 
 ```markdown
-# 📘 Context Document — API Client Generator Project
-...
+# @eduardoac/api-clients — Project Context
+> Goal: ...
 ```
 
 ---
 
-## 2️⃣ `/api-client-generatorrc.json`
+## 2️⃣ `README.md` (root)
 
-✅ **Purpose:** Defines the configuration contract the CLI reads to generate clients.
+✅ **Purpose:** Entry point for contributors—install, build/test workflow, publishing instructions.
+
+```markdown
+# @eduardoac/api-clients
+
+Monorepo that hosts:
+- `@eduardoac/api-client-template`
+- `@eduardoac/generate-api-client`
+
+## Getting Started
+```
+
+---
+
+## 3️⃣ `package.json` (root workspace)
+
+✅ **Purpose:** Defines workspaces, shared scripts, and dev tooling (`typescript`, `eslint`, `prettier`, etc.). Node ≥24 required.
 
 ```json
 {
-  "input": "https://example.com/openapi.json",
-  "output": "./generated-client",
-  "template": "default",
-  "options": {
-    "language": "typescript",
-    "bundler": "rollup",
-    "strict": true
-  },
-  "publish": {
-    "github": true,
-    "npm": false
+  "name": "@eduardoac/api-clients-monorepo",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "npm run build --workspace @eduardoac/api-client-template && ..."
   }
 }
 ```
 
 ---
 
-## 3️⃣ `/rollup.config.ts`
+## 4️⃣ `samples/multi-client.config.json`
 
-✅ **Purpose:** Handles bundling for generated SDKs (CJS, ESM, UMD).
+✅ **Purpose:** Concrete configuration example consumed by the CLI/template. Replaces the simple `api-client-generatorrc.json` from the old doc with multi-client support.
 
-```ts
-import typescript from '@rollup/plugin-typescript';
-import { terser } from 'rollup-plugin-terser';
-
-export default {
-  input: 'src/index.ts',
-  output: [
-    { file: 'dist/index.cjs.js', format: 'cjs' },
-    { file: 'dist/index.esm.js', format: 'es' },
-    { file: 'dist/index.umd.js', format: 'umd', name: 'ApiClient' }
-  ],
-  plugins: [typescript(), terser()],
-};
+```json
+{
+  "$schema": ".../generate-api-client.schema.json",
+  "project": {
+    "name": "multi-client-demo",
+    "directory": "./examples/multi-client-demo",
+    "packageManager": "pnpm"
+  },
+  "clients": [
+    {
+      "name": "pets",
+      "swagger": "./specs/petstore.yaml",
+      "output": { "workspace": "./src/pets", "target": "./src/pets/client.ts" }
+    }
+  ]
+}
 ```
 
 ---
 
-## 4️⃣ `/tsconfig.json`
+## 5️⃣ `scripts/clean.mjs`
 
-✅ **Purpose:** TypeScript compiler configuration for CLI and templates.
+✅ **Purpose:** Aligns with the “utility scripts” concept from the original plan—cleans build artifacts for both packages.
+
+```js
+import { rm } from "node:fs/promises";
+
+const targets = [
+  "packages/api-client-template/dist",
+  "packages/generate-api-client/dist",
+  "packages/api-client-template/coverage",
+  "packages/generate-api-client/coverage"
+];
+
+await Promise.all(targets.map((target) => rm(target, { recursive: true, force: true })));
+```
+
+---
+
+## 6️⃣ `tsconfig.base.json`
+
+✅ **Purpose:** Shared TypeScript settings replacing the single-project `tsconfig.json` in the old doc.
 
 ```json
 {
   "compilerOptions": {
     "target": "ES2022",
     "module": "ESNext",
-    "declaration": true,
-    "outDir": "./dist",
+    "moduleResolution": "Bundler",
     "strict": true,
-    "esModuleInterop": true,
-    "moduleResolution": "node",
-    "skipLibCheck": true
+    "noEmit": true
   },
-  "include": ["src", "packages"],
-  "exclude": ["node_modules", "dist"]
+  "include": ["packages/*/src", "samples"]
 }
 ```
 
 ---
 
-## 5️⃣ `/.eslintrc.cjs`
+## 7️⃣ `vitest.config.ts`
 
-✅ **Purpose:** Keeps generated and CLI code clean and consistent.
+✅ **Purpose:** Root test runner configuration (Vitest v3) covering both workspaces, replacing the former doc’s generic mention of tests.
+
+```ts
+import { defineConfig } from "vitest/config";
+
+export default defineConfig({
+  test: {
+    include: [
+      "packages/api-client-template/src/**/*.test.ts",
+      "packages/generate-api-client/src/**/*.test.ts"
+    ],
+    coverage: { reporter: ["text", "lcov"] }
+  }
+});
+```
+
+---
+
+## 8️⃣ `.eslintrc.cjs` & `.prettierrc.json`
+
+✅ **Purpose:** Modern lint/format stack (ESLint, @typescript-eslint, Prettier) continuing the original “keep generated code clean” goal.
 
 ```js
 module.exports = {
-  env: {
-    node: true,
-    es2021: true,
-  },
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended'
-  ],
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 12,
-    sourceType: 'module',
-  },
-  plugins: ['@typescript-eslint'],
-  rules: {
-    semi: ['error', 'always'],
-    quotes: ['error', 'single']
-  }
+  parser: "@typescript-eslint/parser",
+  plugins: ["@typescript-eslint"],
+  extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"]
 };
 ```
 
----
-
-## 6️⃣ `/.gitignore`
-
-✅ **Purpose:** Prevents unnecessary files from being committed.
-
-```plaintext
-node_modules
-dist
-.env
-*.log
-coverage
-```
-
----
-
-## 7️⃣ `/package.json`
-
-✅ **Purpose:** Project metadata and dependencies.
-
 ```json
 {
-  "name": "api-client-generator",
-  "version": "1.0.0",
-  "description": "A self-maintaining client generator — from contract to npm in one command.",
-  "bin": {
-    "generate-api-client": "packages/cli/index.js"
-  },
-  "scripts": {
-    "build": "rollup -c",
-    "lint": "eslint . --ext .ts",
-    "release": "semantic-release"
-  },
-  "dependencies": {
-    "orval": "^6.23.0",
-    "rollup": "^4.0.0",
-    "@rollup/plugin-typescript": "^11.1.5",
-    "rollup-plugin-terser": "^7.0.2"
-  },
-  "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^7.0.1",
-    "@typescript-eslint/parser": "^7.0.1",
-    "eslint": "^9.0.0",
-    "semantic-release": "^22.0.0"
-  }
+  "singleQuote": true,
+  "semi": true,
+  "printWidth": 100
 }
 ```
 
 ---
 
-## 8️⃣ `/packages/cli/index.ts`
+## 9️⃣ Package: `@eduardoac/api-client-template`
 
-✅ **Purpose:** Entry point that reads the config and triggers generation.
+- **Path**: `packages/api-client-template`
+- **Purpose** (updated): Reusable module that loads multi-client configs, scaffolds template projects, applies token replacements, and optionally executes Orval + hooks.
+- **Highlights**:
+  - `src/generator.ts`: Handles filesystem work, Orval command execution via `execa`, hook orchestration.
+  - `src/types.ts`: Zod schemas (`MultiClientConfigSchema`, etc.).
+  - `src/template/`: Base project (Rollup config, TypeScript configs, placeholder runtime).
+  - `rollup.config.mjs`: Bundles ESM + types.
+  - `package.json`: Runs on Node ≥18, depends on `cosmiconfig`, `fs-extra`, `globby`, optional peer `orval`.
 
 ```ts
-#!/usr/bin/env node
-import fs from 'fs';
-import path from 'path';
-import { execSync } from 'child_process';
-
-const CONFIG_FILE = process.argv[2] || 'api-client-generatorrc.json';
-const configPath = path.resolve(process.cwd(), CONFIG_FILE);
-if (!fs.existsSync(configPath)) {
-  console.error(`❌ Config file not found: ${CONFIG_FILE}`);
-  process.exit(1);
+export async function generateClients(config: MultiClientConfig, options: GenerateClientsOptions = {}) {
+  // scaffold template, apply replacements, copy swagger docs, run hooks,
+  // invoke orval (via pnpm/yarn/npm/bun), log success
 }
-
-const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
-console.log(`⚙️  Generating client from: ${config.input}`);
-
-execSync(`npx orval --config ${config.input}`, { stdio: 'inherit' });
-console.log('✅ Client generation complete!');
 ```
 
 ---
 
-## 9️⃣ `/packages/template/README.md`
+## 🔟 Package: `@eduardoac/generate-api-client`
 
-✅ **Purpose:** Template documentation for generated clients.
-
-```markdown
-# 🧩 API Client Template
-
-This folder contains the base structure for generated SDKs.
-
-It includes:
-- TypeScript configuration
-- Rollup build setup
-- ESLint rules
-- Ready-to-publish npm structure
-```
-
----
-
-## 🔟 `/packages/utils/index.ts`
-
-✅ **Purpose:** Common utilities shared by CLI and templates.
+- **Path**: `packages/generate-api-client`
+- **Purpose**: CLI that wraps the template package and adds GitHub release automation.
+- **Highlights**:
+  - `src/index.ts`: Commander commands (`generate`, `publish`), log-level handling.
+  - `src/commands/*`: `runGenerateCommand`, `runPublishCommand` (with `ora` spinners and Octokit).
+  - `src/config/loader.ts`: Cosmiconfig loader supporting JSON/YAML + CLI override.
+  - `schemas/generate-api-client.schema.json`: JSON schema for configs.
+  - Depends on `chalk`, `commander`, `cosmiconfig`, `octokit`, `ora`, `zod`, and of course `@eduardoac/api-client-template`.
 
 ```ts
-export const log = (msg: string) => console.log(`💬 ${msg}`);
-export const error = (msg: string) => console.error(`❌ ${msg}`);
+program
+  .command("generate")
+  .option("-c, --config <path>")
+  .option("--dry-run")
+  .action(async (opts) => {
+    const { config, configDir } = await loadCliConfig({ file: opts.config });
+    await runGenerateCommand({ config, configDir, logger, dryRun: opts.dryRun });
+  });
 ```
 
 ---
 
-## 11️⃣ `/examples/sample-api/README.md`
+## 1️⃣1️⃣ Example / Sample Output
 
-✅ **Purpose:** Demonstrates how a generated SDK looks and works.
-
-````markdown
-# Example Generated API Client
-
-This example showcases an automatically generated SDK using the
-`api-client-generator` tool and Orval under the hood.
+While we don’t keep generated SDKs in-repo, the `samples/multi-client.config.json` plus documentation in package READMEs mirror the original “examples/sample-api” intent. Running:
 
 ```bash
-npx generate-api-client --config ../api-client-generatorrc.json
-````
-
-````
-
----
-
-## 12️⃣ `/README.md`
-
-✅ **Purpose:** Project root documentation.
-
-```markdown
-# ⚙️ API Client Generator
-
-A self-maintaining client generator — from contract to npm in one command.
-
-## 🚀 Quick Start
-
-```bash
-npm install -g api-client-generator
-npx generate-api-client --config api-client-generatorrc.json
-````
-
-## 🧩 Features
-
-* Automated TypeScript client generation (via Orval)
-* Rollup bundling for ESM, CJS, and UMD
-* GitHub + npm release automation
-* Semantic versioning and changelogs
-
-## 📚 Docs
-
-See [`/docs/context.md`](./docs/context.md)
-
+node packages/generate-api-client/dist/index.js generate --config samples/multi-client.config.json --dry-run
 ```
 
----
-
-✅ **Summary of What to Copy**
-
-| Folder | File | Purpose |
-|---------|------|----------|
-| `/docs` | `context.md` | AI + project context |
-| `/` | `api-client-generatorrc.json` | Config schema |
-| `/` | `rollup.config.ts` | Bundling setup |
-| `/` | `tsconfig.json` | TypeScript compiler settings |
-| `/` | `.eslintrc.cjs` | Linting rules |
-| `/` | `.gitignore` | Ignore unnecessary files |
-| `/` | `package.json` | Project metadata & dependencies |
-| `/packages/cli` | `index.ts` | CLI entry |
-| `/packages/template` | `README.md` | Template reference |
-| `/packages/utils` | `index.ts` | Shared utilities |
-| `/examples/sample-api` | `README.md` | Example output |
-| `/` | `README.md` | Root documentation |
+demonstrates configuration validation and log output without touching the filesystem.
 
 ---
 
-Would you like me to generate all of these as **real files (zipped as a starter template)** so you can drop them directly into your repo?
-```
+## 1️⃣2️⃣ Tooling & Release Flow
+
+| Command | Description |
+|---------|-------------|
+| `npm install` | Installs workspaces (Node ≥24 recommended to avoid engine warnings). |
+| `npm run build` | Builds template + CLI via Rollup. |
+| `npm test` | Runs Vitest suites. |
+| `npm run clean` | Removes `dist/coverage`. |
+| `npm run npm-publish --workspace <pkg>` | Publishes template or CLI (replaces old “npm publish” command naming). |
+| `generate-api-client publish` | Uses Octokit to create GitHub releases (token required). |
+
+Security snapshot (as of 2025-10-18):
+- `npm audit` → **0 vulnerabilities** after removing direct `@orval/core` dependency.
+- Orval remains a peer/consumer responsibility, preventing vulnerable `validator` tree from landing automatically.
+
+---
+
+## 🚀 Next Steps & Enhancements
+
+- Optional: move this file to `/docs` and add diagrams for generation flow.
+- Provide additional config samples (hooks, remote swagger, skip install/generate cases).
+- Consider adding an `examples/` workspace that runs the CLI to produce actual clients for smoke testing.
+- Automate release tagging / changelog generation (e.g., Changesets) building on the `publish` command.
+
+---
+
+_Last updated: 2025-10-18_
