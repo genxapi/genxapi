@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { analyzeSwaggerDiff } from "./swaggerDiff.js";
+import { analyzeSwaggerDiff } from "./swaggerDiff/index.js";
 
 describe("analyzeSwaggerDiff", () => {
   const baseSpec = {

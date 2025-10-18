@@ -15,3 +15,7 @@
 7. **Favour Reusable, Composable Logic**: Extract shared utilities instead of duplicating code. Smaller, composable functions make diffs easier to review and the generator easier to extend.
 
 8. **Robust Testing (Unit & Integration)**: Back new logic with unit tests and add integration coverage when behaviour crosses package boundaries. Use tools such as Vitest + msw to simulate HTTP interactions without hitting real endpoints.
+
+9. **Prefer Native Capabilities**: Use platform features (e.g. `structuredClone`, `URL`) before adding helpers to keep the surface area small and predictable.
+
+10. **Avoid Test-Only Re-exports**: Import modules directly within tests instead of re-exporting internals solely for testing; this keeps the public API intentional.
