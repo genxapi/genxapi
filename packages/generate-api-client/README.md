@@ -66,7 +66,7 @@ After running the generator, you can compare swagger revisions and generate a co
 
 ```bash
 # Compare swagger files and classify the change
-node -e "import base from './packages/generate-api-client/src/utils/swaggerDiff/fixtures/base.json' assert { type: 'json' };
+node --input-type=module -e "import base from './packages/generate-api-client/src/utils/swaggerDiff/fixtures/base.json' assert { type: 'json' };
 import { analyzeSwaggerDiff } from './packages/generate-api-client/src/utils/swaggerDiff/index.js';
 const next = structuredClone(base);
 next.paths['/pets/{id}'] = { get: { operationId: 'getPet', responses: { '200': { description: 'single pet' } } } };
@@ -74,3 +74,7 @@ console.log(analyzeSwaggerDiff(base, next));"
 ```
 
 This prints the commit suggestion (`feat`, `fix`, or `chore`) that feeds semantic-release version bumps.
+
+### Type safety
+
+Run `npm run typecheck` at the repository root to validate both packages before raising a PR or publishing.

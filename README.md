@@ -11,6 +11,7 @@ Monorepo that hosts:
 npm install
 npm run build
 npm test
+npm run typecheck
 ```
 
 > **Requirement:** Orval 7.x depends on Commander 14 which targets Node v20+. Running the generator on Node 18 works but prints engine warnings; upgrade to Node 20 for a clean run.
@@ -51,6 +52,10 @@ npx @eduardoac/generate-api-client generate --config ./samples/multi-client.conf
 npm run npm-publish --workspace @eduardoac/api-client-template
 npm run npm-publish --workspace @eduardoac/generate-api-client
 ```
+
+Both workspace packages use `publishConfig.access = restricted` so the CLI and template remain private while iterating. Generated SDKs created by the template default to public publish settings.
+
+The root `.npmrc` expects `NPM_TOKEN`; edit the registry lines if you publish to a private Verdaccio or other internal registry.
 
 ## Automation Hooks
 
@@ -99,7 +104,7 @@ This will:
 npx @eduardoac/generate-api-client generate --config examples/petstore/api-client-generator.config.json --target ./examples/petstore/output --log-level info
 
 # classify swagger diff (feat | fix | chore)
-node -e "import base from './packages/generate-api-client/src/utils/swaggerDiff/fixtures/base.json' assert { type: 'json' };
+node --input-type=module -e "import base from './packages/generate-api-client/src/utils/swaggerDiff/fixtures/base.json' assert { type: 'json' };
 import { analyzeSwaggerDiff } from './packages/generate-api-client/src/utils/swaggerDiff/index.js';
 const next = structuredClone(base);
 next.paths['/pets/{id}'] = { get: { operationId: 'getPet', responses: { '200': { description: 'single pet' } } } };

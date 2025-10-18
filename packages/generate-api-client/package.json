@@ -21,11 +21,14 @@
   ],
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "publishConfig": {
+    "access": "restricted"
+  },
   "scripts": {
     "build": "rollup -c",
     "clean": "rimraf dist",
     "lint": "eslint 'src/**/*.ts'",
-    "npm-publish": "npm publish --access public",
+    "npm-publish": "npm publish",
     "prebuild": "npm run clean",
     "test": "vitest run"
   },

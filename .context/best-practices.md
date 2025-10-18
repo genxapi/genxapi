@@ -19,3 +19,5 @@
 9. **Prefer Native Capabilities**: Use platform features (e.g. `structuredClone`, `URL`) before adding helpers to keep the surface area small and predictable.
 
 10. **Avoid Test-Only Re-exports**: Import modules directly within tests instead of re-exporting internals solely for testing; this keeps the public API intentional.
+
+11. **Run Type Checks**: Execute `npm run typecheck` before publishing or submitting PRs to ensure both packages compile cleanly against their TypeScript configurations.

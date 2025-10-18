@@ -31,6 +31,7 @@
  │         ├── package.json
  │         └── src/...
  ├── tsconfig.base.json
+ ├── .npmrc
  ├── vitest.config.ts
  ├── .eslintrc.cjs
  ├── .prettierrc.json
@@ -80,7 +81,8 @@ Monorepo that hosts:
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build --workspace @eduardoac/api-client-template && ..."
+    "build": "npm run build --workspace @eduardoac/api-client-template && ...",
+    "typecheck": "tsc -p packages/api-client-template/tsconfig.json --noEmit && tsc -p packages/generate-api-client/tsconfig.json --noEmit"
   }
 }
 ```
@@ -200,7 +202,7 @@ module.exports = {
   - `src/types.ts`: Zod schemas (`MultiClientConfigSchema`, etc.) including optional `repository` and `publish.npm` support.
   - `src/template/`: Base project (Rollup config, TypeScript configs, placeholder runtime).
   - `rollup.config.mjs`: Bundles ESM + types.
-  - `package.json`: Runs on Node ≥18, depends on `cosmiconfig`, `fs-extra`, `globby`, optional peer `orval`.
+  - `package.json`: Runs on Node ≥18, depends on `cosmiconfig`, `fs-extra`, `globby`, optional peer `orval`, publishes with `publishConfig.access = restricted`.
 
 ```ts
 export async function generateClients(config: MultiClientConfig, options: GenerateClientsOptions = {}) {
@@ -223,6 +225,7 @@ export async function generateClients(config: MultiClientConfig, options: Genera
   - `src/services/github.ts`: GitHub automation (repo bootstrap, branch push, PR creation).
   - `src/services/npm.ts`: Optional npm publish workflow.
   - `src/utils/swaggerDiff.ts`: Analyzes Swagger diffs and classifies semantic-release commit type (`feat`/`fix`/`chore`).
+  - `package.json`: ships CLI binaries, marks publishConfig as `restricted` while under development.
   - Depends on `chalk`, `commander`, `cosmiconfig`, `octokit`, `ora`, `execa`, `zod`, and of course `@eduardoac/api-client-template`.
 
 ```ts
