@@ -17,6 +17,28 @@ CLI to scaffold, regenerate, synchronise, and release multiple API clients using
 - `GITHUB_TOKEN` (configurable via `project.repository.tokenEnv`) – required to push commits or open pull requests.
 - `NPM_TOKEN` (configurable via `project.publish.npm.tokenEnv`) – required to publish the generated package to npm.
 
+<details>
+  <summary>How to create a <code>GITHUB_TOKEN</code> with the correct permissions</summary>
+
+1. Navigate to <em>Settings ▸ Developer settings ▸ Personal access tokens</em> in GitHub.
+2. Create either:
+   - a **Fine-grained token** scoped to the repos you will update and enable:
+     - <strong>Repository permissions → Contents → Read and write</strong> (allows pushing commits and editing files)
+     - <strong>Repository permissions → Pull requests → Read and write</strong>
+   - or a **Classic token** and tick the single checkbox <strong>repo</strong> (minimal scope for commit + PR access).
+3. Copy the token and export it as <code>GITHUB_TOKEN</code> before running the generator.
+
+</details>
+<details>
+  <summary>How to create an <code>NPM_TOKEN</code> with publish rights</summary>
+
+1. Sign in to <a href="https://www.npmjs.com/">npmjs.com</a>.
+2. Go to <em>Access Tokens</em> and click <em>Generate new token</em>.
+3. Choose an <strong>Automation</strong> or <strong>Publish</strong> token (Automation is recommended for CI).
+4. Copy the token and export it as <code>NPM_TOKEN</code> before running the generator.
+
+</details>
+
 ### Sample Usage
 
 ```bash

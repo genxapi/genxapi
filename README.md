@@ -23,6 +23,27 @@ npx @eduardoac/generate-api-client generate --config ./samples/multi-client.conf
 
 - Provide `GITHUB_TOKEN` and/or `NPM_TOKEN` (or custom env vars via config) to enable repository sync and npm publishing.
 - See `samples/multi-client.config.json` for repository/publish configuration examples.
+  <details>
+  <summary>Generate a <code>GITHUB_TOKEN</code> with the correct permissions</summary>
+
+1. Visit <em>GitHub ▸ Settings ▸ Developer settings ▸ Personal access tokens</em>.
+2. Choose either:
+   - **Fine-grained token** scoped to the repositories you will update. In the permission tree select:
+     - <strong>Repository permissions → Contents → Read and write</strong> (allows git pushes and file updates)
+     - <strong>Repository permissions → Pull requests → Read and write</strong> (required to open PRs)
+   - **Classic token** and tick the single checkbox <strong>repo</strong> (which implicitly enables push + PR access).
+3. Copy the token value and export it as <code>GITHUB_TOKEN</code> before running the generator.
+
+  </details>
+  <details>
+    <summary>Generate an <code>NPM_TOKEN</code> with publish rights</summary>
+
+1. Log in to <a href="https://www.npmjs.com/">npmjs.com</a>.
+2. Go to <em>Access Tokens</em> and click <em>Generate New Token</em>.
+3. Choose <strong>Automation</strong> (recommended for CI) or <strong>Publish</strong> token type.
+4. Copy the token and export it as <code>NPM_TOKEN</code> before running the generator.
+
+  </details>
 
 ## Publishing
 
