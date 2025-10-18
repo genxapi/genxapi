@@ -1,6 +1,6 @@
 {
   "name": "@eduardoac/generate-api-client",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "CLI for generating multiple API clients from Orval templates.",
   "license": "Apache-2.0",
   "type": "module",
@@ -50,7 +50,7 @@
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
-    "@types/node": "^22.9.0",
+    "@types/node": "^17.0.18",
     "@types/yaml": "^1.9.7",
     "@vitest/coverage-v8": "^3.2.4",
     "eslint": "^9.13.0",
