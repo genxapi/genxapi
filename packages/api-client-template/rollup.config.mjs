@@ -23,8 +23,7 @@ export default defineConfig([
       "merge-deep",
       "pathe",
       "zod",
-      "@orval/core",
-      "@orval/core-utils"
+      "@orval/core"
     ]
   },
   {
