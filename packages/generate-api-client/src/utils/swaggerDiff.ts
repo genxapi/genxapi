@@ -34,8 +34,16 @@ export function analyzeSwaggerDiff(oldSpec: Record<string, unknown>, newSpec: Re
     docChanges: []
   };
 
-  analyzePaths(diff, oldSpec?.paths ?? {}, newSpec?.paths ?? {});
-  analyzeComponents(diff, oldSpec?.components ?? {}, newSpec?.components ?? {});
+  analyzePaths(
+    diff,
+    (oldSpec?.paths ?? {}) as Record<string, unknown>,
+    (newSpec?.paths ?? {}) as Record<string, unknown>
+  );
+  analyzeComponents(
+    diff,
+    (oldSpec?.components ?? {}) as Record<string, unknown>,
+    (newSpec?.components ?? {}) as Record<string, unknown>
+  );
 
   const resultType = determineResultType(diff);
   const summary = buildSummary(resultType, diff);
