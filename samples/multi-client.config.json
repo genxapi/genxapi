@@ -6,6 +6,22 @@
     "packageManager": "pnpm",
     "template": {
       "name": "@eduardoac/api-client-template"
+    },
+    "repository": {
+      "owner": "your-github-handle",
+      "name": "multi-client-demo",
+      "defaultBranch": "main",
+      "pullRequest": {
+        "branchPrefix": "chore/clients",
+        "title": "chore: refresh generated clients"
+      }
+    },
+    "publish": {
+      "npm": {
+        "enabled": false,
+        "tag": "latest",
+        "access": "public"
+      }
     }
   },
   "clients": [

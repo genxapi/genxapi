@@ -34,6 +34,72 @@
             "installDependencies": { "type": "boolean", "default": true }
           },
           "default": {}
+        },
+        "repository": {
+          "type": "object",
+          "required": ["owner", "name"],
+          "properties": {
+            "provider": {
+              "type": "string",
+              "enum": ["github"],
+              "default": "github"
+            },
+            "owner": { "type": "string" },
+            "name": { "type": "string" },
+            "defaultBranch": { "type": "string", "default": "main" },
+            "create": { "type": "boolean", "default": true },
+            "commitMessage": {
+              "type": "string",
+              "default": "chore: update generated client"
+            },
+            "tokenEnv": { "type": "string", "default": "GITHUB_TOKEN" },
+            "pullRequest": {
+              "type": "object",
+              "properties": {
+                "enabled": { "type": "boolean", "default": true },
+                "title": {
+                  "type": "string",
+                  "default": "chore: update generated client"
+                },
+                "body": {
+                  "type": "string",
+                  "default": "This pull request was generated automatically and updates the Orval-powered API client."
+                },
+                "branchPrefix": {
+                  "type": "string",
+                  "default": "update/generated-client"
+                }
+              },
+              "default": {}
+            }
+          }
+        },
+        "publish": {
+          "type": "object",
+          "properties": {
+            "npm": {
+              "type": "object",
+              "properties": {
+                "enabled": { "type": "boolean", "default": false },
+                "tag": { "type": "string", "default": "latest" },
+                "access": {
+                  "type": "string",
+                  "enum": ["public", "restricted"],
+                  "default": "public"
+                },
+                "dryRun": { "type": "boolean", "default": false },
+                "tokenEnv": { "type": "string", "default": "NPM_TOKEN" },
+                "registry": { "type": "string" },
+                "command": {
+                  "type": "string",
+                  "enum": ["npm", "pnpm", "yarn", "bun"],
+                  "default": "npm"
+                }
+              },
+              "default": {}
+            }
+          },
+          "default": {}
         }
       }
     },

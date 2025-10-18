@@ -1,19 +1,58 @@
-Absolutely, let’s bundle all that tooling context up into a nice coherent summary for the AI.
+# Toolkit Context — API Client Generator
+
+This reference keeps the assistant aligned with the actual tooling, stack, and automation already built into the monorepo.
 
 ---
 
-### 🛠️ Tooling Context for the AI
+## 1. Workspace & Build Tooling
 
-To give the AI a clear understanding of the tooling setup, here’s the full picture:
-
-1. **Strict-CLI (by Bloomberg)**: We’re using `strict-cli` because it’s a lightweight tool with no third-party dependencies. This makes it easy to maintain and perfect for creating consistent, reproducible project setups. It ensures that every project starts with the same solid foundation.
-
-2. **TypeScript**: The template is fully configured to use TypeScript. This takes advantage of Orval’s ability to generate TypeScript types, so consumers get a type-safe, out-of-the-box experience with minimal setup.
-
-3. **ESLint**: We’ve included ESLint with the latest standards to ensure code quality and maintainability. This means the generated projects will follow best practices and be easy to refactor.
-
-Together, these tools create a seamless workflow for generating, maintaining, and delivering high-quality, type-safe API client projects.
+- **npm workspaces** orchestrate `@eduardoac/api-client-template` and `@eduardoac/generate-api-client`.
+- **Rollup** builds each package (ESM output + bundled type definitions via `rollup-plugin-dts`).
+- **TypeScript** targets ES2022; package configs extend `tsconfig.base.json`.
+- **Vitest v3** supplies the test runner (configured globally in `vitest.config.ts`).
+- **ESLint + Prettier** enforce style and lint rules (see `.eslintrc.cjs`, `.prettierrc.json`).
 
 ---
 
-And there we have it! That should give the AI a solid understanding of how to use all the tooling. Let me know if you need anything else!
+## 2. Template Package (`@eduardoac/api-client-template`)
+
+- Exposes `generateClients`, `loadTemplateConfig`, and schema exports for multi-client configs.
+- Uses **Cosmiconfig** to discover JSON/YAML config files.
+- Handles project scaffolding with **fs-extra**, token replacement, swagger copying, and optional hook execution via **execa**.
+- Generates Orval configuration dynamically; Orval itself is an **optional peer dependency** (not bundled) so consumers decide how to install/run it.
+- Template assets (`src/template`) include Rollup config, TypeScript configs, and placeholder runtime code ready for Orval output.
+
+---
+
+## 3. CLI Package (`@eduardoac/generate-api-client`)
+
+- Built with **Commander**; commands:
+  - `generate` — validates config, invokes `generateClients`, supports dry runs/log-level overrides, optional GitHub sync, and optional npm publish.
+  - `publish` — uses **Octokit** to create GitHub releases.
+- Config loading reuses **Cosmiconfig** and mirrors the Zod schemas exported by the template package.
+- Spinner feedback via **Ora**, colored logs with **Chalk**.
+- Ships a JSON schema (`schemas/generate-api-client.schema.json`) for editor integration.
+- GitHub automation lives in `src/services/github.ts`; npm publish orchestration in `src/services/npm.ts`.
+
+---
+
+## 4. Sample Config & Lifecycle
+
+- `samples/multi-client.config.json` demonstrates:
+  - Project metadata (target directory, package manager).
+  - Multiple client definitions with swagger sources, workspace/target paths, Orval options.
+- Typical flow: `generate` command -> optional hooks -> GitHub sync / PR (if configured) -> npm publish (if configured) -> `publish` command for GitHub release.
+- Orval execution is delegated; template runs `pnpm/yarn/npm/bun dlx orval` when configured.
+
+---
+
+## 5. Guardrails for New Code
+
+- Prefer TypeScript, async/await, and the existing dependency stack.
+- Keep new configs discoverable via Cosmiconfig or explicit CLI flags.
+- When adding automation (e.g., npm publish, repo creation), reuse Octokit/execa patterns already present.
+- Maintain deterministic behavior: avoid network side effects unless behind explicit commands/flags.
+
+---
+
+_Last updated: 2025-10-18_

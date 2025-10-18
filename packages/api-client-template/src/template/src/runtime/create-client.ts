@@ -1,7 +1,9 @@
-import type { AxiosInstance } from "axios";
+export interface HttpClient {
+  get<T = unknown>(url: string): Promise<{ data: T }>;
+}
 
 export interface ClientOptions {
-  readonly httpClient: AxiosInstance;
+  readonly httpClient: HttpClient;
 }
 
 export function createClient({ httpClient }: ClientOptions) {

@@ -18,8 +18,9 @@ describe("CliConfigSchema", () => {
             schemas: "model"
           }
         }
-      ]
+    ]
     });
     expect(config.project.name).toBe("demo");
+    expect(config.project.publish?.npm?.enabled).toBe(false);
   });
 });

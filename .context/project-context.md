@@ -197,7 +197,7 @@ module.exports = {
 - **Purpose** (updated): Reusable module that loads multi-client configs, scaffolds template projects, applies token replacements, and optionally executes Orval + hooks.
 - **Highlights**:
   - `src/generator.ts`: Handles filesystem work, Orval command execution via `execa`, hook orchestration.
-  - `src/types.ts`: Zod schemas (`MultiClientConfigSchema`, etc.).
+  - `src/types.ts`: Zod schemas (`MultiClientConfigSchema`, etc.) including optional `repository` and `publish.npm` support.
   - `src/template/`: Base project (Rollup config, TypeScript configs, placeholder runtime).
   - `rollup.config.mjs`: Bundles ESM + types.
   - `package.json`: Runs on Node ≥18, depends on `cosmiconfig`, `fs-extra`, `globby`, optional peer `orval`.
@@ -220,7 +220,9 @@ export async function generateClients(config: MultiClientConfig, options: Genera
   - `src/commands/*`: `runGenerateCommand`, `runPublishCommand` (with `ora` spinners and Octokit).
   - `src/config/loader.ts`: Cosmiconfig loader supporting JSON/YAML + CLI override.
   - `schemas/generate-api-client.schema.json`: JSON schema for configs.
-  - Depends on `chalk`, `commander`, `cosmiconfig`, `octokit`, `ora`, `zod`, and of course `@eduardoac/api-client-template`.
+  - `src/services/github.ts`: GitHub automation (repo bootstrap, branch push, PR creation).
+  - `src/services/npm.ts`: Optional npm publish workflow.
+  - Depends on `chalk`, `commander`, `cosmiconfig`, `octokit`, `ora`, `execa`, `zod`, and of course `@eduardoac/api-client-template`.
 
 ```ts
 program
@@ -256,6 +258,7 @@ demonstrates configuration validation and log output without touching the filesy
 | `npm test` | Runs Vitest suites. |
 | `npm run clean` | Removes `dist/coverage`. |
 | `npm run npm-publish --workspace <pkg>` | Publishes template or CLI (replaces old “npm publish” command naming). |
+| `generate-api-client generate` | Generates clients, optionally syncs GitHub repositories and runs npm publish. |
 | `generate-api-client publish` | Uses Octokit to create GitHub releases (token required). |
 
 Security snapshot (as of 2025-10-18):

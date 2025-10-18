@@ -23,6 +23,38 @@ export const ClientConfigSchema = z.object({
   swaggerCopyTarget: z.string().default("swagger-spec.json")
 });
 
+const PullRequestConfigSchema = z.object({
+  enabled: z.boolean().default(true),
+  title: z.string().default("chore: update generated client"),
+  body: z
+    .string()
+    .default(
+      "This pull request was generated automatically and updates the Orval-powered API client."
+    ),
+  branchPrefix: z.string().default("update/generated-client")
+});
+
+const RepositoryConfigSchema = z.object({
+  provider: z.literal("github").default("github"),
+  owner: z.string().min(1),
+  name: z.string().min(1),
+  defaultBranch: z.string().default("main"),
+  create: z.boolean().default(true),
+  commitMessage: z.string().default("chore: update generated client"),
+  pullRequest: PullRequestConfigSchema.default({}),
+  tokenEnv: z.string().default("GITHUB_TOKEN")
+});
+
+const NpmPublishConfigSchema = z.object({
+  enabled: z.boolean().default(false),
+  tag: z.string().default("latest"),
+  access: z.enum(["public", "restricted"]).default("public"),
+  dryRun: z.boolean().default(false),
+  tokenEnv: z.string().default("NPM_TOKEN"),
+  registry: z.string().optional(),
+  command: z.enum(["npm", "pnpm", "yarn", "bun"]).default("npm")
+});
+
 export const ProjectConfigSchema = z.object({
   name: z.string().min(1),
   directory: z.string().min(1),
@@ -35,7 +67,13 @@ export const ProjectConfigSchema = z.object({
       installDependencies: z.boolean().default(true)
     })
     .default({}),
-  runGenerate: z.boolean().default(true)
+  runGenerate: z.boolean().default(true),
+  repository: RepositoryConfigSchema.optional(),
+  publish: z
+    .object({
+      npm: NpmPublishConfigSchema.default({})
+    })
+    .default({})
 });
 
 export const MultiClientConfigSchema = z.object({
@@ -52,6 +90,9 @@ export const MultiClientConfigSchema = z.object({
 export type ClientConfig = z.infer<typeof ClientConfigSchema>;
 export type ProjectConfig = z.infer<typeof ProjectConfigSchema>;
 export type MultiClientConfig = z.infer<typeof MultiClientConfigSchema>;
+export type RepositoryConfig = z.infer<typeof RepositoryConfigSchema>;
+export type PullRequestConfig = z.infer<typeof PullRequestConfigSchema>;
+export type NpmPublishConfig = z.infer<typeof NpmPublishConfigSchema>;
 
 export interface GenerateClientsOptions {
   readonly runOrval?: boolean;

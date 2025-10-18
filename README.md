@@ -25,3 +25,8 @@ npx @eduardoac/generate-api-client generate --config ./samples/multi-client.conf
 npm run npm-publish --workspace @eduardoac/api-client-template
 npm run npm-publish --workspace @eduardoac/generate-api-client
 ```
+
+## Automation Hooks
+
+- Add a `repository` section to your configuration to let the CLI initialise a GitHub repository, push commits, and open pull requests automatically. Provide a `GITHUB_TOKEN` with `repo` scope.
+- Enable `publish.npm.enabled` to run `npm publish` (or your preferred package manager) after generation. Provide an `NPM_TOKEN` with publish rights.

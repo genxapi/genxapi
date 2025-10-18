@@ -9,5 +9,8 @@ export type {
   MultiClientConfig,
   ClientConfig,
   ProjectConfig,
-  GenerateClientsOptions
+  GenerateClientsOptions,
+  RepositoryConfig,
+  PullRequestConfig,
+  NpmPublishConfig
 } from "./types.js";

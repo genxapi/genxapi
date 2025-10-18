@@ -40,7 +40,10 @@ export async function generateClients(
 
   logger.info(`Scaffolding project into ${projectDir}`);
   await fs.ensureDir(projectDir);
-  await fs.copy(templateDir, projectDir, { overwrite: true, recursive: true });
+  await fs.copy(templateDir, projectDir, {
+    overwrite: true,
+    dereference: true
+  });
 
   await applyPackageJson(projectDir, config);
   await applyTemplateVariables(projectDir, config);

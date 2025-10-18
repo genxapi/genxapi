@@ -19,9 +19,11 @@ describe("MultiClientConfigSchema", () => {
             schemas: "model"
           }
         }
-      ]
+    ]
     });
     expect(result.project.name).toBe("demo");
     expect(result.clients[0].orval.mode).toBe("split");
+    expect(result.project.publish?.npm?.enabled).toBe(false);
+    expect(result.project.repository).toBeUndefined();
   });
 });

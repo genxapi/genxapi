@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@eduardoac/api-client-template": ["../api-client-template/dist/index.d.ts"]
+    }
+  },
+  "references": [
+    { "path": "../api-client-template" }
+  ]
+}

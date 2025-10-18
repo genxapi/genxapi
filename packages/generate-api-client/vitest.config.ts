@@ -7,7 +7,11 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.test.ts"],
     alias: {
-      "@cli": path.resolve(__dirname, "src")
+      "@cli": path.resolve(__dirname, "src"),
+      "@eduardoac/api-client-template": path.resolve(
+        __dirname,
+        "../api-client-template/src"
+      )
     }
   }
 });

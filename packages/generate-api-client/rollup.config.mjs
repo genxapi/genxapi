@@ -15,7 +15,7 @@ export default defineConfig([
     ],
     plugins: [
       del({ targets: "dist/*", hook: "buildStart" }),
-      typescript({ tsconfig: "./tsconfig.json" })
+      typescript({ tsconfig: "./tsconfig.build.json", outputToFilesystem: true })
     ],
     external: [
       "@eduardoac/api-client-template",
@@ -26,16 +26,20 @@ export default defineConfig([
       "octokit",
       "ora",
       "pathe",
+      "execa",
+      "node:fs",
+      "node:fs/promises",
+      "node:path",
       "yaml",
       "zod"
     ]
   },
   {
-    input: "dist/types/src/index.d.ts",
+    input: "dist/index.d.ts",
     output: [{ file: "dist/index.d.ts", format: "es" }],
     plugins: [
       dts(),
-      del({ hook: "buildEnd", targets: "dist/types" })
+      del({ hook: "buildEnd", targets: "dist/src", verbose: true })
     ]
   }
 ]);

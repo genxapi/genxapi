@@ -2,10 +2,15 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist/types",
+    "outDir": "dist",
     "declaration": true,
     "emitDeclarationOnly": true,
-    "tsBuildInfoFile": "./dist/types/.tsbuildinfo"
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "baseUrl": "./",
+    "paths": {
+      "@eduardoac/api-client-template": ["../api-client-template/src/index.ts"]
+    }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "references": [{ "path": "../api-client-template" }]
 }

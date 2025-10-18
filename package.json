@@ -13,7 +13,7 @@
   "scripts": {
     "build": "npm run build --workspace @eduardoac/api-client-template && npm run build --workspace @eduardoac/generate-api-client",
     "build:template": "npm run build --workspace @eduardoac/api-client-template",
-    "build:cli": "npm run build --workspace @eduardoac/generate-api-client",
+    "build:cli": "npm run build --workspace @eduardoac/api-client-template && npm run build --workspace @eduardoac/generate-api-client",
     "clean": "node scripts/clean.mjs",
     "format": "prettier --write \"{packages,samples}/**/*.{ts,tsx,js,json,md}\"",
     "lint": "eslint \"packages/**/*.{ts,tsx,js}\"",
