@@ -11,6 +11,7 @@ const copyTemplate = () => ({
       overwrite: true,
       dereference: true
     });
+    await fs.copyFile("src/template/.npmrc", "dist/template/.npmrc");
   }
 });
 

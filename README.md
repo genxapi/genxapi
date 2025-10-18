@@ -129,6 +129,8 @@ This will:
 
 4. Inspect the generated project (e.g. under `examples/petstore/output`) to review artefacts or run additional commands (`npm test`, `npm run build`, etc.). The generator already installs dependencies and runs Orval using the remote Petstore schema.
 
+> Each generated project includes an `.npmrc` that points to the public npm registry so dependencies such as `@faker-js/faker` install correctly even if your global config targets GitHub Packages.
+
 <details>
   <summary>Example: derive semantic-release bump from swagger changes</summary>
 

@@ -38,6 +38,8 @@ npm run generate-clients
 3. Run `npm run generate-clients` followed by `npm run build`.
 4. Publish: `npm publish --access public`.
 
+> Note: the generated project ships with an `.npmrc` that pins the registry to `https://registry.npmjs.org/` so dependencies such as `@faker-js/faker` resolve even if your global config targets GitHub Packages.
+
 ## Customising
 
 - Update `src/runtime/` if you need additional helper utilities around the generated SDK.

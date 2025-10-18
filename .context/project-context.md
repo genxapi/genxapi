@@ -203,6 +203,7 @@ module.exports = {
   - `src/template/`: Base project (Rollup config, TypeScript configs, placeholder runtime).
   - `rollup.config.mjs`: Bundles ESM + types.
   - `package.json`: Runs on Node ≥18, depends on `cosmiconfig`, `fs-extra`, `globby`, optional peer `orval`, publishes with `publishConfig.access = restricted`.
+  - Template bundle includes `.npmrc` pinned to the public npm registry so generated installs don’t inherit private registries (e.g., GitHub Packages) from the parent project.
   - Scripts include `publish:npm`, `publish:npm-public`, and `publish:github` for whichever registry you target.
 
 ```ts
