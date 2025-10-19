@@ -50,3 +50,22 @@
 
 **Permanent fix**
 - Update to the latest CLI build. The fetch step now temporarily injects credentials into `origin` so `git fetch origin <branch>` succeeds, and we abort early if the remote checkout still fails. That guarantees every generated branch shares history with the remote default branch.
+
+## `npm ERR! notarget No matching version found for @kubb/plugin-client@^2.3.0`
+
+**What you see**
+- Running the generator with the Kubb template (via `--template kubb` or a config that points at `@eduardoac/kubb-client-template`) fails during `npm install` with:  
+  `npm error notarget No matching version found for @kubb/plugin-client@^2.3.0.`
+
+**Why it happens**
+- The upstream Kubb packages have moved on to the 4.x line; the older `^2.3.0` range no longer exists on npm, so the scaffolded project cannot finish installing its devDependencies.
+
+**How to fix it manually**
+1. Open `packages/kubb-client-template/src/template/package.json`.
+2. Bump the Kubb family versions to a published release (for example `^4.1.3` for `@kubb/cli`, `@kubb/core`, `@kubb/plugin-client`, `@kubb/plugin-oas`, `@kubb/plugin-ts`).
+3. Run `npm run build --workspace @eduardoac/kubb-client-template` so the compiled template under `dist/template/package.json` picks up the new versions.
+4. If you need the generated project to install cleanly on Node 20+, make sure your runtime satisfies the engines declared by those packages (Kubb 4.x warns when Node <20).
+5. Delete any partially generated folders and rerun the CLI command.
+
+**Permanent fix**
+- The repository now pins the scaffolded Kubb dependencies to `^4.1.3`. Pull the latest changes or upgrade to the next published CLI build to get the updated template out-of-the-box.
