@@ -8,7 +8,7 @@ Ready to go beyond the basics? This page outlines the roadmap, ecosystem, and wa
 
 ## Roadmap Highlights
 
-1. **Diff command enhancements** – expand `client-api-generator diff` with custom reporters and automated PR annotations.
+1. **Diff command enhancements** – expand `genxapi diff` with custom reporters and automated PR annotations.
 2. **Python adapter** – ship an official adapter that builds wheels, publishes to PyPI, and mirrors README updates.
 3. **Multi-language hooks** – standardise post-generate scripts for Go, .NET, and Java SDKs.
 4. **Plugin API** – allow external packages to provide custom generators (e.g., GraphQL codegen) that run alongside Orval.

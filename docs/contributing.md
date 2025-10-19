@@ -13,8 +13,8 @@ Participation is governed by the [Contributor Covenant](../CONTRIBUTING.md). Be 
 ## Development Environment
 
 ```bash
-git clone https://github.com/eduardoac/api-clients.git
-cd api-clients
+git clone https://github.com/genxapi/genxapi.git
+cd genxapi
 npm install
 npm run build
 ```
@@ -35,9 +35,9 @@ npm run build
 
 ```text
 packages/
-├── orval-api-client-template/  # Orval adapter (schema + generateClients)
-├── kubb-api-client-template/   # Kubb adapter
-└── generate-api-client/        # CLI implementation, commands, unified schema
+├── template-orval/  # Orval adapter (schema + generateClients)
+├── template-kubb/   # Kubb adapter
+└── cli/            # CLI implementation, commands, unified schema
 docs/                            # User-facing documentation (this folder)
 examples/                        # Sample configs and generated outputs
 samples/                         # Reference configuration files
@@ -73,7 +73,7 @@ samples/                         # Reference configuration files
 2. Commit the version bump and changelog updates.
 3. Publish packages (`npm run publish:template:npm`, `npm run publish:cli:npm`).
 4. Tag the release (`git tag vX.Y.Z`) and push tags.
-5. Optionally run `npx client-api-generator publish` to create a GitHub release.
+5. Optionally run `npx genxapi publish` to create a GitHub release.
 
 > ⚠️ Warning: npm disallows publishing over an existing version. Always increment versions before publishing from CI or locally.
 

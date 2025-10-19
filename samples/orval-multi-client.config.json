@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/eduardoac/api-clients/main/schemas/generate-api-client.schema.json",
+  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/schemas/genxapi.schema.json",
   "project": {
     "name": "multi-client-demo",
     "directory": "../examples/multi-client-demo",
@@ -16,7 +16,7 @@
       }
     },
     "repository": {
-      "owner": "eduardoac",
+      "owner": "genxapi",
       "name": "multi-client-demo",
       "defaultBranch": "main",
       "pullRequest": {
@@ -32,7 +32,7 @@
       }
     },
     "readme": {
-      "introduction": "Demo SDK generated from the public Petstore API using @eduardoac/generate-api-client.",
+      "introduction": "Demo SDK generated from the public Petstore API using @genxapi/cli.",
       "additionalSections": [
         {
           "title": "Regeneration",

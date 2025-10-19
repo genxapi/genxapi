@@ -2,13 +2,13 @@
 
 ## Overview
 
-`client-api-generator` is a meta-orchestrator that still behaves like a client API generator from the user’s perspective. It coordinates SDK delivery from OpenAPI specification through to packaged release artefacts: discovering configuration, delegating code generation to the engines defined by your templates, then managing versioning, Git automation, and registry publishing. Configuration is now **unified**—you describe intent once (`httpClient`, `client`, `mode`, `mock`, plugin overrides) and the CLI maps it onto the selected template (`@eduardoac/orval-api-client-template`, `@eduardoac/kubb-api-client-template`, or a custom adapter).
+`GenxAPI` is a meta-orchestrator that still behaves like a client API generator from the user’s perspective. It coordinates SDK delivery from OpenAPI specification through to packaged release artefacts: discovering configuration, delegating code generation to the engines defined by your templates, then managing versioning, Git automation, and registry publishing. Configuration is now **unified**—you describe intent once (`httpClient`, `client`, `mode`, `mock`, plugin overrides) and the CLI maps it onto the selected template (`@genxapi/template-orval`, `@genxapi/template-kubb`, or a custom adapter).
 
 ## Architecture at a glance
 
 ### Component boundaries
 
-| Layer | Owned by `client-api-generator` | Delegated / external |
+| Layer | Owned by `GenxAPI` | Delegated / external |
 |-------|---------------------------------|----------------------|
 | CLI, config discovery, command routing | ✅ | |
 | Schema parsing & SDK code generation | | 🧩 Template-provided engines (e.g. Orval, Kubb, OpenAPI Generator) |
@@ -22,7 +22,7 @@
 ### Orchestration flow
 
 1. **Specification** — OpenAPI documents live alongside the codebase or are fetched from remote sources.
-2. **Configuration** — `api-client-generatorrc.{json,ts}` declares clients, hooks, package metadata, and publishing rules.
+2. **Configuration** — `genxapi.config.{json,ts}` declares clients, hooks, package metadata, and publishing rules.
 3. **Generation** — The CLI invokes engine adapters declared by the selected templates to materialise SDKs into the workspace.
 4. **Verification** — `diff` reports breaking changes; hooks perform additional validation.
 5. **Versioning & release** — Semantic version bumps are calculated, changelog notes prepared, Git commits and PRs created.
@@ -38,11 +38,11 @@ All templates are treated as pluggable executors, letting teams add or swap gene
 
 ## Configuration model
 
-Configuration files follow the `api-client-generatorrc` naming convention and are validated with the unified schema. A minimal example:
+Configuration files follow the `genxapi.config` naming convention and are validated with the unified schema. A minimal example:
 
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/eduardoac/api-clients/main/schemas/generate-api-client.schema.json",
+  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/schemas/genxapi.schema.json",
   "logLevel": "info",
   "project": {
     "name": "billing-clients",
@@ -115,8 +115,8 @@ Key capabilities:
 
 ## Example end-to-end workflow
 
-1. Developer updates an OpenAPI document and runs `npx client-api-generator diff --base main --head HEAD`.
-2. If the diff output is acceptable, `npx client-api-generator generate` refreshes all affected clients and stages changes.
+1. Developer updates an OpenAPI document and runs `npx genxapi diff --base main --head HEAD`.
+2. If the diff output is acceptable, `npx genxapi generate` refreshes all affected clients and stages changes.
 3. A CI job runs `generate` followed by `publish --dry-run` to verify credentials.
 4. Once merged, a scheduled pipeline executes `publish` (with `GITHUB_TOKEN` and `NPM_TOKEN`) to cut releases and publish packages.
 

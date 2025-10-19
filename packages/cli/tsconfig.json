@@ -1,0 +1,17 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "dist/types",
+    "tsBuildInfoFile": "./dist/.tsbuildinfo",
+    "baseUrl": "./",
+    "paths": {
+      "@genxapi/template-orval": ["../template-orval/src/index.ts"],
+      "@genxapi/template-kubb": ["../template-kubb/src/index.ts"]
+    }
+  },
+  "include": ["src"]
+}

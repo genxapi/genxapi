@@ -1,10 +1,10 @@
-# client-api-generator
+# GenxAPI
 
-> Automate, orchestrate, and release SDKs — bring your favourite generators.
+> Automate, orchestrate, and publish SDKs — faster.
 
-`client-api-generator` is a meta-orchestrator that delivers the “client API generator” experience without locking you to a single engine. It discovers your OpenAPI-driven configuration, coordinates code generation for multiple clients, enforces semantic versioning, and pushes releases to GitHub and npm without bespoke scripts. First-party templates currently bundle Orval and Kubb adapters, and you can layer in custom engines through hooks or bespoke templates.
+`GenxAPI` is a meta-orchestrator that delivers the “client API generator” experience without locking you to a single engine. It discovers your OpenAPI-driven configuration, coordinates code generation for multiple clients, enforces semantic versioning, and pushes releases to GitHub and npm without bespoke scripts. First-party templates currently bundle Orval and Kubb adapters, and you can layer in custom engines through hooks or bespoke templates.
 
-> 💡 Configuration lives in `api-client-generatorrc.{json,ts}`. Commit it so local runs and CI pipelines stay aligned.
+> 💡 Configuration lives in `genxapi.config.{json,ts}`. Commit it so local runs and CI pipelines stay aligned.
 
 ---
 
@@ -39,9 +39,9 @@ Maintaining a fleet of SDKs is labour-intensive. Specs drift faster than client 
 
 ```
 ┌────────────┐    configure     ┌─────────────┐    orchestrate    ┌──────────────┐
-│ OpenAPI    │ ──► config file ─► client-api- │ ──► git/npm ▷ ci ─► Released SDK │
-│ documents  │                   generator    │                    artefacts     │
-└────────────┘                    (CLI)        └─────────────┬────┴──────────────┘
+│ OpenAPI    │ ──► config file ─►   GenxAPI   │ ──► git/npm ▷ ci ─► Released SDK │
+│ documents  │                   (CLI binary) │                    artefacts     │
+└────────────┘                                  └─────────────┬────┴──────────────┘
                                                               │
               delegates generation to template-backed engines ◄──────────┘
 ```
@@ -54,28 +54,28 @@ Install the orchestrator alongside the template package you intend to drive:
 
 ```bash
 # Orval template
-npm install --save-dev client-api-generator @eduardoac/orval-api-client-template
+npm install --save-dev @genxapi/cli @genxapi/template-orval
 
 # Kubb template
-npm install --save-dev client-api-generator @eduardoac/kubb-api-client-template
+npm install --save-dev @genxapi/cli @genxapi/template-kubb
 ```
 
 Create a unified config and generate clients locally:
 
 ```bash
-cp samples/orval-multi-client.config.json ./api-client-generatorrc.json
-npx @eduardoac/generate-api-client generate --log-level info
+cp samples/orval-multi-client.config.json ./genxapi.config.json
+npx genxapi generate --log-level info
 
 # Switch engines or override behaviour at runtime
-npx @eduardoac/generate-api-client generate \
+npx genxapi generate \
   --template kubb \
   --http-client fetch \
   --mode split-tag \
   --mock-type msw
 
 # Aliases resolved by the CLI
-#   orval → @eduardoac/orval-api-client-template (default)
-#   kubb  → @eduardoac/kubb-api-client-template
+#   orval → @genxapi/template-orval (default)
+#   kubb  → @genxapi/template-kubb
 ```
 
 ### Try the bundled samples
@@ -84,17 +84,17 @@ Run either sample directly from the repo to see the unified config in action:
 
 ```bash
 # Orval-flavoured demo (generates into examples/multi-client-demo)
-npx @eduardoac/generate-api-client generate \
+npx genxapi generate \
   --config samples/orval-multi-client.config.json \
   --log-level info
 
 # Kubb-flavoured demo (generates into examples/multi-client-kubb)
-npx @eduardoac/generate-api-client generate \
+npx genxapi generate \
   --config samples/kubb-multi-client.config.json \
   --log-level info
 
 # Validate configs without writing files
-npx @eduardoac/generate-api-client generate \
+npx genxapi generate \
   --config samples/orval-multi-client.config.json \
   --dry-run
 ```
@@ -103,7 +103,7 @@ Dry-run a release to verify GitHub and npm connectivity:
 
 ```bash
 GITHUB_TOKEN=ghp_xxx NPM_TOKEN=npm_xxx \
-npx @eduardoac/generate-api-client publish --dry-run
+npx genxapi publish --dry-run
 ```
 
 ---
@@ -116,7 +116,7 @@ npx @eduardoac/generate-api-client publish --dry-run
 | `publish` | Creates GitHub releases and publishes packages. | `--owner`, `--repo`, `--tag`, `--title`, `--body`, `--draft`, `--prerelease` |
 | `diff` | Compares two OpenAPI documents and classifies breaking changes. | `--base`, `--head`, `--format`, `--output` |
 
-Run `npx @eduardoac/generate-api-client --help` to see every option and sub-command.
+Run `npx genxapi --help` to see every option and sub-command.
 
 ---
 
@@ -141,8 +141,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npx @eduardoac/generate-api-client generate --log-level info
-      - run: npx @eduardoac/generate-api-client publish --dry-run
+      - run: npx genxapi generate --log-level info
+      - run: npx genxapi publish --dry-run
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
@@ -170,8 +170,8 @@ Start with the [Getting Started guide](docs/getting-started.md) to wire the orch
 - [Next steps & roadmap](docs/next-steps.md)
 ### Templates and generators
 
-- **Orval template (`@eduardoac/orval-api-client-template`)** — the default adapter for TypeScript + React Query workflows. [Usage guide](docs/templates/orval-api-client-template.md).
-- **Kubb template (`@eduardoac/kubb-api-client-template`)** — exposes the Kubb plugin ecosystem for multi-language SDKs. [Usage guide](docs/templates/kubb-api-client-template.md).
+- **Orval template (`@genxapi/template-orval`)** — the default adapter for TypeScript + React Query workflows. [Usage guide](docs/templates/orval-api-client-template.md).
+- **Kubb template (`@genxapi/template-kubb`)** — exposes the Kubb plugin ecosystem for multi-language SDKs. [Usage guide](docs/templates/kubb-api-client-template.md).
 - **Custom engines** — wire in additional generators by extending templates or invoking them from lifecycle hooks.
 
 Templates are versioned alongside the orchestrator so teams can upgrade the workflow without rewriting scripts.

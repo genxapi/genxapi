@@ -4,10 +4,10 @@ title: "Configuration Overview"
 
 # Configuration Overview
 
-`client-api-generator` reads a single configuration file (`api-client-generatorrc.json`, `.yaml`, or `.ts`) that now uses a **unified interface** regardless of whether you run Orval, Kubb, or future adapters. This page provides a narrative overview and links to the full schema reference.
+`GenxAPI` reads a single configuration file (`genxapi.config.json`, `.yaml`, or `.ts`) that now uses a **unified interface** regardless of whether you run Orval, Kubb, or future adapters. This page provides a narrative overview and links to the full schema reference.
 
 - **Unified schema** – One set of fields expresses generator intent (`httpClient`, `client`, `mode`, `mock`, plugin overrides). The CLI maps these options onto the selected template.
-- **Template selection** – `project.template` accepts the aliases `"orval"` and `"kubb"` (or a full package name such as `@eduardoac/orval-api-client-template`).
+- **Template selection** – `project.template` accepts the aliases `"orval"` and `"kubb"` (or a full package name such as `@genxapi/template-orval`).
 - **Per-client overrides** – `clients[].config` can override any project-level option.
 - **CLI flags** – `--template`, `--http-client`, `--client`, `--mode`, `--mock-*`, and `--base-url` mirror their config counterparts for one-off runs or CI jobs.
 
@@ -19,7 +19,7 @@ Below is a trimmed example highlighting the most common fields:
 
 ```jsonc
 {
-  "$schema": "https://raw.githubusercontent.com/eduardoac/api-clients/main/schemas/generate-api-client.schema.json",
+  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/schemas/genxapi.schema.json",
   "logLevel": "info",
   "project": {
     "name": "multi-client-demo",
@@ -63,7 +63,7 @@ Below is a trimmed example highlighting the most common fields:
 Any CLI flags you pass are merged after config parsing, so the following command:
 
 ```bash
-npx client-api-generator generate \
+npx genxapi generate \
   --template kubb \
   --http-client fetch \
   --mock-type msw \

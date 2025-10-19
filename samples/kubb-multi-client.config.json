@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/eduardoac/api-clients/main/schemas/generate-api-client.schema.json",
+  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/schemas/genxapi.schema.json",
   "project": {
     "name": "multi-client-kubb-demo",
     "directory": "../examples/multi-client-kubb",
@@ -18,7 +18,7 @@
       }
     },
     "repository": {
-      "owner": "eduardoac",
+      "owner": "genxapi",
       "name": "multi-client-kubb",
       "defaultBranch": "main",
       "pullRequest": {
@@ -34,7 +34,7 @@
       }
     },
     "readme": {
-      "introduction": "Demo SDK generated from the public Petstore API using @eduardoac/generate-api-client with the Kubb template.",
+      "introduction": "Demo SDK generated from the public Petstore API using @genxapi/cli with the Kubb template.",
       "additionalSections": [
         {
           "title": "Regeneration",

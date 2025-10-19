@@ -4,12 +4,12 @@ title: "Templates"
 
 # Templates
 
-`client-api-generator` treats templates as pluggable adapters. Each template packages the tooling, build scripts, and runtime conventions required by an underlying generator. The monorepo currently ships two first-party adapters:
+`GenxAPI` treats templates as pluggable adapters. Each template packages the tooling, build scripts, and runtime conventions required by an underlying generator. The monorepo currently ships two first-party adapters:
 
-- **[Orval API Client Template](templates/orval-api-client-template.md)** (`@eduardoac/orval-api-client-template`)
+- **[Orval API Client Template](templates/orval-api-client-template.md)** (`@genxapi/template-orval`)
   - Produces TypeScript SDKs with React Query/SWR/Axios clients, MSW mocks, and Rollup builds.
   - Uses the unified configuration (`project.config`, `clients[].config`) to drive Orval’s `output` options.
-- **[Kubb API Client Template](templates/kubb-api-client-template.md)** (`@eduardoac/kubb-api-client-template`)
+- **[Kubb API Client Template](templates/kubb-api-client-template.md)** (`@genxapi/template-kubb`)
   - Wraps the Kubb plugin ecosystem (`plugin-client`, `plugin-ts`, `plugin-oas`).
   - Accepts transport and plugin overrides through the same unified interface.
 

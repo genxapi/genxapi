@@ -13,8 +13,8 @@ npm run typecheck
 2. When generating clients, provide `GITHUB_TOKEN` / `NPM_TOKEN` so the CLI can sync repositories and publish packages.
 3. Use the diff analyzer to classify swagger changes before committing:
    ```bash
-   node --input-type=module -e "import base from './packages/generate-api-client/src/utils/swaggerDiff/fixtures/base.json' assert { type: 'json' };
-   import { analyzeSwaggerDiff } from './packages/generate-api-client/src/utils/swaggerDiff/index.js';
+   node --input-type=module -e "import base from './packages/cli/src/utils/swaggerDiff/fixtures/base.json' assert { type: 'json' };
+   import { analyzeSwaggerDiff } from './packages/cli/src/utils/swaggerDiff/index.js';
    const next = structuredClone(base);
    next.paths['/pets/{id}'] = { get: { operationId: 'getPet', responses: { '200': { description: 'single pet' } } } };
    console.log(analyzeSwaggerDiff(base, next));"
@@ -27,6 +27,6 @@ npm run typecheck
 3. Run `npm run lint`, `npm run test`, and `npm run typecheck`.
 4. Update documentation (README, context files) when behaviour changes.
 5. Use semantic-release commit conventions (`feat`, `fix`, `chore`) guided by the swagger diff analyzer.
-6. Publish internal packages with `npm run npm-publish --workspace <package>` when ready; packages are configured with restricted access by default.
+6. Publish internal packages with `npm run npm-publish --workspace <package>` when ready; packages publish publicly by default — adjust scripts if you need private registries.
 
-Thank you for helping improve the API Client Generator!
+Thank you for helping improve GenxAPI!

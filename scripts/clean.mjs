@@ -1,12 +1,12 @@
 import { rm } from "node:fs/promises";
 
 const targets = [
-  "packages/orval-api-client-template/dist",
-  "packages/kubb-api-client-template/dist",
-  "packages/generate-api-client/dist",
-  "packages/orval-api-client-template/coverage",
-  "packages/kubb-api-client-template/coverage",
-  "packages/generate-api-client/coverage"
+  "packages/template-orval/dist",
+  "packages/template-kubb/dist",
+  "packages/cli/dist",
+  "packages/template-orval/coverage",
+  "packages/template-kubb/coverage",
+  "packages/cli/coverage"
 ];
 
 await Promise.all(

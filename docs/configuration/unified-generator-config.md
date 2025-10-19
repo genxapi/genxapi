@@ -6,13 +6,13 @@ title: "Unified Generator Config"
 
 This document expands on the engine-agnostic configuration model introduced in October 2025. Declare generator intent once and let the CLI translate it into the correct template-specific shape (Orval, Kubb, or future adapters).
 
-> 📦 **Schema reference** – `packages/generate-api-client/schemas/generate-api-client.schema.json` (the same file published to the `$id` URL). Point your editor to it for IntelliSense.
+> 📦 **Schema reference** – `packages/cli/schemas/genxapi.schema.json` (the same file published to the `$id` URL). Point your editor to it for IntelliSense.
 
 ## Top-level structure
 
 ```jsonc
 {
-  "$schema": "https://raw.githubusercontent.com/eduardoac/api-clients/main/schemas/generate-api-client.schema.json",
+  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/schemas/genxapi.schema.json",
   "project": {
     "name": "multi-client-demo",
     "directory": "../examples/multi-client-demo",
@@ -34,7 +34,7 @@ This document expands on the engine-agnostic configuration model introduced in O
 }
 ```
 
-- **`project.template`** accepts aliases (`"orval"`, `"kubb"`) or fully-qualified packages (`@eduardoac/orval-api-client-template`).
+- **`project.template`** accepts aliases (`"orval"`, `"kubb"`) or fully-qualified packages (`@genxapi/template-orval`).
 - **`project.output`** defines the base directory for derived workspaces. Defaults to `./src/<client-name>` if omitted.
 - **`project.config`** sets generator defaults; `clients[].config` provides per-client overrides.
 - **`hooks`** remain unchanged from earlier releases.
@@ -71,7 +71,7 @@ The CLI merges overrides after validation, ensuring they win over file-based val
 
 ## Mapping to templates
 
-### Orval (`@eduardoac/orval-api-client-template`)
+### Orval (`@genxapi/template-orval`)
 
 | Unified option | Orval output | Notes |
 |----------------|--------------|-------|
@@ -85,7 +85,7 @@ The CLI merges overrides after validation, ensuring they win over file-based val
 
 > ℹ️ Dive into [.context/orval-output-api-options.md](../../.context/orval-output-api-options.md) for the exhaustive list of supported Orval options.
 
-### Kubb (`@eduardoac/kubb-api-client-template`)
+### Kubb (`@genxapi/template-kubb`)
 
 | Unified option | Kubb plugin | Notes |
 |----------------|-------------|-------|
@@ -177,7 +177,7 @@ The CLI still understands the legacy structure, but new capabilities (HTTP clien
 
 ## When to favour CLI overrides
 
-- **CI smoke tests** – `npx client-api-generator generate --dry-run --mock-type off` lets you disable mocks without editing shared config.
+- **CI smoke tests** – `npx genxapi generate --dry-run --mock-type off` lets you disable mocks without editing shared config.
 - **Ad-hoc builds** – experiments with `--client zod` or `--http-client fetch` remain local.
 - **Template switching** – `--template kubb` instantly switches engines, keeping the same `clients[].config` contract.
 

@@ -1,11 +1,11 @@
-# Kubb API Client Template (`@eduardoac/kubb-api-client-template`)
+# Kubb API Client Template (`@genxapi/template-kubb`)
 
 The Kubb template wraps the [Kubb](https://kubb.dev/) plugin ecosystem so you can orchestrate TypeScript (and multi-language) SDKs with the same unified config used by the CLI. This guide explains how to install the template, what it generates, and how to override plugins through configuration.
 
 ## Installation
 
 ```bash
-npm install --save-dev client-api-generator @eduardoac/kubb-api-client-template
+npm install --save-dev @genxapi/cli @genxapi/template-kubb
 ```
 
 Install the Kubb CLI/runtime you plan to use (versions ≥ 4.1.3):
@@ -148,7 +148,7 @@ The scaffolded `package.json` contains:
 - `npm run build` – wipes `dist/`, regenerates clients, then bundles via Rollup.
 - `npm run test` – executes Vitest.
 
-Respect `publish.npm` settings in your top-level config to publish via `client-api-generator publish`.
+Respect `publish.npm` settings in your top-level config to publish via `genxapi publish`.
 
 ## Resources
 

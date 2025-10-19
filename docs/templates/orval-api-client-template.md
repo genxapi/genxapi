@@ -1,11 +1,11 @@
-# Orval API Client Template (`@eduardoac/orval-api-client-template`)
+# Orval API Client Template (`@genxapi/template-orval`)
 
 The Orval template scaffolds a TypeScript SDK and orchestrates Orval’s generator with opinionated defaults for React Query, MSW mocks, and Rollup bundling. This guide covers installation, generated layout, and how to consume the artefacts.
 
 ## Installation
 
 ```bash
-npm install --save-dev client-api-generator @eduardoac/orval-api-client-template
+npm install --save-dev @genxapi/cli @genxapi/template-orval
 ```
 
 Orval itself remains a peer dependency – install whichever version you need:
@@ -16,7 +16,7 @@ npm install --save-dev orval
 
 ## Generated project layout
 
-Running `npx client-api-generator generate` with `project.template: "orval"` produces:
+Running `npx genxapi generate` with `project.template: "orval"` produces:
 
 ```
 examples/<project>/

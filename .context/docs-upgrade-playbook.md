@@ -1,4 +1,4 @@
-# client-api-generator Documentation Playbook
+# GenxAPI Documentation Playbook
 
 > Snapshot for future documentation upgrades. Keep this page in sync whenever docs evolve.
 

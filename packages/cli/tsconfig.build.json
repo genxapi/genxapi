@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@genxapi/template-orval": ["../template-orval/dist/index.d.ts"],
+      "@genxapi/template-kubb": ["../template-kubb/dist/index.d.ts"]
+    }
+  },
+  "references": [
+    { "path": "../template-orval" },
+    { "path": "../template-kubb" }
+  ]
+}

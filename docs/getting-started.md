@@ -4,7 +4,7 @@ title: "Getting Started"
 
 # Getting Started
 
-Welcome to `client-api-generator`. In a few commands you can turn an OpenAPI specification into a versioned SDK that ships through your CI/CD pipeline. This guide walks through installation, configuration, and validating the first generation locally.
+Welcome to `GenxAPI`. In a few commands you can turn an OpenAPI specification into a versioned SDK that ships through your CI/CD pipeline. This guide walks through installation, configuration, and validating the first generation locally.
 
 ## Prerequisites
 
@@ -20,22 +20,22 @@ Choose your preferred workflow (install the CLI plus the template package you pl
 
 ```bash
 # npm (Orval template)
-npm install --save-dev client-api-generator @eduardoac/orval-api-client-template
+npm install --save-dev @genxapi/cli @genxapi/template-orval
 
 # npm (Kubb template)
-npm install --save-dev client-api-generator @eduardoac/kubb-api-client-template
+npm install --save-dev @genxapi/cli @genxapi/template-kubb
 
 # pnpm
-pnpm add -D client-api-generator @eduardoac/orval-api-client-template
+pnpm add -D @genxapi/cli @genxapi/template-orval
 
 # yarn
-yarn add --dev client-api-generator @eduardoac/orval-api-client-template
+yarn add --dev @genxapi/cli @genxapi/template-orval
 
 # Try it instantly
-npx client-api-generator --help
+npx genxapi --help
 ```
 
-> ℹ️  The Orval template remains the default. Swap `@eduardoac/orval-api-client-template` for `@eduardoac/kubb-api-client-template` (and ensure Node 20+) when you prefer Kubb’s plug-in ecosystem, or pass `--template kubb` to the CLI for a one-off switch.
+> ℹ️  The Orval template remains the default. Swap `@genxapi/template-orval` for `@genxapi/template-kubb` (and ensure Node 20+) when you prefer Kubb’s plug-in ecosystem, or pass `--template kubb` to the CLI for a one-off switch.
 
 When contributing to this repository, bootstrap everything with:
 
@@ -46,11 +46,11 @@ npm run build
 
 ## Create a Configuration File
 
-By default the CLI looks for `api-client-generatorrc.json` or `api-client-generatorrc.ts` in the current working directory. Start with a minimal JSON config:
+By default the CLI looks for `genxapi.config.json` or `genxapi.config.ts` in the current working directory. Start with a minimal JSON config:
 
 ```jsonc
 {
-  "$schema": "https://raw.githubusercontent.com/eduardoac/api-clients/main/schemas/generate-api-client.schema.json",
+  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/schemas/genxapi.schema.json",
   "project": {
     "name": "petstore-sdk",
     "directory": "./sdk/petstore",
@@ -75,10 +75,10 @@ By default the CLI looks for `api-client-generatorrc.json` or `api-client-genera
 }
 ```
 
-Prefer TypeScript? Export the config from `api-client-generatorrc.ts`:
+Prefer TypeScript? Export the config from `genxapi.config.ts`:
 
 ```ts
-import type { UnifiedGeneratorConfig } from "client-api-generator";
+import type { UnifiedGeneratorConfig } from "@genxapi/cli";
 
 const config: UnifiedGeneratorConfig = {
   project: {
@@ -109,13 +109,13 @@ export default config;
 Prefer a one-off change? Pass `--template` to override the config without editing files:
 
 ```bash
-npx client-api-generator generate --template kubb --log-level info
+npx genxapi generate --template kubb --log-level info
 ```
 
 Aliases:
 
-- `orval` → `@eduardoac/orval-api-client-template` (default)
-- `kubb` → `@eduardoac/kubb-api-client-template`
+- `orval` → `@genxapi/template-orval` (default)
+- `kubb` → `@genxapi/template-kubb`
 
 ### Switching to the Kubb template
 
@@ -151,7 +151,7 @@ Set `project.template` to `"kubb"` (or run with `--template kubb`) and provide p
 ## Run the First Generation
 
 ```bash
-npx client-api-generator generate --log-level info
+npx genxapi generate --log-level info
 ```
 
 The CLI:
@@ -165,7 +165,7 @@ The CLI:
 Dry-run the process to validate configuration without modifying files:
 
 ```bash
-npx client-api-generator generate --dry-run
+npx genxapi generate --dry-run
 ```
 
 Export tokens to unlock automation:
@@ -209,7 +209,7 @@ npm run build
 Use the `--target` flag to redirect `project.directory` without editing the config:
 
 ```bash
-npx client-api-generator generate --target ./tmp/generated-clients
+npx genxapi generate --target ./tmp/generated-clients
 ```
 
 The CLI rewrites the directory relative to your configuration file and keeps paths consistent.

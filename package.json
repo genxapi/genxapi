@@ -1,8 +1,8 @@
 {
-  "name": "@eduardoac/api-clients-monorepo",
+  "name": "@genxapi/genxapi",
   "private": true,
   "version": "0.1.0",
-  "description": "Monorepo with API client templates (Orval + Kubb) and the multi-client CLI.",
+  "description": "GenxAPI — Automate, orchestrate, and publish SDKs — client api generation faster.",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=24.0.0"
@@ -10,25 +10,28 @@
   "workspaces": [
     "packages/*"
   ],
+  "repository": "https://github.com/genxapi/genxapi",
+  "homepage": "https://genxapi.dev",
+  "author": "Eduardo Aparicio Cardenes",
   "scripts": {
-    "build": "npm run build --workspace @eduardoac/orval-api-client-template && npm run build --workspace @eduardoac/kubb-api-client-template && npm run build --workspace @eduardoac/generate-api-client",
-    "build:template": "npm run build --workspace @eduardoac/orval-api-client-template && npm run build --workspace @eduardoac/kubb-api-client-template",
-    "build:cli": "npm run build --workspace @eduardoac/orval-api-client-template && npm run build --workspace @eduardoac/kubb-api-client-template && npm run build --workspace @eduardoac/generate-api-client",
+    "build": "npm run build --workspace @genxapi/template-orval && npm run build --workspace @genxapi/template-kubb && npm run build --workspace @genxapi/cli",
+    "build:template": "npm run build --workspace @genxapi/template-orval && npm run build --workspace @genxapi/template-kubb",
+    "build:cli": "npm run build --workspace @genxapi/template-orval && npm run build --workspace @genxapi/template-kubb && npm run build --workspace @genxapi/cli",
     "clean": "node scripts/clean.mjs",
     "format": "prettier --write \"{packages,samples}/**/*.{ts,tsx,js,json,md}\"",
     "lint": "eslint \"packages/**/*.{ts,tsx,js}\"",
     "npm-publish": "npm run npm-publish --workspaces",
-    "test": "npm run test --workspace @eduardoac/orval-api-client-template && npm run test --workspace @eduardoac/kubb-api-client-template && npm run test --workspace @eduardoac/generate-api-client",
-    "typecheck": "tsc -p packages/orval-api-client-template/tsconfig.json --noEmit && tsc -p packages/kubb-api-client-template/tsconfig.json --noEmit && tsc -p packages/generate-api-client/tsconfig.json --noEmit",
-    "publish:template:npm": "npm run publish:npm --workspace @eduardoac/orval-api-client-template",
-    "publish:template:github": "npm run publish:github --workspace @eduardoac/orval-api-client-template",
-    "publish:kubb-template:npm": "npm run publish:npm --workspace @eduardoac/kubb-api-client-template",
-    "publish:kubb-template:github": "npm run publish:github --workspace @eduardoac/kubb-api-client-template",
-    "publish:cli:npm": "npm run publish:npm --workspace @eduardoac/generate-api-client",
-    "publish:cli:github": "npm run publish:github --workspace @eduardoac/generate-api-client",
-    "publish:template:npm-public": "npm run publish:npm-public --workspace @eduardoac/orval-api-client-template",
-    "publish:kubb-template:npm-public": "npm run publish:npm-public --workspace @eduardoac/kubb-api-client-template",
-    "publish:cli:npm-public": "npm run publish:npm-public --workspace @eduardoac/generate-api-client"
+    "test": "npm run test --workspace @genxapi/template-orval && npm run test --workspace @genxapi/template-kubb && npm run test --workspace @genxapi/cli",
+    "typecheck": "tsc -p packages/template-orval/tsconfig.json --noEmit && tsc -p packages/template-kubb/tsconfig.json --noEmit && tsc -p packages/cli/tsconfig.json --noEmit",
+    "publish:template:npm": "npm run publish:npm --workspace @genxapi/template-orval",
+    "publish:template:github": "npm run publish:github --workspace @genxapi/template-orval",
+    "publish:kubb-template:npm": "npm run publish:npm --workspace @genxapi/template-kubb",
+    "publish:kubb-template:github": "npm run publish:github --workspace @genxapi/template-kubb",
+    "publish:cli:npm": "npm run publish:npm --workspace @genxapi/cli",
+    "publish:cli:github": "npm run publish:github --workspace @genxapi/cli",
+    "publish:template:npm-public": "npm run publish:npm-public --workspace @genxapi/template-orval",
+    "publish:kubb-template:npm-public": "npm run publish:npm-public --workspace @genxapi/template-kubb",
+    "publish:cli:npm-public": "npm run publish:npm-public --workspace @genxapi/cli"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

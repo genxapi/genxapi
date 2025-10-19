@@ -4,7 +4,7 @@ title: "Versioning & Releases"
 
 # Versioning & Releases
 
-Consistent versioning keeps generated SDKs trustworthy. This guide covers semantic versioning, changelog automation, and release workflows using `client-api-generator`.
+Consistent versioning keeps generated SDKs trustworthy. This guide covers semantic versioning, changelog automation, and release workflows using `GenxAPI`.
 
 ## Semantic Versioning Principles
 
@@ -21,9 +21,9 @@ We follow [SemVer](https://semver.org/):
 Each template stores its own version in `package.json`. Increment the version before publishing:
 
 ```bash
-npm version patch --workspace @eduardoac/orval-api-client-template
-npm version patch --workspace @eduardoac/kubb-api-client-template
-npm version patch --workspace client-api-generator
+npm version patch --workspace @genxapi/template-orval
+npm version patch --workspace @genxapi/template-kubb
+npm version patch --workspace @genxapi/cli
 ```
 
 Update dependent workspaces if you bump major versions.
@@ -44,7 +44,7 @@ Add to your generated repo:
 ```jsonc
 {
   "scripts": {
-    "release": "client-api-generator publish --owner acme --repo petstore-sdk --tag v$npm_package_version --title \"Release $npm_package_version\""
+    "release": "genxapi publish --owner acme --repo petstore-sdk --tag v$npm_package_version --title \"Release $npm_package_version\""
   }
 }
 ```
@@ -85,7 +85,7 @@ CI runs semantic-release after the generator merges changes, producing GitHub re
 The `diff` command compares two OpenAPI specs and categorises changes. Run it in CI before generation or as part of code review:
 
 ```bash
-npx client-api-generator diff \
+npx genxapi diff \
   --base specs/petstore-v1.yaml \
   --head specs/petstore-v2.yaml \
   --format markdown \
@@ -105,7 +105,7 @@ Suggested commit messages:
 Use the `publish` command to create GitHub releases (changelog text is optional):
 
 ```bash
-npx client-api-generator publish \
+npx genxapi publish \
   --token ${GITHUB_TOKEN} \
   --owner acme \
   --repo petstore-sdk \

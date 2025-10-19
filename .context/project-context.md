@@ -1,4 +1,4 @@
-# @eduardoac/api-clients — Project Context
+# @genxapi/genxapi — Project Context
 
 > Goal: Keep the original context document’s intent while reflecting today’s architecture: renamed templates, unified configuration, and the CLI workflow that orchestrates them.
 
@@ -8,9 +8,9 @@
 
 - Monorepo managed with npm workspaces on Node ≥ 24.
 - Three published packages:
-  - `@eduardoac/generate-api-client` — the CLI/orchestrator.
-  - `@eduardoac/orval-api-client-template` — first-party Orval adapter.
-  - `@eduardoac/kubb-api-client-template` — first-party Kubb adapter.
+  - `@genxapi/cli` — the CLI/orchestrator.
+  - `@genxapi/template-orval` — first-party Orval adapter.
+  - `@genxapi/template-kubb` — first-party Kubb adapter.
 - Configuration is now **engine-agnostic**: `project.template` chooses `orval` or `kubb`, while `project.config` / `clients[].config` capture shared options (`httpClient`, `client`, `mode`, `mock`, plugin overrides).
 - CLI exposes the same knobs via flags (`--template`, `--http-client`, `--client`, `--mode`, `--mock-*`).
 - Tooling: TypeScript (ES2022), Rollup, Vitest v3, ESLint/Prettier.
@@ -26,20 +26,20 @@
  ├── scripts/
  │    └── clean.mjs               # Removes dist/coverage across packages
  ├── samples/
- │    ├── multi-client.config.json    # Orval-focused unified config sample
- │    └── kubb-multi-client.config.json # Kubb-focused unified config sample
+ │    ├── orval-multi-client.config.json    # Orval-focused unified config sample
+ │    └── kubb-multi-client.config.json     # Kubb-focused unified config sample
  ├── packages/
- │    ├── orval-api-client-template/
+ │    ├── template-orval/
  │    │    ├── package.json
  │    │    └── src/...
- │    ├── kubb-api-client-template/
+ │    ├── template-kubb/
  │    │    ├── package.json
  │    │    └── src/...
- │    └── generate-api-client/
+ │    └── cli/
  │         ├── package.json
  │         └── src/...
- ├── packages/generate-api-client/schemas/
- │    └── generate-api-client.schema.json  # Unified JSON schema
+ ├── packages/cli/schemas/
+ │    └── genxapi.schema.json  # Unified JSON schema
  ├── tsconfig.base.json
  ├── vitest.config.ts
  ├── .npmrc
@@ -75,8 +75,8 @@ Each numbered section below retains the “purpose + path + example” format fr
 ```json
 {
   "scripts": {
-    "build": "npm run build --workspace @eduardoac/orval-api-client-template && npm run build --workspace @eduardoac/kubb-api-client-template && npm run build --workspace @eduardoac/generate-api-client",
-    "typecheck": "tsc -p packages/orval-api-client-template/tsconfig.json --noEmit && tsc -p packages/kubb-api-client-template/tsconfig.json --noEmit && tsc -p packages/generate-api-client/tsconfig.json --noEmit"
+    "build": "npm run build --workspace @genxapi/template-orval && npm run build --workspace @genxapi/template-kubb && npm run build --workspace @genxapi/cli",
+    "typecheck": "tsc -p packages/template-orval/tsconfig.json --noEmit && tsc -p packages/template-kubb/tsconfig.json --noEmit && tsc -p packages/cli/tsconfig.json --noEmit"
   }
 }
 ```
@@ -87,10 +87,10 @@ Each numbered section below retains the “purpose + path + example” format fr
 
 ✅ **Purpose:** Canonical **unified** configuration examples consumed by the CLI.
 
-### `samples/multi-client.config.json`
+### `samples/orval-multi-client.config.json`
 ```json
 {
-  "$schema": "https://raw.githubusercontent.com/eduardoac/api-clients/main/schemas/generate-api-client.schema.json",
+  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/schemas/genxapi.schema.json",
   "logLevel": "info",
   "project": {
     "name": "multi-client-demo",
@@ -169,12 +169,12 @@ Each numbered section below retains the “purpose + path + example” format fr
 
 ```js
 const targets = [
-  "packages/orval-api-client-template/dist",
-  "packages/kubb-api-client-template/dist",
-  "packages/generate-api-client/dist",
-  "packages/orval-api-client-template/coverage",
-  "packages/kubb-api-client-template/coverage",
-  "packages/generate-api-client/coverage"
+  "packages/template-orval/dist",
+  "packages/template-kubb/dist",
+  "packages/cli/dist",
+  "packages/template-orval/coverage",
+  "packages/template-kubb/coverage",
+  "packages/cli/coverage"
 ];
 ```
 
@@ -188,9 +188,9 @@ const targets = [
 export default defineConfig({
   test: {
     include: [
-      "packages/orval-api-client-template/src/**/*.test.ts",
-      "packages/kubb-api-client-template/src/**/*.test.ts",
-      "packages/generate-api-client/src/**/*.test.ts"
+      "packages/template-orval/src/**/*.test.ts",
+      "packages/template-kubb/src/**/*.test.ts",
+      "packages/cli/src/**/*.test.ts"
     ]
   }
 });
@@ -200,19 +200,19 @@ export default defineConfig({
 
 ## 7️⃣ Template packages
 
-- `packages/orval-api-client-template/`
-  - Builds and publishes `@eduardoac/orval-api-client-template`.
+- `packages/template-orval/`
+  - Builds and publishes `@genxapi/template-orval`.
   - Exports `MultiClientConfigSchema` and `generateClients` for Orval.
   - Supports extended options: `httpClient`, `mock` object, cleaned outputs.
-- `packages/kubb-api-client-template/`
-  - Houses Kubb integration (`@eduardoac/kubb-api-client-template`).
+- `packages/template-kubb/`
+  - Houses Kubb integration (`@genxapi/template-kubb`).
   - Accepts plugin overrides under `config.plugins` or `config.kubb` (merged into Kubb’s `plugin-client`, `plugin-ts`, `plugin-oas`).
 
 Both templates ship with Rollup, TypeScript, Vitest, and mirror one another structurally for consistency.
 
 ---
 
-## 8️⃣ CLI (`packages/generate-api-client/`)
+## 8️⃣ CLI (`packages/cli/`)
 
 Key updates:
 
@@ -229,7 +229,7 @@ Key updates:
   | `--mock-type`, `--mock-delay`, `--mock-use-examples` | Control mock generation profile. |
 
 - Overrides are applied via `applyTemplateOverrides` before invoking template `generateClients`.
-- JSON schema (`schemas/generate-api-client.schema.json`) mirrors the unified Zod schema—editors gain IntelliSense by referencing it.
+- JSON schema (`schemas/genxapi.schema.json`) mirrors the unified Zod schema—editors gain IntelliSense by referencing it.
 
 ---
 
@@ -253,7 +253,7 @@ The repo now standardises template naming, configuration, and documentation arou
 We do not keep generated SDKs committed to the repo, but the sample configs plus template READMEs cover the previous “examples/sample-api” intent. To validate configuration and see log output without writing to disk:
 
 ```bash
-node packages/generate-api-client/dist/index.js generate \
+node packages/cli/dist/index.js generate \
   --config samples/multi-client.config.json \
   --dry-run
 ```
@@ -271,8 +271,8 @@ Pair this with `--template kubb` or the unified overrides (`--http-client`, `--c
 | `npm test` | Runs Vitest suites across workspaces. |
 | `npm run clean` | Removes `dist/` and `coverage/` artefacts. |
 | `npm run npm-publish --workspace <pkg>` | Publishes a specific workspace (template or CLI). |
-| `npx client-api-generator generate` | Generates clients, runs hooks, syncs GitHub, and honours npm publish settings. |
-| `npx client-api-generator publish` | Uses Octokit to create GitHub releases (requires `GITHUB_TOKEN`). |
+| `npx genxapi generate` | Generates clients, runs hooks, syncs GitHub, and honours npm publish settings. |
+| `npx genxapi publish` | Uses Octokit to create GitHub releases (requires `GITHUB_TOKEN`). |
 
 **Runtime note:** Orval 7.x bundles Commander 14 which officially targets Node 20+. Running generation on Node 18 works but prints engine warnings—encourage contributors to use Node ≥ 20 for a clean experience.
 
