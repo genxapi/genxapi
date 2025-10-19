@@ -164,14 +164,17 @@ async function synchronizeWithPullRequest({
 
   await fetchBranch(projectDir, token, owner, repo, defaultBranch);
 
-  if (!(await hasLocalBranch(projectDir, defaultBranch))) {
-    const checkedOut = await checkoutFromRemote(projectDir, defaultBranch);
-    if (!checkedOut) {
+  let needsExplicitCheckout = await hasLocalBranch(projectDir, defaultBranch);
+  if (!needsExplicitCheckout) {
+    const checkedOutFromRemote = await checkoutFromRemote(projectDir, defaultBranch);
+    if (!checkedOutFromRemote) {
       await runGit(["checkout", "-b", defaultBranch], projectDir);
     }
   }
 
-  await runGit(["checkout", defaultBranch], projectDir);
+  if (needsExplicitCheckout) {
+    await runGit(["checkout", defaultBranch], projectDir);
+  }
 
   const branchName = buildBranchName(repository.pullRequest);
   await runGit(["checkout", "-B", branchName], projectDir);

@@ -13,7 +13,7 @@
 
 **How to fix it manually**
 1. `cd` into the generated folder (for example `examples/multi-client-demo`).
-2. Run `git checkout --orphan main` (replace `main` with the default branch configured in your generator settings).
+2. If Git says `pathspec '<branch>' did not match any file(s) known to git`, create the branch in “orphan” mode: `git checkout --orphan main` (replace `main` with the configured default branch).
 3. Stage the files: `git add --all`.
 4. Create an initial commit: `git commit -m "chore: bootstrap generated clients"`.
 5. If you want to push to GitHub immediately, add the remote and push:  
@@ -25,3 +25,4 @@
 - Update to the CLI build from Oct 2025 or later. The generator now checks whether the repo already has commits:
   - If commits exist, it keeps using `git checkout -B <branch>`.
   - If the repo is empty, it switches to the orphan workflow automatically, so the error should not reappear once the fix is installed.
+- In addition, the CLI no longer re-runs `git checkout <branch>` when the repository is still unborn, avoiding the `pathspec` error entirely.
