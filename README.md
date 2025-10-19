@@ -64,10 +64,10 @@ Create a unified config and generate clients locally:
 
 ```bash
 cp samples/orval-multi-client.config.json ./api-client-generatorrc.json
-npx client-api-generator generate --log-level info
+npx @eduardoac/generate-api-client generate --log-level info
 
 # Switch engines or override behaviour at runtime
-npx client-api-generator generate \
+npx @eduardoac/generate-api-client generate \
   --template kubb \
   --http-client fetch \
   --mode split-tag \
@@ -84,17 +84,17 @@ Run either sample directly from the repo to see the unified config in action:
 
 ```bash
 # Orval-flavoured demo (generates into examples/multi-client-demo)
-npx client-api-generator generate \
+npx @eduardoac/generate-api-client generate \
   --config samples/orval-multi-client.config.json \
   --log-level info
 
 # Kubb-flavoured demo (generates into examples/multi-client-kubb)
-npx client-api-generator generate \
+npx @eduardoac/generate-api-client generate \
   --config samples/kubb-multi-client.config.json \
   --log-level info
 
 # Validate configs without writing files
-npx client-api-generator generate \
+npx @eduardoac/generate-api-client generate \
   --config samples/orval-multi-client.config.json \
   --dry-run
 ```
@@ -103,7 +103,7 @@ Dry-run a release to verify GitHub and npm connectivity:
 
 ```bash
 GITHUB_TOKEN=ghp_xxx NPM_TOKEN=npm_xxx \
-npx client-api-generator publish --dry-run
+npx @eduardoac/generate-api-client publish --dry-run
 ```
 
 ---
@@ -116,7 +116,7 @@ npx client-api-generator publish --dry-run
 | `publish` | Creates GitHub releases and publishes packages. | `--owner`, `--repo`, `--tag`, `--title`, `--body`, `--draft`, `--prerelease` |
 | `diff` | Compares two OpenAPI documents and classifies breaking changes. | `--base`, `--head`, `--format`, `--output` |
 
-Run `npx client-api-generator --help` to see every option and sub-command.
+Run `npx @eduardoac/generate-api-client --help` to see every option and sub-command.
 
 ---
 
@@ -141,8 +141,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npx client-api-generator generate --log-level info
-      - run: npx client-api-generator publish --dry-run
+      - run: npx @eduardoac/generate-api-client generate --log-level info
+      - run: npx @eduardoac/generate-api-client publish --dry-run
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
