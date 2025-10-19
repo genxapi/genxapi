@@ -4,17 +4,68 @@
     "name": "multi-client-kubb-demo",
     "directory": "../examples/multi-client-kubb",
     "packageManager": "npm",
-    "template": { "name": "@eduardoac/kubb-client-template" },
-    "publish": { "npm": { "enabled": false } }
+    "template": {
+      "name": "@eduardoac/kubb-client-template"
+    },
+    "repository": {
+      "owner": "eduardoac",
+      "name": "multi-client-kubb",
+      "defaultBranch": "main",
+      "pullRequest": {
+        "branchPrefix": "chore/clients",
+        "title": "chore: refresh generated clients"
+      }
+    },
+    "publish": {
+      "npm": {
+        "enabled": false,
+        "tag": "latest",
+        "access": "public"
+      }
+    },
+    "readme": {
+      "introduction": "Demo SDK generated from the public Petstore API using @eduardoac/generate-api-client with the Kubb template.",
+      "additionalSections": [
+        {
+          "title": "Regeneration",
+          "body": "Run `npm run generate-clients` inside this package to regenerate the API bindings after updating the OpenAPI spec."
+        }
+      ]
+    }
   },
   "clients": [
     {
       "name": "pets",
       "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
-      "output": { "workspace": "./src/pets", "target": "./src/pets/client.ts" },
+      "output": {
+        "workspace": "./src/pets",
+        "target": "./src/pets/client.ts"
+      },
       "kubb": {
-        "client": { "client": "fetch", "dataReturnType": "data" },
-        "ts": { "enumType": "asConst" }
+        "client": {
+          "client": "fetch",
+          "dataReturnType": "data"
+        },
+        "ts": {
+          "enumType": "asConst"
+        }
+      }
+    },
+    {
+      "name": "store",
+      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
+      "output": {
+        "workspace": "./src/store",
+        "target": "./src/store/client.ts"
+      },
+      "kubb": {
+        "client": {
+          "client": "axios",
+          "dataReturnType": "full"
+        },
+        "ts": {
+          "enumType": "enum"
+        }
       }
     }
   ]
