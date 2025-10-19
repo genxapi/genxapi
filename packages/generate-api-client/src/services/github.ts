@@ -168,7 +168,10 @@ async function synchronizeWithPullRequest({
   if (!needsExplicitCheckout) {
     const checkedOutFromRemote = await checkoutFromRemote(projectDir, defaultBranch);
     if (!checkedOutFromRemote) {
-      await runGit(["checkout", "-b", defaultBranch], projectDir);
+      throw new Error(
+        `Unable to check out default branch "${defaultBranch}". ` +
+          "Make sure the branch exists in the remote repository and that the configured token has read access."
+      );
     }
   }
 
@@ -346,8 +349,19 @@ async function fetchBranch(
   repo: string,
   branch: string
 ): Promise<void> {
+  const remoteName = "origin";
   const authUrl = `https://x-access-token:${token}@github.com/${owner}/${repo}.git`;
-  await runGit(["fetch", authUrl, branch], projectDir, true);
+  const cleanUrl = await getRemoteUrl(projectDir, remoteName);
+  try {
+    if (cleanUrl !== authUrl) {
+      await runGit(["remote", "set-url", remoteName, authUrl], projectDir);
+    }
+    await runGit(["fetch", remoteName, branch], projectDir, true);
+  } finally {
+    if (cleanUrl && cleanUrl !== authUrl) {
+      await runGit(["remote", "set-url", remoteName, cleanUrl], projectDir, true);
+    }
+  }
 }
 
 async function getRemoteUrl(projectDir: string, name: string): Promise<string | null> {
