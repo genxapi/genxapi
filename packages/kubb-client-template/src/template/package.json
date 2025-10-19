@@ -1,0 +1,39 @@
+{
+  "name": "__PROJECT_NAME__",
+  "version": "0.1.0",
+  "description": "Generated API client project",
+  "type": "module",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "clean": "rimraf dist",
+    "generate-clients": "kubb generate --config kubb.config.ts",
+    "build": "rimraf dist && npm run generate-clients && rollup -c",
+    "test": "vitest run",
+    "npm-publish": "npm publish --access public"
+  },
+  "devDependencies": {
+    "@kubb/cli": "^2.3.0",
+    "@kubb/core": "^2.3.0",
+    "@kubb/plugin-client": "^2.3.0",
+    "@kubb/plugin-oas": "^2.3.0",
+    "@kubb/plugin-ts": "^2.3.0",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@types/node": "^17.0.18",
+    "rimraf": "^5.0.10",
+    "rollup": "^4.34.0",
+    "rollup-plugin-delete": "^2.1.0",
+    "rollup-plugin-dts": "^6.1.1",
+    "tslib": "^2.8.1",
+    "typescript": "^5.6.3",
+    "vitest": "^1.6.0"
+  }
+}
