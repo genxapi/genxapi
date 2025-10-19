@@ -1,16 +1,19 @@
 import { resolve } from "node:path";
 import ora from "ora";
-import { generateClients } from "@eduardoac/api-client-template";
-import type { CliConfig } from "../config/schema.js";
+import type { CliConfig, TemplateModule } from "../config/loader.js";
 import type { Logger } from "../utils/logger.js";
-import { synchronizeRepository } from "../services/github.js";
-import { publishToNpm } from "../services/npm.js";
+import {
+  synchronizeRepository,
+  type RepositoryConfig
+} from "../services/github.js";
+import { publishToNpm, type NpmPublishConfig } from "../services/npm.js";
 
 export interface GenerateCommandOptions {
   readonly config: CliConfig;
   readonly configDir: string;
   readonly logger: Logger;
   readonly dryRun?: boolean;
+  readonly template: TemplateModule;
 }
 
 export async function runGenerateCommand(options: GenerateCommandOptions): Promise<void> {
@@ -21,10 +24,11 @@ export async function runGenerateCommand(options: GenerateCommandOptions): Promi
       return;
     }
 
-    await generateClients(options.config, {
+    await options.template.generateClients(options.config, {
       configDir: options.configDir,
       logger: options.logger,
-      runOrval: options.config.project.runGenerate
+      runOrval: options.config.project.runGenerate,
+      runKubb: options.config.project.runGenerate
     });
 
     spinner.succeed("Clients generated successfully");
@@ -38,10 +42,11 @@ export async function runGenerateCommand(options: GenerateCommandOptions): Promi
 
 async function runPostGenerationTasks(options: GenerateCommandOptions): Promise<void> {
   const projectDir = resolve(options.configDir, options.config.project.directory);
-  const { repository, publish } = options.config.project;
+  const repository = options.config.project.repository as unknown as RepositoryConfig | undefined;
+  const { publish } = options.config.project;
 
   if (repository) {
-    const normalisedRepository = {
+    const normalisedRepository: RepositoryConfig = {
       ...repository,
       owner: repository.owner.replace(/^@/, "")
     };
@@ -52,7 +57,7 @@ async function runPostGenerationTasks(options: GenerateCommandOptions): Promise<
     });
   }
 
-  const npmPublish = publish?.npm;
+  const npmPublish = publish?.npm as unknown as NpmPublishConfig | undefined;
   if (npmPublish?.enabled) {
     await publishToNpm({
       projectDir,

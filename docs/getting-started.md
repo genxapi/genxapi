@@ -16,21 +16,26 @@ Welcome to `client-api-generator`. In a few commands you can turn an OpenAPI spe
 
 ## Install the CLI
 
-Choose your preferred workflow:
+Choose your preferred workflow (install the CLI plus the template package you plan to use):
 
 ```bash
-# npm (dev dependency)
-npm install --save-dev client-api-generator
+# npm (Orval template)
+npm install --save-dev client-api-generator @eduardoac/api-client-template
+
+# npm (Kubb template)
+npm install --save-dev client-api-generator @eduardoac/kubb-client-template
 
 # pnpm
-pnpm add -D client-api-generator
+pnpm add -D client-api-generator @eduardoac/api-client-template
 
 # yarn
-yarn add --dev client-api-generator
+yarn add --dev client-api-generator @eduardoac/api-client-template
 
 # Try it instantly
 npx client-api-generator --help
 ```
+
+> ℹ️  The Orval template remains the default. Swap `@eduardoac/api-client-template` for `@eduardoac/kubb-client-template` (and ensure Node 20+) when you prefer Kubb’s plug-in ecosystem.
 
 When contributing to this repository, bootstrap everything with:
 
@@ -100,6 +105,38 @@ export default config;
 ```
 
 > 💡 Tip: Keep the `$schema` reference (for JSON) or TypeScript import (for TS) so editors provide IntelliSense and validation while you edit.
+
+### Switching to the Kubb template
+
+Point `project.template.name` at the Kubb package and optional Kubb-specific options become available under each client:
+
+```jsonc
+{
+  "project": {
+    "name": "petstore-sdk",
+    "directory": "./sdk/petstore",
+    "template": {
+      "name": "@eduardoac/kubb-client-template"
+    }
+  },
+  "clients": [
+    {
+      "name": "petstore",
+      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
+      "output": {
+        "workspace": "./src",
+        "target": "./src/client.ts"
+      },
+      "kubb": {
+        "client": {
+          "client": "fetch",
+          "dataReturnType": "data"
+        }
+      }
+    }
+  ]
+}
+```
 
 ## Run the First Generation
 

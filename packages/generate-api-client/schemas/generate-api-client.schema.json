@@ -63,7 +63,7 @@
                 },
                 "body": {
                   "type": "string",
-                  "default": "This pull request was generated automatically and updates the Orval-powered API client."
+                  "default": "This pull request was generated automatically and updates the generated API client."
                 },
                 "branchPrefix": {
                   "type": "string",
@@ -137,6 +137,11 @@
               "prettier": { "type": "boolean", "default": true },
               "clean": { "type": "boolean", "default": true }
             },
+            "default": {}
+          },
+          "kubb": {
+            "type": "object",
+            "additionalProperties": true,
             "default": {}
           }
         }

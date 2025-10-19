@@ -2,11 +2,24 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { Octokit } from "octokit";
 import { execa } from "execa";
-import type {
-  PullRequestConfig,
-  RepositoryConfig
-} from "@eduardoac/api-client-template";
 import type { Logger } from "../utils/logger.js";
+
+export interface PullRequestConfig {
+  readonly enabled: boolean;
+  readonly title: string;
+  readonly body: string;
+  readonly branchPrefix: string;
+}
+
+export interface RepositoryConfig {
+  readonly owner: string;
+  readonly name: string;
+  readonly defaultBranch?: string;
+  readonly create?: boolean;
+  readonly commitMessage: string;
+  readonly pullRequest: PullRequestConfig;
+  readonly tokenEnv?: string;
+}
 
 interface SyncOptions {
   readonly projectDir: string;

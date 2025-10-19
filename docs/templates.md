@@ -6,7 +6,7 @@ title: "Templates & Adapters"
 
 Templates define the project structure that every generated client inherits. Adapters extend the core TypeScript experience to additional languages such as Python, with Go and .NET on the roadmap.
 
-## Template Overview
+## Orval Template
 
 `@eduardoac/api-client-template` ships with a production-ready TypeScript project that includes:
 
@@ -96,6 +96,24 @@ The default template includes:
 - Runtime utilities under `src/runtime`, including `create-client.ts`.
 
 Extend the template by editing `packages/api-client-template/src/template`. Run `npm run build --workspace @eduardoac/api-client-template` to propagate changes into `dist/template`.
+
+## Kubb Template
+
+`@eduardoac/kubb-client-template` offers the same TypeScript scaffolding but swaps Orval for the [Kubb](https://docs.kubb.dev/) plug-in ecosystem. Highlights:
+
+- Generates Kubb configs per client (`kubb.config.ts`) with sensible defaults for `plugin-oas`, `plugin-ts`, and `plugin-client`.
+- Emits opinionated workspace structure (`oas`, `models`, `client` folders) that mirrors the Orval template, keeping downstream tooling uniform.
+- Reuses the README automation, hook execution, and package metadata shape so repository automation behaves identically.
+
+Configure Kubb-specific behaviour by populating `clients[].kubb` in your config (see the [configuration reference](./configuration.md#client-configuration) for details).
+
+Extend or customise the template under `packages/kubb-client-template/src/template`, then run:
+
+```bash
+npm run build --workspace @eduardoac/kubb-client-template
+```
+
+This mirrors the Orval workflow: the `dist/template` folder is what downstream consumers receive.
 
 ## Python Adapter (Preview)
 

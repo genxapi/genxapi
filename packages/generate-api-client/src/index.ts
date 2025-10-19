@@ -10,7 +10,7 @@ import { Logger, type LogLevel } from "./utils/logger.js";
 const program = new Command();
 program
   .name("generate-api-client")
-  .description("Generate multiple API clients from Orval templates")
+  .description("Generate multiple API clients from configurable templates")
   .version("0.1.0");
 
 program
@@ -23,7 +23,9 @@ program
   .action(async function (this: Command, options) {
     const logger = new Logger();
     try {
-      const { config: loadedConfig, configDir } = await loadCliConfig({ file: options.config });
+      const { config: loadedConfig, configDir, template } = await loadCliConfig({
+        file: options.config
+      });
       let config = loadedConfig;
       logger.setLevel(config.logLevel as LogLevel);
 
@@ -50,7 +52,8 @@ program
         config,
         configDir,
         logger,
-        dryRun: options.dryRun
+        dryRun: options.dryRun,
+        template
       });
     } catch (error) {
       logger.error(error instanceof Error ? error.message : String(error));

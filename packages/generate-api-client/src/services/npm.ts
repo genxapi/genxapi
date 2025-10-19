@@ -1,6 +1,15 @@
 import { execa } from "execa";
-import type { NpmPublishConfig } from "@eduardoac/api-client-template";
 import type { Logger } from "../utils/logger.js";
+
+export interface NpmPublishConfig {
+  readonly enabled: boolean;
+  readonly tag?: string;
+  readonly access?: "public" | "restricted";
+  readonly dryRun?: boolean;
+  readonly tokenEnv?: string;
+  readonly registry?: string;
+  readonly command?: "npm" | "pnpm" | "yarn" | "bun";
+}
 
 interface PublishOptions {
   readonly projectDir: string;

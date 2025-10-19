@@ -50,10 +50,14 @@ Maintaining a fleet of SDKs is labour-intensive. Specs drift faster than client 
 
 ## Quickstart
 
-Install the orchestrator alongside whichever generation template you plan to use (for example, the Orval adapter):
+Install the orchestrator alongside whichever first-party template you plan to use:
 
 ```bash
-npm install --save-dev client-api-generator orval
+# Orval template
+npm install --save-dev client-api-generator @eduardoac/api-client-template
+
+# Kubb template
+npm install --save-dev client-api-generator @eduardoac/kubb-client-template
 ```
 
 Create a starter config and generate clients locally:

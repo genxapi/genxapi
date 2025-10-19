@@ -1,7 +1,7 @@
 {
   "name": "@eduardoac/generate-api-client",
   "version": "0.1.2",
-  "description": "CLI for generating multiple API clients from Orval templates.",
+  "description": "CLI for generating multiple API clients from pluggable templates.",
   "license": "Apache-2.0",
   "type": "module",
   "bin": {

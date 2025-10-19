@@ -68,8 +68,8 @@ Override the path with `--config <path>` when running the CLI.
 | `name` | `string` | – | Human-readable identifier used in logs, branch names, and PR titles. |
 | `directory` | `string` | – | Relative path for the generated project. Accepts `./` and `../`. |
 | `packageManager` | `"npm" \| "pnpm" \| "yarn" \| "bun"` | `"npm"` | Determines the install command executed by the template. |
-| `runGenerate` | `boolean` | `true` | Skip Orval execution when `false`. Useful for dry runs or external orchestration. |
-| `template.name` | `string` | `"@eduardoac/api-client-template"` | Package used as the base template. |
+| `runGenerate` | `boolean` | `true` | Skip template execution when `false`. Useful for dry runs or external orchestration. |
+| `template.name` | `string` | `"@eduardoac/api-client-template"` | Package used as the base template. Defaults to the Orval template; switch to `@eduardoac/kubb-client-template` to enable the Kubb workflow. |
 | `template.path` | `string` | `undefined` | Local template directory. Overrides `template.name` when provided. |
 | `template.variables` | `Record<string,string>` | `{}` | Key/value pairs injected into template placeholders. |
 | `template.installDependencies` | `boolean` | `true` | Controls whether the template runs `npm install` (or equivalent). |
@@ -194,6 +194,27 @@ Each client entry maps to one OpenAPI document.
 | `output.target` | `"./src/client.ts"` | Client entry point produced by Orval. |
 | `output.schemas` | `"model"` | Schema folder suffix under the workspace. |
 | `orval` | `{}` | Forwarded verbatim to Orval. Refer to [orval.dev](https://orval.dev/) for the full option set. |
+| `kubb` | `{}` | Forwarded verbatim to the Kubb plugins. Applies when `project.template.name` is `@eduardoac/kubb-client-template`. |
+
+When using `@eduardoac/kubb-client-template`, set overrides on `clients[].kubb` to control plugin behaviour:
+
+```jsonc
+"kubb": {
+  "oas": {
+    "validate": false
+  },
+  "ts": {
+    "enumType": "asConst",
+    "dateType": "date"
+  },
+  "client": {
+    "client": "fetch",
+    "dataReturnType": "data",
+    "pathParamsType": "object"
+  }
+}
+```
+
 
 ## Hooks
 

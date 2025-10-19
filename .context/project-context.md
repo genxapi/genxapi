@@ -7,8 +7,8 @@
 ## 0️⃣ TL;DR
 
 - Monorepo managed with npm workspaces.
-- Two published packages: CLI (`@eduardoac/generate-api-client`) and template (`@eduardoac/api-client-template`).
-- Generates multiple Orval clients from shared config, supports hooks, and can create GitHub releases via Octokit.
+- Three published packages: CLI (`@eduardoac/generate-api-client`) plus Orval (`@eduardoac/api-client-template`) and Kubb (`@eduardoac/kubb-client-template`) templates.
+- Generates multiple clients via pluggable templates (Orval or Kubb), supports hooks, and can create GitHub releases via Octokit.
 - Tooling: TypeScript ES2022, Rollup, Vitest v3, ESLint/Prettier, optional Orval peer.
 
 ---
@@ -25,6 +25,9 @@
  │    └── multi-client.config.json
  ├── packages/
  │    ├── api-client-template/
+ │    │    ├── package.json
+ │    │    └── src/...
+ │    ├── kubb-client-template/
  │    │    ├── package.json
  │    │    └── src/...
  │    └── generate-api-client/
@@ -193,10 +196,12 @@ module.exports = {
 
 ---
 
-## 9️⃣ Package: `@eduardoac/api-client-template`
+## 9️⃣ Template packages
+
+### `@eduardoac/api-client-template` (Orval)
 
 - **Path**: `packages/api-client-template`
-- **Purpose** (updated): Reusable module that loads multi-client configs, scaffolds template projects, applies token replacements, and optionally executes Orval + hooks.
+- **Purpose**: Reusable module that loads multi-client configs, scaffolds template projects, applies token replacements, and optionally executes Orval + hooks.
 - **Highlights**:
   - `src/generator.ts`: Handles filesystem work, Orval command execution via `execa`, hook orchestration.
   - `src/types.ts`: Zod schemas (`MultiClientConfigSchema`, etc.) including optional `repository` and `publish.npm` support.
@@ -213,6 +218,16 @@ export async function generateClients(config: MultiClientConfig, options: Genera
 }
 ```
 
+### `@eduardoac/kubb-client-template` (Kubb)
+
+- **Path**: `packages/kubb-client-template`
+- **Purpose**: Mirrors the Orval template but emits `kubb.config.ts` files that orchestrate Kubb plugins (`plugin-oas`, `plugin-ts`, `plugin-client`) per client.
+- **Highlights**:
+  - `src/generator.ts`: Copies scaffolding, merges user overrides into Kubb plugin options, runs `@kubb/cli` via the appropriate package manager.
+  - `src/types.ts`: Zod schemas matching the shared project settings plus `kubb` overrides (`oas`, `ts`, `client`).
+  - `src/template/`: Ships with Kubb devDependencies (`@kubb/cli`, `@kubb/plugin-*`) and the same Rollup/Vitest toolchain for parity with the Orval template.
+  - Shares README automation, hook support, and registry scripts, ensuring downstream repos behave the same regardless of generator.
+
 ---
 
 ## 🔟 Package: `@eduardoac/generate-api-client`
@@ -222,14 +237,14 @@ export async function generateClients(config: MultiClientConfig, options: Genera
 - **Highlights**:
   - `src/index.ts`: Commander commands (`generate`, `publish`), log-level handling.
   - `src/commands/*`: `runGenerateCommand`, `runPublishCommand` (with `ora` spinners and Octokit).
-  - `src/config/loader.ts`: Cosmiconfig loader supporting JSON/YAML + CLI override.
+  - `src/config/loader.ts`: Cosmiconfig loader that resolves the template package at runtime (default Orval, optional Kubb) and validates configs.
   - `schemas/generate-api-client.schema.json`: JSON schema for configs.
   - `src/services/github.ts`: GitHub automation (repo bootstrap, branch push, PR creation).
   - `src/services/npm.ts`: Optional npm publish workflow.
   - `src/utils/swaggerDiff.ts`: Analyzes Swagger diffs and classifies semantic-release commit type (`feat`/`fix`/`chore`).
   - `package.json`: ships CLI binaries, marks publishConfig as `restricted` while under development.
   - Scripts include `publish:npm`, `publish:npm-public`, and `publish:github` to push releases to private npm or GitHub Packages.
-  - Depends on `chalk`, `commander`, `cosmiconfig`, `octokit`, `ora`, `execa`, `zod`, and of course `@eduardoac/api-client-template`.
+  - Depends on `chalk`, `commander`, `cosmiconfig`, `octokit`, `ora`, `execa`, `zod`, and carries `@eduardoac/api-client-template` as the default template dependency (others are loaded if installed).
 
 ```ts
 program

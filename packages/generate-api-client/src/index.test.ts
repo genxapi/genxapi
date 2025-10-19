@@ -1,25 +1,40 @@
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "pathe";
 import { describe, expect, it } from "vitest";
-import { CliConfigSchema } from "./config/schema.js";
+import { loadCliConfig } from "./config/loader.js";
 
-describe("CliConfigSchema", () => {
-  it("parses minimal configuration", () => {
-    const config = CliConfigSchema.parse({
-      project: {
-        name: "demo",
-        directory: "./demo"
-      },
-      clients: [
+describe("loadCliConfig", () => {
+  it("parses minimal configuration using the default template", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "generate-api-client-"));
+    const configPath = join(dir, "config.json");
+    await writeFile(
+      configPath,
+      JSON.stringify(
         {
-          name: "pets",
-          swagger: "./specs/pet.yaml",
-          output: {
-            workspace: "./src/pets",
-            target: "./src/pets/client.ts",
-            schemas: "model"
-          }
-        }
-    ]
-    });
+          project: {
+            name: "demo",
+            directory: "./demo"
+          },
+          clients: [
+            {
+              name: "pets",
+              swagger: "./specs/pet.yaml",
+              output: {
+                workspace: "./src/pets",
+                target: "./src/pets/client.ts",
+                schemas: "model"
+              }
+            }
+          ]
+        },
+        null,
+        2
+      ),
+      "utf8"
+    );
+
+    const { config } = await loadCliConfig({ file: configPath });
     expect(config.project.name).toBe("demo");
     expect(config.project.publish?.npm?.enabled).toBe(false);
   });
