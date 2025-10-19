@@ -1,0 +1,21 @@
+{
+  "$schema": "https://raw.githubusercontent.com/eduardoac/api-clients/main/schemas/generate-api-client.schema.json",
+  "project": {
+    "name": "multi-client-kubb-demo",
+    "directory": "../examples/multi-client-kubb",
+    "packageManager": "npm",
+    "template": { "name": "@eduardoac/kubb-client-template" },
+    "publish": { "npm": { "enabled": false } }
+  },
+  "clients": [
+    {
+      "name": "pets",
+      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
+      "output": { "workspace": "./src/pets", "target": "./src/pets/client.ts" },
+      "kubb": {
+        "client": { "client": "fetch", "dataReturnType": "data" },
+        "ts": { "enumType": "asConst" }
+      }
+    }
+  ]
+}

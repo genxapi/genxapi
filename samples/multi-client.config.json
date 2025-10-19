@@ -2,7 +2,7 @@
   "$schema": "https://raw.githubusercontent.com/eduardoac/api-clients/main/schemas/generate-api-client.schema.json",
   "project": {
     "name": "multi-client-demo",
-    "directory": "./examples/multi-client-demo",
+    "directory": "../examples/multi-client-demo",
     "packageManager": "npm",
     "template": {
       "name": "@eduardoac/api-client-template"
