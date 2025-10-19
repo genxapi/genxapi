@@ -74,7 +74,7 @@ export const ProjectConfigSchema = z.object({
   packageManager: z.enum(["npm", "pnpm", "yarn", "bun"]).default("npm"),
   template: z
     .object({
-      name: z.string().default("@eduardoac/api-client-template"),
+      name: z.string().default("@eduardoac/orval-api-client-template"),
       path: z.string().optional(),
       variables: z.record(z.string(), z.string()).default({}),
       installDependencies: z.boolean().default(true)

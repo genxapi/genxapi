@@ -1,4 +1,4 @@
-# @eduardoac/kubb-client-template
+# @eduardoac/kubb-api-client-template
 
 Kubb-flavoured sibling of the Orval template. This package scaffolds a TypeScript project, wires a multi-client `kubb.config.ts`, and orchestrates `@kubb/cli` so you can automate SDK generation from OpenAPI definitions.
 
@@ -12,7 +12,7 @@ Kubb-flavoured sibling of the Orval template. This package scaffolds a TypeScrip
 ## Usage
 
 ```ts
-import { generateClients, loadTemplateConfig } from "@eduardoac/kubb-client-template";
+import { generateClients, loadTemplateConfig } from "@eduardoac/kubb-api-client-template";
 
 const config = await loadTemplateConfig("./generate-api-client.config.json");
 await generateClients(config, { runKubb: true });

@@ -1,4 +1,4 @@
-# @eduardoac/api-client-template
+# @eduardoac/orval-api-client-template
 
 Reusable Orval template that supports generating multiple clients from a single configuration file. It:
 
@@ -10,7 +10,7 @@ Reusable Orval template that supports generating multiple clients from a single 
 ## Usage
 
 ```ts
-import { loadTemplateConfig, generateClients } from "@eduardoac/api-client-template";
+import { loadTemplateConfig, generateClients } from "@eduardoac/orval-api-client-template";
 
 const config = await loadTemplateConfig("./multi-client.config.json");
 await generateClients(config);
@@ -25,7 +25,7 @@ await generateClients(config);
     "name": "petstore-client",
     "directory": "./examples/petstore/output",
     "template": {
-      "name": "@eduardoac/api-client-template"
+      "name": "@eduardoac/orval-api-client-template"
     },
     "repository": {
       "owner": "your-github-handle",
