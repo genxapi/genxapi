@@ -5,6 +5,7 @@
 **What you see**
 - Generator logs “Initializing git repository.” and then fails with `git checkout command failed.`
 - The folder has been created, but no commit was made and the CLI exits with status 1.
+- With the latest CLI you will also see the exact git command, exit code, and stderr (for example: `Failed to run "git checkout -B main" ... Git stderr: fatal: your current branch 'main' does not have any commits yet.`).
 
 **Why it happens**
 - In a brand-new git repo there is no `HEAD` yet.

@@ -2,6 +2,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { Octokit } from "octokit";
 import { execa } from "execa";
+import type { ExecaError } from "execa";
 import type { Logger } from "../utils/logger.js";
 
 export interface PullRequestConfig {
@@ -391,6 +392,43 @@ async function runGit(args: string[], cwd: string, ignoreFailure = false): Promi
     if (ignoreFailure) {
       return "";
     }
-    throw new Error(`git ${args[0]} command failed.`);
+    throw new Error(buildGitErrorMessage(args, cwd, error));
   }
+}
+
+function buildGitErrorMessage(
+  args: string[],
+  cwd: string,
+  error: unknown
+): string {
+  const command = `git ${args.join(" ")}`;
+  const base = `Failed to run "${command}" in ${cwd}.`;
+  if (isExecaError(error)) {
+    const segments: string[] = [];
+    if (typeof error.exitCode === "number") {
+      segments.push(`exit code ${error.exitCode}`);
+    }
+    if (typeof error.signal === "string") {
+      segments.push(`signal ${error.signal}`);
+    }
+    const stderr = error.stderr?.trim();
+    const stdout = error.stdout?.trim();
+    const detail = segments.length > 0 ? ` (${segments.join(", ")})` : "";
+    const stderrBlock = stderr ? `\nGit stderr:\n${stderr}` : "";
+    const stdoutBlock = stdout ? `\nGit stdout:\n${stdout}` : "";
+    return `${base}${detail}${stderrBlock}${stdoutBlock}\nRefer to the troubleshooting guide for common fixes.`;
+  }
+  if (error instanceof Error) {
+    return `${base}\n${error.message}\nRefer to the troubleshooting guide for common fixes.`;
+  }
+  return `${base}\n${String(error)}\nRefer to the troubleshooting guide for common fixes.`;
+}
+
+function isExecaError(error: unknown): error is ExecaError {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "exitCode" in error &&
+    "stderr" in error
+  );
 }
