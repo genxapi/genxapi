@@ -124,7 +124,12 @@ async function pushInitialCommit({
 }) {
   await configureGitRemote(projectDir, owner, repo, logger);
   await ensureGitUser(projectDir);
-  await runGit(["checkout", "-B", defaultBranch], projectDir);
+  const hasExistingCommits = await repositoryHasCommits(projectDir);
+  if (hasExistingCommits) {
+    await runGit(["checkout", "-B", defaultBranch], projectDir);
+  } else {
+    await runGit(["checkout", "--orphan", defaultBranch], projectDir);
+  }
   const hasChanges = await commitAll(projectDir, repository.commitMessage, logger);
   if (!hasChanges) {
     logger.info("No changes detected for initial push. Skipping GitHub synchronization.");
@@ -353,6 +358,18 @@ async function getRemoteUrl(projectDir: string, name: string): Promise<string | 
 async function checkoutFromRemote(projectDir: string, branch: string): Promise<boolean> {
   try {
     await runGit(["checkout", "-b", branch, `origin/${branch}`], projectDir);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function repositoryHasCommits(projectDir: string): Promise<boolean> {
+  try {
+    await execa("git", ["rev-parse", "--verify", "HEAD"], {
+      cwd: projectDir,
+      stdio: "pipe"
+    });
     return true;
   } catch {
     return false;
