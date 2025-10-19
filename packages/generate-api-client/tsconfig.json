@@ -9,7 +9,8 @@
     "tsBuildInfoFile": "./dist/.tsbuildinfo",
     "baseUrl": "./",
     "paths": {
-      "@eduardoac/api-client-template": ["../api-client-template/src/index.ts"]
+      "@eduardoac/orval-api-client-template": ["../orval-api-client-template/src/index.ts"],
+      "@eduardoac/kubb-api-client-template": ["../kubb-api-client-template/src/index.ts"]
     }
   },
   "include": ["src"]

@@ -5,7 +5,7 @@
     "directory": "../examples/multi-client-demo",
     "packageManager": "npm",
     "template": {
-      "name": "@eduardoac/api-client-template"
+      "name": "@eduardoac/orval-api-client-template"
     },
     "repository": {
       "owner": "eduardoac",

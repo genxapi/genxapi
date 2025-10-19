@@ -37,7 +37,7 @@ describe("loadCliConfig", () => {
     const { config } = await loadCliConfig({ file: configPath });
     expect(config.project.name).toBe("demo");
     expect(config.project.publish?.npm?.enabled).toBe(false);
-    expect(config.project.template.name).toBe("@eduardoac/api-client-template");
+    expect(config.project.template.name).toBe("@eduardoac/orval-api-client-template");
   });
 
   it("overrides template when provided via CLI option", async () => {
@@ -70,6 +70,6 @@ describe("loadCliConfig", () => {
     );
 
     const { config } = await loadCliConfig({ file: configPath, template: "kubb" });
-    expect(config.project.template.name).toBe("@eduardoac/kubb-client-template");
+    expect(config.project.template.name).toBe("@eduardoac/kubb-api-client-template");
   });
 });

@@ -1,11 +1,11 @@
 import { rm } from "node:fs/promises";
 
 const targets = [
-  "packages/api-client-template/dist",
-  "packages/kubb-client-template/dist",
+  "packages/orval-api-client-template/dist",
+  "packages/kubb-api-client-template/dist",
   "packages/generate-api-client/dist",
-  "packages/api-client-template/coverage",
-  "packages/kubb-client-template/coverage",
+  "packages/orval-api-client-template/coverage",
+  "packages/kubb-api-client-template/coverage",
   "packages/generate-api-client/coverage"
 ];
 

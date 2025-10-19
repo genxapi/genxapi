@@ -3,10 +3,16 @@ import { dirname, resolve } from "pathe";
 import { cosmiconfig } from "cosmiconfig";
 import YAML from "yaml";
 import { z } from "zod";
+import {
+  TEMPLATE_PACKAGE_MAP,
+  UnifiedGeneratorConfigSchema,
+  resolveTemplatePackage,
+  transformUnifiedConfig
+} from "./unified.js";
 import type { LogLevel } from "../utils/logger.js";
 
 const MODULE_NAME = "generate-api-client";
-const DEFAULT_TEMPLATE = "@eduardoac/api-client-template";
+const DEFAULT_TEMPLATE = TEMPLATE_PACKAGE_MAP.orval;
 
 const LogLevelSchema = z.enum(["silent", "error", "warn", "info", "debug"]).default("info");
 
@@ -63,14 +69,30 @@ export async function loadCliConfig(options: LoadCliConfigOptions = {}): Promise
 
   const rawConfig = rawResult.config;
   const overrideTemplate = options.template ? resolveTemplateAlias(options.template) : undefined;
-  const templateName = overrideTemplate ?? resolveTemplateName(rawConfig);
+  const unifiedParsed = UnifiedGeneratorConfigSchema.safeParse(rawConfig);
+
+  let templateName: string;
+  let payload: unknown;
+
+  if (unifiedParsed.success) {
+    templateName = resolveTemplatePackage(overrideTemplate ?? unifiedParsed.data.project.template);
+    const transformed = transformUnifiedConfig(unifiedParsed.data, templateName);
+    payload = {
+      ...transformed.config,
+      logLevel: unifiedParsed.data.logLevel
+    };
+  } else {
+    templateName = overrideTemplate ?? resolveTemplateName(rawConfig);
+    payload = rawConfig;
+  }
+
   const template = await loadTemplateModule(templateName);
 
   const cliSchema = template.schema.extend({
     logLevel: LogLevelSchema
   });
 
-  const parsed = cliSchema.parse(rawConfig) as CliConfig;
+  const parsed = cliSchema.parse(payload) as CliConfig;
   const configWithTemplate: CliConfig = {
     ...parsed,
     project: {
@@ -129,15 +151,8 @@ function parseConfig(content: string, filePath: string): unknown {
   return JSON.parse(content);
 }
 
-const TEMPLATE_ALIASES: Record<string, string> = {
-  orval: "@eduardoac/api-client-template",
-  kubb: "@eduardoac/kubb-client-template"
-};
-
 function resolveTemplateAlias(name: string): string {
-  const trimmed = name.trim();
-  const normalised = trimmed.toLowerCase();
-  return TEMPLATE_ALIASES[normalised] ?? trimmed;
+  return resolveTemplatePackage(name);
 }
 
 function resolveTemplateName(rawConfig: unknown): string {
@@ -151,6 +166,10 @@ function resolveTemplateName(rawConfig: unknown): string {
   }
 
   const template = (project as Record<string, unknown>).template;
+  if (typeof template === "string") {
+    return resolveTemplateAlias(template);
+  }
+
   if (typeof template !== "object" || template === null) {
     return DEFAULT_TEMPLATE;
   }

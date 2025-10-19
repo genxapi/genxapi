@@ -5,7 +5,7 @@
     "directory": "../examples/multi-client-kubb",
     "packageManager": "npm",
     "template": {
-      "name": "@eduardoac/kubb-client-template"
+      "name": "@eduardoac/kubb-api-client-template"
     },
     "repository": {
       "owner": "eduardoac",

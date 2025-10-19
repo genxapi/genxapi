@@ -2,10 +2,12 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "paths": {
-      "@eduardoac/api-client-template": ["../api-client-template/dist/index.d.ts"]
+      "@eduardoac/orval-api-client-template": ["../orval-api-client-template/dist/index.d.ts"],
+      "@eduardoac/kubb-api-client-template": ["../kubb-api-client-template/dist/index.d.ts"]
     }
   },
   "references": [
-    { "path": "../api-client-template" }
+    { "path": "../orval-api-client-template" },
+    { "path": "../kubb-api-client-template" }
   ]
 }

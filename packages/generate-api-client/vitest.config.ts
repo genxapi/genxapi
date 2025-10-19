@@ -8,9 +8,13 @@ export default defineConfig({
     include: ["src/**/*.test.ts"],
     alias: {
       "@cli": path.resolve(__dirname, "src"),
-      "@eduardoac/api-client-template": path.resolve(
+      "@eduardoac/orval-api-client-template": path.resolve(
         __dirname,
-        "../api-client-template/src"
+        "../orval-api-client-template/src"
+      ),
+      "@eduardoac/kubb-api-client-template": path.resolve(
+        __dirname,
+        "../kubb-api-client-template/src"
       )
     },
     deps: {

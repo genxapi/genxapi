@@ -22,7 +22,7 @@ describe("MultiClientConfigSchema", () => {
       ]
     });
 
-    expect(result.project.template.name).toBe("@eduardoac/kubb-client-template");
+    expect(result.project.template.name).toBe("@eduardoac/kubb-api-client-template");
     expect(result.clients[0].copySwagger).toBe(true);
     expect(result.project.publish?.npm?.enabled).toBe(false);
     expect(result.clients[0].kubb.client.client).toBeUndefined();

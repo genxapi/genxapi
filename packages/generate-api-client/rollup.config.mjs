@@ -18,7 +18,8 @@ export default defineConfig([
       typescript({ tsconfig: "./tsconfig.build.json", outputToFilesystem: true })
     ],
     external: [
-      "@eduardoac/api-client-template",
+      "@eduardoac/orval-api-client-template",
+      "@eduardoac/kubb-api-client-template",
       "chalk",
       "commander",
       "cosmiconfig",

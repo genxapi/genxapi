@@ -22,7 +22,7 @@ program
   .option("--target <dir>", "Override the project directory output")
   .option(
     "--template <name>",
-    "Template package or alias (e.g. orval, kubb, @eduardoac/kubb-client-template)"
+    "Template package or alias (e.g. orval, kubb, @eduardoac/kubb-api-client-template)"
   )
   .action(async function (this: Command, options) {
     const logger = new Logger();
