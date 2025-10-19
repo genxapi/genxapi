@@ -20,22 +20,22 @@ Choose your preferred workflow (install the CLI plus the template package you pl
 
 ```bash
 # npm (Orval template)
-npm install --save-dev client-api-generator @eduardoac/api-client-template
+npm install --save-dev client-api-generator @eduardoac/orval-api-client-template
 
 # npm (Kubb template)
-npm install --save-dev client-api-generator @eduardoac/kubb-client-template
+npm install --save-dev client-api-generator @eduardoac/kubb-api-client-template
 
 # pnpm
-pnpm add -D client-api-generator @eduardoac/api-client-template
+pnpm add -D client-api-generator @eduardoac/orval-api-client-template
 
 # yarn
-yarn add --dev client-api-generator @eduardoac/api-client-template
+yarn add --dev client-api-generator @eduardoac/orval-api-client-template
 
 # Try it instantly
 npx client-api-generator --help
 ```
 
-> ℹ️  The Orval template remains the default. Swap `@eduardoac/api-client-template` for `@eduardoac/kubb-client-template` (and ensure Node 20+) when you prefer Kubb’s plug-in ecosystem, or pass `--template kubb` to the CLI for a one-off switch.
+> ℹ️  The Orval template remains the default. Swap `@eduardoac/orval-api-client-template` for `@eduardoac/kubb-api-client-template` (and ensure Node 20+) when you prefer Kubb’s plug-in ecosystem, or pass `--template kubb` to the CLI for a one-off switch.
 
 When contributing to this repository, bootstrap everything with:
 
@@ -54,23 +54,22 @@ By default the CLI looks for `api-client-generatorrc.json` or `api-client-genera
   "project": {
     "name": "petstore-sdk",
     "directory": "./sdk/petstore",
-    "template": {
-      "name": "@eduardoac/api-client-template"
+    "template": "orval",
+    "output": "./src",
+    "config": {
+      "httpClient": "axios",
+      "client": "react-query",
+      "mock": { "type": "msw" }
     },
     "publish": {
-      "npm": {
-        "enabled": false
-      }
+      "npm": { "enabled": false }
     }
   },
   "clients": [
     {
       "name": "petstore",
       "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
-      "output": {
-        "workspace": "./src",
-        "target": "./src/client.ts"
-      }
+      "config": { "baseUrl": "https://api.petstore.local" }
     }
   ]
 }
@@ -79,24 +78,23 @@ By default the CLI looks for `api-client-generatorrc.json` or `api-client-genera
 Prefer TypeScript? Export the config from `api-client-generatorrc.ts`:
 
 ```ts
-import type { CliConfig } from "client-api-generator/config";
+import type { UnifiedGeneratorConfig } from "client-api-generator";
 
-const config: CliConfig = {
+const config: UnifiedGeneratorConfig = {
   project: {
     name: "petstore-sdk",
     directory: "./sdk/petstore",
-    template: {
-      name: "@eduardoac/api-client-template"
+    template: "orval",
+    output: "./src",
+    config: {
+      httpClient: "axios",
+      client: "react-query"
     }
   },
   clients: [
     {
       name: "petstore",
-      swagger: "https://petstore3.swagger.io/api/v3/openapi.json",
-      output: {
-        workspace: "./src",
-        target: "./src/client.ts"
-      }
+      swagger: "https://petstore3.swagger.io/api/v3/openapi.json"
     }
   ]
 };
@@ -116,34 +114,33 @@ npx client-api-generator generate --template kubb --log-level info
 
 Aliases:
 
-- `orval` → `@eduardoac/api-client-template` (default)
-- `kubb` → `@eduardoac/kubb-client-template`
+- `orval` → `@eduardoac/orval-api-client-template` (default)
+- `kubb` → `@eduardoac/kubb-api-client-template`
 
 ### Switching to the Kubb template
 
-Point `project.template.name` at the Kubb package (or run `--template kubb`) and optional Kubb-specific options become available under each client:
+Set `project.template` to `"kubb"` (or run with `--template kubb`) and provide plugin overrides via `config`:
 
 ```jsonc
 {
   "project": {
     "name": "petstore-sdk",
     "directory": "./sdk/petstore",
-    "template": {
-      "name": "@eduardoac/kubb-client-template"
+    "template": "kubb",
+    "config": {
+      "httpClient": "fetch",
+      "plugins": {
+        "client": { "dataReturnType": "data" }
+      }
     }
   },
   "clients": [
     {
       "name": "petstore",
       "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
-      "output": {
-        "workspace": "./src",
-        "target": "./src/client.ts"
-      },
-      "kubb": {
-        "client": {
-          "client": "fetch",
-          "dataReturnType": "data"
+      "config": {
+        "plugins": {
+          "client": { "dataReturnType": "data" }
         }
       }
     }

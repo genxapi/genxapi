@@ -195,6 +195,7 @@ async function writeOrvalConfig(
         schemas: client.output.schemas,
         mode: client.orval.mode,
         client: client.orval.client,
+        httpClient: client.orval.httpClient,
         baseUrl: client.orval.baseUrl,
         mock: client.orval.mock,
         prettier: client.orval.prettier,

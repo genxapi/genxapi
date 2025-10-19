@@ -4,8 +4,16 @@
     "name": "multi-client-demo",
     "directory": "../examples/multi-client-demo",
     "packageManager": "npm",
-    "template": {
-      "name": "@eduardoac/orval-api-client-template"
+    "template": "orval",
+    "output": "./src",
+    "config": {
+      "httpClient": "axios",
+      "client": "react-query",
+      "mode": "split",
+      "mock": {
+        "type": "msw",
+        "useExamples": true
+      }
     },
     "repository": {
       "owner": "eduardoac",
@@ -37,31 +45,20 @@
     {
       "name": "pets",
       "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
-      "output": {
-        "workspace": "./src/pets",
-        "target": "./src/pets/client.ts"
-      },
-      "orval": {
-        "mode": "split",
-        "client": "react-query",
-        "baseUrl": "https://api.pets.local",
-        "mock": true,
-        "prettier": true
+      "config": {
+        "baseUrl": "https://api.pets.local"
       }
     },
     {
       "name": "store",
       "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
-      "output": {
-        "workspace": "./src/store",
-        "target": "./src/store/client.ts"
-      },
-      "orval": {
-        "mode": "split",
+      "config": {
         "client": "axios",
+        "httpClient": "axios",
         "baseUrl": "https://api.store.local",
-        "mock": false,
-        "prettier": true
+        "mock": {
+          "type": "off"
+        }
       }
     }
   ]

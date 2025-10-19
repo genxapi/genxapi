@@ -188,19 +188,32 @@ function normaliseMockValue(
     return undefined;
   }
 
-  const merged: Record<string, unknown> = {};
-  const source = mockOptions ?? {};
   const override = overrides ?? {};
+  const hasOverrideDetails =
+    override.type !== undefined ||
+    override.delay !== undefined ||
+    override.useExamples !== undefined ||
+    override.enabled !== undefined;
 
-  const type = override.type ?? source.type ?? "msw";
+  if (mockOptions === false && !hasOverrideDetails) {
+    return false;
+  }
+
+  const source =
+    typeof mockOptions === "boolean" ? {} : (mockOptions as Record<string, unknown> | undefined) ?? {};
+
+  const type = override.type ?? (source as Record<string, unknown>).type ?? "msw";
   const enabled =
-    override.enabled !== undefined ? override.enabled : type !== "off" && type !== "false";
+    override.enabled !== undefined
+      ? override.enabled
+      : type !== "off" && type !== "false" && mockOptions !== false;
 
   if (!enabled) {
     return false;
   }
 
-  merged.type = type === "off" ? "msw" : type;
+  const merged: Record<string, unknown> = {};
+  merged.type = type === "off" || type === "false" ? "msw" : type;
   const delay = override.delay ?? source.delay;
   if (typeof delay === "number") {
     merged.delay = delay;
@@ -249,8 +262,7 @@ function buildOrvalConfig(
 
   const projectTemplate = createTemplateOptions(
     templatePackage,
-    unified.project.templateOptions,
-    unified.project.template
+    unified.project.templateOptions
   );
 
   const projectConfig: OrvalProjectConfig = cleanUndefined({
@@ -269,10 +281,6 @@ function buildOrvalConfig(
       projectOptions,
       client.config ?? {}
     );
-    const mergedPlugins = mergeOptions(
-      projectOptions.plugins ?? projectOptions.kubb ?? {},
-      client.config?.plugins ?? client.config?.kubb ?? {}
-    );
     const outputs = resolveOutputs(projectOutput, client.output ?? {}, client.name);
 
     const mockValue = normaliseMockValue(mergedOptions.mock);
@@ -284,17 +292,14 @@ function buildOrvalConfig(
       baseUrl: mergedOptions.baseUrl,
       mock: mockValue,
       prettier: mergedOptions.prettier,
-      clean: mergedOptions.clean,
-      plugins: mergedPlugins
+      clean: mergedOptions.clean
     });
 
     return {
       name: client.name,
       swagger: client.swagger,
       output: outputs,
-      orval: orvalOptions,
-      copySwagger: true,
-      swaggerCopyTarget: client.output?.schemas ? client.output.schemas : undefined
+      orval: orvalOptions
     } as OrvalClientConfig;
   });
 
@@ -314,8 +319,7 @@ function buildKubbConfig(
 
   const projectTemplate = createTemplateOptions(
     templatePackage,
-    unified.project.templateOptions,
-    unified.project.template
+    unified.project.templateOptions
   );
 
   const projectConfig: KubbProjectConfig = cleanUndefined({
@@ -361,9 +365,7 @@ function buildKubbConfig(
       name: client.name,
       swagger: client.swagger,
       output: outputs,
-      kubb: kubbOptions,
-      copySwagger: true,
-      swaggerCopyTarget: client.output?.schemas ? client.output.schemas : undefined
+      kubb: kubbOptions
     } as KubbClientConfig;
   });
 
@@ -376,8 +378,7 @@ function buildKubbConfig(
 
 function createTemplateOptions(
   templatePackage: string,
-  options: z.infer<typeof TemplateOptionsSchema>,
-  templateSelector: string
+  options: z.infer<typeof TemplateOptionsSchema>
 ) {
   return cleanUndefined({
     name: templatePackage,

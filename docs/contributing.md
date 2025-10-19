@@ -35,11 +35,12 @@ npm run build
 
 ```text
 packages/
-├── api-client-template/     # Template source and runtime utilities
-└── client-api-generator/    # CLI implementation, commands, and schemas
-docs/                        # User-facing documentation (this folder)
-examples/                    # Sample configs and generated outputs
-samples/                     # Reference configuration files
+├── orval-api-client-template/  # Orval adapter (schema + generateClients)
+├── kubb-api-client-template/   # Kubb adapter
+└── generate-api-client/        # CLI implementation, commands, unified schema
+docs/                            # User-facing documentation (this folder)
+examples/                        # Sample configs and generated outputs
+samples/                         # Reference configuration files
 ```
 
 ## Coding Guidelines

@@ -1,15 +1,19 @@
 # @eduardoac/api-clients — Project Context
 
-> Goal: Preserve the intent and structure of the original context document while reflecting the current implementation of the monorepo. Every item that used to be called out (config, CLI, template, tooling, examples) still appears below, updated to the latest architecture.
+> Goal: Keep the original context document’s intent while reflecting today’s architecture: renamed templates, unified configuration, and the CLI workflow that orchestrates them.
 
 ---
 
 ## 0️⃣ TL;DR
 
-- Monorepo managed with npm workspaces.
-- Three published packages: CLI (`@eduardoac/generate-api-client`) plus Orval (`@eduardoac/api-client-template`) and Kubb (`@eduardoac/kubb-client-template`) templates.
-- Generates multiple clients via pluggable templates (Orval or Kubb), supports hooks, and can create GitHub releases via Octokit.
-- Tooling: TypeScript ES2022, Rollup, Vitest v3, ESLint/Prettier, optional Orval peer.
+- Monorepo managed with npm workspaces on Node ≥ 24.
+- Three published packages:
+  - `@eduardoac/generate-api-client` — the CLI/orchestrator.
+  - `@eduardoac/orval-api-client-template` — first-party Orval adapter.
+  - `@eduardoac/kubb-api-client-template` — first-party Kubb adapter.
+- Configuration is now **engine-agnostic**: `project.template` chooses `orval` or `kubb`, while `project.config` / `clients[].config` capture shared options (`httpClient`, `client`, `mode`, `mock`, plugin overrides).
+- CLI exposes the same knobs via flags (`--template`, `--http-client`, `--client`, `--mode`, `--mock-*`).
+- Tooling: TypeScript (ES2022), Rollup, Vitest v3, ESLint/Prettier.
 
 ---
 
@@ -18,97 +22,140 @@
 ```plaintext
 / (root)
  ├── README.md
- ├── package.json          # Private workspace orchestrator
+ ├── package.json                 # Private workspace orchestrator
  ├── scripts/
- │    └── clean.mjs         # Cleans dist/coverage for all packages
+ │    └── clean.mjs               # Removes dist/coverage across packages
  ├── samples/
- │    └── multi-client.config.json
+ │    ├── multi-client.config.json    # Orval-focused unified config sample
+ │    └── kubb-multi-client.config.json # Kubb-focused unified config sample
  ├── packages/
- │    ├── api-client-template/
+ │    ├── orval-api-client-template/
  │    │    ├── package.json
  │    │    └── src/...
- │    ├── kubb-client-template/
+ │    ├── kubb-api-client-template/
  │    │    ├── package.json
  │    │    └── src/...
  │    └── generate-api-client/
  │         ├── package.json
  │         └── src/...
+ ├── packages/generate-api-client/schemas/
+ │    └── generate-api-client.schema.json  # Unified JSON schema
  ├── tsconfig.base.json
- ├── .npmrc
  ├── vitest.config.ts
- ├── .eslintrc.cjs
- ├── .prettierrc.json
- └── .gitignore
+ ├── .npmrc
+ ├── docs/
+ │    └── … (configuration, scope, templates)
+ └── .context/
+      ├── project-context.md       # This file
+      ├── troubleshooting.md
+      ├── docs-upgrade-playbook.md
+      └── toolkit.md
 ```
 
-Each numbered section below retains the original doc’s “Purpose + Path + Example Snippet” structure, now aligned with the actual repo.
+Each numbered section below retains the “purpose + path + example” format from the original context.
 
 ---
 
 ## 1️⃣ `.context/project-context.md` (this file)
 
-✅ **Purpose:** Living source of truth for the repo’s architecture, replacing the old `/docs/context.md`.
-
-```markdown
-# @eduardoac/api-clients — Project Context
-> Goal: ...
-```
+✅ **Purpose:** Single reference for architecture, naming, samples, and tooling.
 
 ---
 
-## 2️⃣ `README.md` (root)
+## 2️⃣ `README.md`
 
-✅ **Purpose:** Entry point for contributors—install, build/test workflow, publishing instructions.
-
-```markdown
-# @eduardoac/api-clients
-
-Monorepo that hosts:
-- `@eduardoac/api-client-template`
-- `@eduardoac/generate-api-client`
-
-## Getting Started
-```
+✅ **Purpose:** Contributor entry point – highlights unified config, CLI flags (`--template`, `--http-client`, etc.), quickstart install commands, and links to detailed docs (`docs/configuration/unified-generator-config.md`).
 
 ---
 
 ## 3️⃣ `package.json` (root workspace)
 
-✅ **Purpose:** Defines workspaces, shared scripts, and dev tooling (`typescript`, `eslint`, `prettier`, etc.). Node ≥24 required.
+✅ **Purpose:** Declares workspaces (`packages/*`), shared scripts, and dev tooling. Scripts reference renamed packages:
 
 ```json
 {
-  "name": "@eduardoac/api-clients-monorepo",
-  "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
-    "build": "npm run build --workspace @eduardoac/api-client-template && ...",
-    "typecheck": "tsc -p packages/api-client-template/tsconfig.json --noEmit && tsc -p packages/generate-api-client/tsconfig.json --noEmit"
+    "build": "npm run build --workspace @eduardoac/orval-api-client-template && npm run build --workspace @eduardoac/kubb-api-client-template && npm run build --workspace @eduardoac/generate-api-client",
+    "typecheck": "tsc -p packages/orval-api-client-template/tsconfig.json --noEmit && tsc -p packages/kubb-api-client-template/tsconfig.json --noEmit && tsc -p packages/generate-api-client/tsconfig.json --noEmit"
   }
 }
 ```
 
 ---
 
-## 4️⃣ `samples/multi-client.config.json`
+## 4️⃣ `samples/*.config.json`
 
-✅ **Purpose:** Concrete configuration example consumed by the CLI/template. Replaces the simple `api-client-generatorrc.json` from the old doc with multi-client support.
+✅ **Purpose:** Canonical **unified** configuration examples consumed by the CLI.
 
+### `samples/multi-client.config.json`
 ```json
 {
-  "$schema": ".../generate-api-client.schema.json",
+  "$schema": "https://raw.githubusercontent.com/eduardoac/api-clients/main/schemas/generate-api-client.schema.json",
+  "logLevel": "info",
   "project": {
     "name": "multi-client-demo",
-    "directory": "./examples/multi-client-demo",
-    "packageManager": "npm"
+    "directory": "../examples/multi-client-demo",
+    "template": "orval",
+    "output": "./src",
+    "config": {
+      "httpClient": "axios",
+      "client": "react-query",
+      "mode": "split",
+      "mock": { "type": "msw", "useExamples": true }
+    }
   },
   "clients": [
     {
       "name": "pets",
-      "swagger": "./specs/petstore.yaml",
-      "output": { "workspace": "./src/pets", "target": "./src/pets/client.ts" }
+      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
+      "config": { "baseUrl": "https://api.pets.local" }
+    },
+    {
+      "name": "store",
+      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
+      "config": {
+        "client": "axios",
+        "httpClient": "axios",
+        "baseUrl": "https://api.store.local",
+        "mock": { "type": "off" }
+      }
+    }
+  ]
+}
+```
+
+### `samples/kubb-multi-client.config.json`
+```json
+{
+  "project": {
+    "name": "multi-client-kubb-demo",
+    "directory": "../examples/multi-client-kubb",
+    "template": "kubb",
+    "output": "./src",
+    "config": {
+      "httpClient": "fetch",
+      "plugins": {
+        "client": { "dataReturnType": "data" },
+        "ts": { "enumType": "asConst" }
+      }
+    }
+  },
+  "clients": [
+    {
+      "name": "pets",
+      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
+      "config": { "baseUrl": "https://api.pets.local" }
+    },
+    {
+      "name": "store",
+      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
+      "config": {
+        "httpClient": "axios",
+        "plugins": {
+          "client": { "dataReturnType": "full" },
+          "ts": { "enumType": "enum" }
+        },
+        "baseUrl": "https://api.store.local" }
     }
   ]
 }
@@ -118,157 +165,100 @@ Monorepo that hosts:
 
 ## 5️⃣ `scripts/clean.mjs`
 
-✅ **Purpose:** Aligns with the “utility scripts” concept from the original plan—cleans build artifacts for both packages.
+✅ **Purpose:** Cleans build artefacts for all packages using the new directory names.
 
 ```js
-import { rm } from "node:fs/promises";
-
 const targets = [
-  "packages/api-client-template/dist",
+  "packages/orval-api-client-template/dist",
+  "packages/kubb-api-client-template/dist",
   "packages/generate-api-client/dist",
-  "packages/api-client-template/coverage",
+  "packages/orval-api-client-template/coverage",
+  "packages/kubb-api-client-template/coverage",
   "packages/generate-api-client/coverage"
 ];
-
-await Promise.all(targets.map((target) => rm(target, { recursive: true, force: true })));
 ```
 
 ---
 
-## 6️⃣ `tsconfig.base.json`
+## 6️⃣ `vitest.config.ts`
 
-✅ **Purpose:** Shared TypeScript settings replacing the single-project `tsconfig.json` in the old doc.
-
-```json
-{
-  "compilerOptions": {
-    "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "Bundler",
-    "strict": true,
-    "noEmit": true
-  },
-  "include": ["packages/*/src", "samples"]
-}
-```
-
----
-
-## 7️⃣ `vitest.config.ts`
-
-✅ **Purpose:** Root test runner configuration (Vitest v3) covering both workspaces, replacing the former doc’s generic mention of tests.
+✅ **Purpose:** Root test runner covering CLI and both templates.
 
 ```ts
-import { defineConfig } from "vitest/config";
-
 export default defineConfig({
   test: {
     include: [
-      "packages/api-client-template/src/**/*.test.ts",
+      "packages/orval-api-client-template/src/**/*.test.ts",
+      "packages/kubb-api-client-template/src/**/*.test.ts",
       "packages/generate-api-client/src/**/*.test.ts"
-    ],
-    coverage: { reporter: ["text", "lcov"] }
+    ]
   }
 });
 ```
 
 ---
 
-## 8️⃣ `.eslintrc.cjs` & `.prettierrc.json`
+## 7️⃣ Template packages
 
-✅ **Purpose:** Modern lint/format stack (ESLint, @typescript-eslint, Prettier) continuing the original “keep generated code clean” goal.
+- `packages/orval-api-client-template/`
+  - Builds and publishes `@eduardoac/orval-api-client-template`.
+  - Exports `MultiClientConfigSchema` and `generateClients` for Orval.
+  - Supports extended options: `httpClient`, `mock` object, cleaned outputs.
+- `packages/kubb-api-client-template/`
+  - Houses Kubb integration (`@eduardoac/kubb-api-client-template`).
+  - Accepts plugin overrides under `config.plugins` or `config.kubb` (merged into Kubb’s `plugin-client`, `plugin-ts`, `plugin-oas`).
 
-```js
-module.exports = {
-  parser: "@typescript-eslint/parser",
-  plugins: ["@typescript-eslint"],
-  extends: ["eslint:recommended", "plugin:@typescript-eslint/recommended", "prettier"]
-};
-```
-
-```json
-{
-  "singleQuote": true,
-  "semi": true,
-  "printWidth": 100
-}
-```
+Both templates ship with Rollup, TypeScript, Vitest, and mirror one another structurally for consistency.
 
 ---
 
-## 9️⃣ Template packages
+## 8️⃣ CLI (`packages/generate-api-client/`)
 
-### `@eduardoac/api-client-template` (Orval)
+Key updates:
 
-- **Path**: `packages/api-client-template`
-- **Purpose**: Reusable module that loads multi-client configs, scaffolds template projects, applies token replacements, and optionally executes Orval + hooks.
-- **Highlights**:
-  - `src/generator.ts`: Handles filesystem work, Orval command execution via `execa`, hook orchestration.
-  - `src/types.ts`: Zod schemas (`MultiClientConfigSchema`, etc.) including optional `repository` and `publish.npm` support.
-  - `src/template/`: Base project (Rollup config, TypeScript configs, placeholder runtime).
-  - `rollup.config.mjs`: Bundles ESM + types.
-  - `package.json`: Runs on Node ≥18, depends on `cosmiconfig`, `fs-extra`, `globby`, optional peer `orval`, publishes with `publishConfig.access = restricted`.
-  - Template bundle includes `.npmrc` pinned to the public npm registry so generated installs don’t inherit private registries (e.g., GitHub Packages) from the parent project.
-  - Scripts include `publish:npm`, `publish:npm-public`, and `publish:github` for whichever registry you target.
+- `loadCliConfig` recognises the unified schema. It transforms configs into the template-specific format when `project.template` is `"orval"` or `"kubb"`.
+- New module `src/config/unified.ts` defines the Zod schema, mapping logic, and CLI overrides (`TemplateOverrides`).
+- `generate` command accepts additional flags:
 
-```ts
-export async function generateClients(config: MultiClientConfig, options: GenerateClientsOptions = {}) {
-  // scaffold template, apply replacements, copy swagger docs, run hooks,
-  // invoke orval (via pnpm/yarn/npm/bun), log success
-}
-```
+  | Flag | Purpose |
+  |------|---------|
+  | `--http-client` | Force axios or fetch across clients. |
+  | `--client` | Override Orval runtime (react-query, swr, vue-query, etc.). |
+  | `--mode` | Select Orval mode (split, split-tag, …). |
+  | `--base-url` | Override base URL for every client. |
+  | `--mock-type`, `--mock-delay`, `--mock-use-examples` | Control mock generation profile. |
 
-### `@eduardoac/kubb-client-template` (Kubb)
-
-- **Path**: `packages/kubb-client-template`
-- **Purpose**: Mirrors the Orval template but emits `kubb.config.ts` files that orchestrate Kubb plugins (`plugin-oas`, `plugin-ts`, `plugin-client`) per client.
-- **Highlights**:
-  - `src/generator.ts`: Copies scaffolding, merges user overrides into Kubb plugin options, runs `@kubb/cli` via the appropriate package manager.
-  - `src/types.ts`: Zod schemas matching the shared project settings plus `kubb` overrides (`oas`, `ts`, `client`).
-  - `src/template/`: Ships with Kubb devDependencies (`@kubb/cli`, `@kubb/plugin-*`) and the same Rollup/Vitest toolchain for parity with the Orval template.
-  - Shares README automation, hook support, and registry scripts, ensuring downstream repos behave the same regardless of generator.
+- Overrides are applied via `applyTemplateOverrides` before invoking template `generateClients`.
+- JSON schema (`schemas/generate-api-client.schema.json`) mirrors the unified Zod schema—editors gain IntelliSense by referencing it.
 
 ---
 
-## 🔟 Package: `@eduardoac/generate-api-client`
+## 9️⃣ Docs & Context
 
-- **Path**: `packages/generate-api-client`
-- **Purpose**: CLI that wraps the template package and adds GitHub release automation.
-- **Highlights**:
-  - `src/index.ts`: Commander commands (`generate`, `publish`), log-level handling.
-  - `generate` command accepts `--template <alias>` (e.g. `kubb`, `orval`) to override the template package without editing config files.
-  - `src/commands/*`: `runGenerateCommand`, `runPublishCommand` (with `ora` spinners and Octokit).
-  - `src/config/loader.ts`: Cosmiconfig loader that resolves the template package at runtime (default Orval, optional Kubb) and validates configs.
-  - `schemas/generate-api-client.schema.json`: JSON schema for configs.
-  - `src/services/github.ts`: GitHub automation (repo bootstrap, branch push, PR creation).
-  - `src/services/npm.ts`: Optional npm publish workflow.
-  - `src/utils/swaggerDiff.ts`: Analyzes Swagger diffs and classifies semantic-release commit type (`feat`/`fix`/`chore`).
-  - `package.json`: ships CLI binaries, marks publishConfig as `restricted` while under development.
-  - Scripts include `publish:npm`, `publish:npm-public`, and `publish:github` to push releases to private npm or GitHub Packages.
-  - Depends on `chalk`, `commander`, `cosmiconfig`, `octokit`, `ora`, `execa`, `zod`, and carries `@eduardoac/api-client-template` as the default template dependency (others are loaded if installed).
+- `docs/configuration/unified-generator-config.md` — detailed breakdown of the unified config, mapping tables for Orval/Kubb, CLI flag equivalents.
+- `docs/templates/orval-api-client-template.md` and `docs/templates/kubb-api-client-template.md` — how to consume generated models (React Query hooks, MSW mocks, Kubb plugin outputs, etc.).
+- `README.md`, `docs/context.md`, and `docs/scope.md` reference the renamed packages and unified interface.
+- `.context/troubleshooting.md` includes guidance for git init issues and dependency conflicts (updated with orphan checkout fix and Kubb v4 upgrade).
 
-```ts
-program
-  .command("generate")
-  .option("-c, --config <path>")
-  .option("--dry-run")
-  .action(async (opts) => {
-    const { config, configDir } = await loadCliConfig({ file: opts.config });
-    await runGenerateCommand({ config, configDir, logger, dryRun: opts.dryRun });
-  });
-```
+---
+
+## 🔚 Summary
+
+The repo now standardises template naming, configuration, and documentation around a **unified orchestration layer**. All config (files, CLI flags, schema) funnels through the same interface, which is then mapped to the appropriate engine adapter. This keeps future templates pluggable while giving users a consistent workflow, regardless of whether they target Orval, Kubb, or custom generators.
 
 ---
 
 ## 1️⃣1️⃣ Example / Sample Output
 
-While we don’t keep generated SDKs in-repo, the `samples/multi-client.config.json` plus documentation in package READMEs mirror the original “examples/sample-api” intent. Running:
+We do not keep generated SDKs committed to the repo, but the sample configs plus template READMEs cover the previous “examples/sample-api” intent. To validate configuration and see log output without writing to disk:
 
 ```bash
-node packages/generate-api-client/dist/index.js generate --config samples/multi-client.config.json --dry-run
+node packages/generate-api-client/dist/index.js generate \
+  --config samples/multi-client.config.json \
+  --dry-run
 ```
 
-demonstrates configuration validation and log output without touching the filesystem.
+Pair this with `--template kubb` or the unified overrides (`--http-client`, `--client`, `--mode`, etc.) to check the mapping logic.
 
 ---
 
@@ -276,30 +266,26 @@ demonstrates configuration validation and log output without touching the filesy
 
 | Command | Description |
 |---------|-------------|
-| `npm install` | Installs workspaces (Node ≥24 recommended to avoid engine warnings). |
-| `npm run build` | Builds template + CLI via Rollup. |
-| `npm test` | Runs Vitest suites. |
-| `npm run clean` | Removes `dist/coverage`. |
-| `npm run npm-publish --workspace <pkg>` | Publishes template or CLI (replaces old “npm publish” command naming). |
-| `generate-api-client generate` | Generates clients, optionally syncs GitHub repositories and runs npm publish. |
-| `generate-api-client publish` | Uses Octokit to create GitHub releases (token required). |
+| `npm install` | Installs all workspaces (Node ≥ 24 recommended to avoid engine warnings). |
+| `npm run build` | Builds both templates and the CLI via Rollup. |
+| `npm test` | Runs Vitest suites across workspaces. |
+| `npm run clean` | Removes `dist/` and `coverage/` artefacts. |
+| `npm run npm-publish --workspace <pkg>` | Publishes a specific workspace (template or CLI). |
+| `npx client-api-generator generate` | Generates clients, runs hooks, syncs GitHub, and honours npm publish settings. |
+| `npx client-api-generator publish` | Uses Octokit to create GitHub releases (requires `GITHUB_TOKEN`). |
 
-**Runtime note:** Orval 7.x bundles Commander 14, which requires Node 20+. Running generation on Node 18 works but prints engine warnings; encourage contributors to use Node ≥20 for a clean experience.
+**Runtime note:** Orval 7.x bundles Commander 14 which officially targets Node 20+. Running generation on Node 18 works but prints engine warnings—encourage contributors to use Node ≥ 20 for a clean experience.
 
-Security snapshot (as of 2025-10-18):
-- `npm audit` → **0 vulnerabilities** after removing direct `@orval/core` dependency.
-- Orval remains a peer/consumer responsibility, preventing vulnerable `validator` tree from landing automatically.
+Security snapshot (2025‑10‑18):
+- `npm audit` → **0 known vulnerabilities** after moving Orval to a peer dependency.
+- Orval remains a consumer responsibility, preventing the vulnerable `validator` subtree from landing automatically.
 
 ---
 
 ## 🚀 Next Steps & Enhancements
 
-- Optional: move this file to `/docs` and add diagrams for generation flow.
-- Provide additional config samples (hooks, remote swagger, skip install/generate cases).
-- Consider adding an `examples/` workspace that runs the CLI to produce actual clients for smoke testing.
-- Automate release tagging / changelog generation (e.g., Changesets) building on the `publish` command.
-- Consult `.context/docs-upgrade-playbook.md` for the latest documentation structure and style guardrails before editing `/docs`.
-
----
-
-_Last updated: 2025-10-18_
+- Consider relocating this file to `/docs` alongside diagrams that illustrate the generation flow.
+- Provide additional config samples (hooks, remote swagger sources, skip install/generate scenarios).
+- Add an `examples/` workspace that runs the CLI end-to-end for smoke testing.
+- Automate release tagging / changelog generation (e.g. Changesets) building on the `publish` command.
+- Before editing `/docs`, consult `.context/docs-upgrade-playbook.md` for style and structure guardrails.

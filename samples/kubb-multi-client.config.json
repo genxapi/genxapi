@@ -4,8 +4,18 @@
     "name": "multi-client-kubb-demo",
     "directory": "../examples/multi-client-kubb",
     "packageManager": "npm",
-    "template": {
-      "name": "@eduardoac/kubb-api-client-template"
+    "template": "kubb",
+    "output": "./src",
+    "config": {
+      "httpClient": "fetch",
+      "plugins": {
+        "client": {
+          "dataReturnType": "data"
+        },
+        "ts": {
+          "enumType": "asConst"
+        }
+      }
     },
     "repository": {
       "owner": "eduardoac",
@@ -37,35 +47,24 @@
     {
       "name": "pets",
       "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
-      "output": {
-        "workspace": "./src/pets",
-        "target": "./src/pets/client.ts"
-      },
-      "kubb": {
-        "client": {
-          "client": "fetch",
-          "dataReturnType": "data"
-        },
-        "ts": {
-          "enumType": "asConst"
-        }
+      "config": {
+        "baseUrl": "https://api.pets.local"
       }
     },
     {
       "name": "store",
       "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
-      "output": {
-        "workspace": "./src/store",
-        "target": "./src/store/client.ts"
-      },
-      "kubb": {
-        "client": {
-          "client": "axios",
-          "dataReturnType": "full"
+      "config": {
+        "httpClient": "axios",
+        "plugins": {
+          "client": {
+            "dataReturnType": "full"
+          },
+          "ts": {
+            "enumType": "enum"
+          }
         },
-        "ts": {
-          "enumType": "enum"
-        }
+        "baseUrl": "https://api.store.local"
       }
     }
   ]

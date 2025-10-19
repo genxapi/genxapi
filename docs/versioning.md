@@ -18,10 +18,11 @@ We follow [SemVer](https://semver.org/):
 
 ## Managing Versions in the Template
 
-The template stores its version in `package.json` and `package-lock.json`. Increment the version before publishing:
+Each template stores its own version in `package.json`. Increment the version before publishing:
 
 ```bash
-npm version patch --workspace @eduardoac/api-client-template
+npm version patch --workspace @eduardoac/orval-api-client-template
+npm version patch --workspace @eduardoac/kubb-api-client-template
 npm version patch --workspace client-api-generator
 ```
 

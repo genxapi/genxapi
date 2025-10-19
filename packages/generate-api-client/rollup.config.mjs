@@ -20,6 +20,7 @@ export default defineConfig([
     external: [
       "@eduardoac/orval-api-client-template",
       "@eduardoac/kubb-api-client-template",
+      "merge-deep",
       "chalk",
       "commander",
       "cosmiconfig",

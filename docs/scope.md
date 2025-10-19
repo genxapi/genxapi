@@ -11,6 +11,7 @@ This project does **not** replace Orval, Kubb, or any other generator. Instead, 
 ### Generation orchestration
 
 - Uses the engines declared in templates (first-party adapters include Orval and Kubb) to produce SDKs from OpenAPI schemas.
+- Accepts a unified configuration surface (`project.template`, `project.config`, `clients[].config`) that is mapped onto each template automatically.
 - Supports multiple clients within a monorepo or spread across repositories.
 - Handles configuration discovery (`api-client-generatorrc.*`) and per-client overrides.
 

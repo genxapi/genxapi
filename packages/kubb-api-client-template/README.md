@@ -21,3 +21,30 @@ await generateClients(config, { runKubb: true });
 See `src/types.ts` for the full schema. Each client can tweak the Kubb plugin options via the `kubb.oas`, `kubb.ts`, and `kubb.client` objects which are shallowly merged into sensible defaults.
 
 > Heads up: for now this package assumes you will install `@kubb/cli`, `@kubb/core`, `@kubb/plugin-client`, `@kubb/plugin-oas`, and `@kubb/plugin-ts` inside the generated project. The template’s `package.json` already lists them under `devDependencies`.
+
+### Example configuration fragment
+
+```jsonc
+{
+  "project": {
+    "name": "inventory-client",
+    "directory": "./clients/inventory",
+    "template": { "name": "@eduardoac/kubb-api-client-template" }
+  },
+  "clients": [
+    {
+      "name": "items",
+      "swagger": "./specs/inventory.yaml",
+      "kubb": {
+        "client": {
+          "client": "fetch",
+          "dataReturnType": "data"
+        },
+        "ts": {
+          "enumType": "asConst"
+        }
+      }
+    }
+  ]
+}
+```

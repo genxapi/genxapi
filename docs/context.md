@@ -2,7 +2,7 @@
 
 ## Overview
 
-`client-api-generator` is a meta-orchestrator that still behaves like a client API generator from the user’s perspective. It coordinates SDK delivery from OpenAPI specification through to packaged release artefacts: discovering configuration, delegating code generation to the engines defined by your templates, then managing versioning, Git automation, and registry publishing. The goal is to replace hand-rolled scripts with a repeatable, configuration-driven workflow that runs the same way on a laptop or in CI.
+`client-api-generator` is a meta-orchestrator that still behaves like a client API generator from the user’s perspective. It coordinates SDK delivery from OpenAPI specification through to packaged release artefacts: discovering configuration, delegating code generation to the engines defined by your templates, then managing versioning, Git automation, and registry publishing. Configuration is now **unified**—you describe intent once (`httpClient`, `client`, `mode`, `mock`, plugin overrides) and the CLI maps it onto the selected template (`@eduardoac/orval-api-client-template`, `@eduardoac/kubb-api-client-template`, or a custom adapter).
 
 ## Architecture at a glance
 
@@ -38,31 +38,46 @@ All templates are treated as pluggable executors, letting teams add or swap gene
 
 ## Configuration model
 
-Configuration files follow the `api-client-generatorrc` naming convention and are validated with Zod schemas. A minimal example:
+Configuration files follow the `api-client-generatorrc` naming convention and are validated with the unified schema. A minimal example:
 
 ```json
 {
-  "$schema": "./node_modules/client-api-generator/schemas/generate-api-client.schema.json",
+  "$schema": "https://raw.githubusercontent.com/eduardoac/api-clients/main/schemas/generate-api-client.schema.json",
+  "logLevel": "info",
   "project": {
     "name": "billing-clients",
     "directory": "./sdk",
-    "packageManager": "npm"
+    "template": "orval",
+    "output": "./src",
+    "config": {
+      "httpClient": "axios",
+      "client": "react-query",
+      "mode": "split",
+      "mock": { "type": "msw", "useExamples": true }
+    },
+    "repository": {
+      "owner": "acme",
+      "name": "billing-clients",
+      "pullRequest": {
+        "branchPrefix": "chore/clients"
+      }
+    },
+    "publish": {
+      "npm": { "enabled": false }
+    }
   },
   "clients": [
     {
       "name": "ledger",
       "swagger": "./specs/ledger.yaml",
-      "output": {
-        "workspace": "./packages/ledger",
-        "target": "./packages/ledger/src/client.ts"
-      },
-      "hooks": {
-        "postGenerate": ["npm run lint --workspace ledger"]
-      },
-      "publish": {
-        "npm": {
-          "access": "restricted"
-        }
+      "config": { "baseUrl": "https://api.acme.internal" }
+    },
+    {
+      "name": "analytics",
+      "swagger": "https://api.acme.dev/analytics/openapi.json",
+      "config": {
+        "client": "swr",
+        "mock": { "type": "off" }
       }
     }
   ]
@@ -71,8 +86,9 @@ Configuration files follow the `api-client-generatorrc` naming convention and ar
 
 Key capabilities:
 
-- Multiple clients per configuration, each with bespoke generator inputs and publishing settings.
-- Optional hooks before/after generation for validation or custom bundling.
+- Multiple clients per configuration, each with bespoke overrides while sharing project-wide defaults.
+- Template selection via `project.template` (`orval`, `kubb`, or a custom package).
+- Optional hooks before/after generation for validation or bundling.
 - Registry options for public or private npm scopes.
 - Repository metadata (`owner`, `repo`, default branch) to enable release automation.
 
@@ -82,6 +98,7 @@ Key capabilities:
 
 - Discovers configuration, prepares template files, and invokes the generators declared by your templates.
 - Supports `--dry-run` for safe CI validation.
+- Accepts overrides such as `--template`, `--http-client`, `--client`, `--mode`, `--mock-type` which merge on top of the unified config.
 - Writes Git-ready changes without forcing a commit, allowing further review.
 
 ### `diff`

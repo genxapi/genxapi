@@ -50,26 +50,32 @@ Maintaining a fleet of SDKs is labour-intensive. Specs drift faster than client 
 
 ## Quickstart
 
-Install the orchestrator alongside whichever first-party template you plan to use:
+Install the orchestrator alongside the template package you intend to drive:
 
 ```bash
 # Orval template
-npm install --save-dev client-api-generator @eduardoac/api-client-template
+npm install --save-dev client-api-generator @eduardoac/orval-api-client-template
 
 # Kubb template
-npm install --save-dev client-api-generator @eduardoac/kubb-client-template
+npm install --save-dev client-api-generator @eduardoac/kubb-api-client-template
 ```
 
-Create a starter config and generate clients locally:
+Create a unified config and generate clients locally:
 
 ```bash
 cp samples/multi-client.config.json ./api-client-generatorrc.json
 npx client-api-generator generate --log-level info
 
-# Switch templates on the fly
-npx client-api-generator generate --template kubb --log-level info
+# Switch engines or override behaviour at runtime
+npx client-api-generator generate \
+  --template kubb \
+  --http-client fetch \
+  --mode split-tag \
+  --mock-type msw
 
-Aliases: `orval` → `@eduardoac/api-client-template` (default), `kubb` → `@eduardoac/kubb-client-template`.
+# Aliases resolved by the CLI
+#   orval → @eduardoac/orval-api-client-template (default)
+#   kubb  → @eduardoac/kubb-api-client-template
 ```
 
 Dry-run a release to verify GitHub and npm connectivity:
@@ -135,7 +141,7 @@ Start with the [Getting Started guide](docs/getting-started.md) to wire the orch
 
 ## Further reading
 
-- [Configuration reference](docs/configuration.md)
+- [Unified configuration](docs/configuration/unified-generator-config.md)
 - [CI integration](docs/ci-integration.md)
 - [Templates & adapters](docs/templates.md)
 - [Versioning & releases](docs/versioning.md)
@@ -143,8 +149,8 @@ Start with the [Getting Started guide](docs/getting-started.md) to wire the orch
 - [Next steps & roadmap](docs/next-steps.md)
 ### Templates and generators
 
-- **TypeScript template (Orval)** — ships with the monorepo and remains the default starting point.
-- **Language adapters (Kubb)** — optional packages give access to Python, Go, .NET, and other outputs.
-- **Custom engines** — wire in additional generators by extending the template folder or calling them from hooks.
+- **Orval template (`@eduardoac/orval-api-client-template`)** — the default adapter for TypeScript + React Query workflows. [Usage guide](docs/templates/orval-api-client-template.md).
+- **Kubb template (`@eduardoac/kubb-api-client-template`)** — exposes the Kubb plugin ecosystem for multi-language SDKs. [Usage guide](docs/templates/kubb-api-client-template.md).
+- **Custom engines** — wire in additional generators by extending templates or invoking them from lifecycle hooks.
 
 Templates are versioned alongside the orchestrator so teams can upgrade the workflow without rewriting scripts.

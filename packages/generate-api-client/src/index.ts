@@ -3,6 +3,7 @@ import { resolve as resolvePath } from "node:path";
 import { relative as relativePath } from "pathe";
 import { Command } from "commander";
 import { loadCliConfig } from "./config/loader.js";
+import type { TemplateOverrides } from "./config/unified.js";
 import { runGenerateCommand } from "./commands/generate.js";
 import { runPublishCommand } from "./commands/publish.js";
 import { Logger, type LogLevel } from "./utils/logger.js";
@@ -24,6 +25,23 @@ program
     "--template <name>",
     "Template package or alias (e.g. orval, kubb, @eduardoac/kubb-api-client-template)"
   )
+  .option("--http-client <name>", "Override the HTTP client implementation (axios|fetch)")
+  .option(
+    "--client <name>",
+    "Override the generated client adapter (react-query|swr|vue-query|svelte-query|axios|angular|zod|fetch)"
+  )
+  .option(
+    "--mode <mode>",
+    "Override the generator output mode (single|split|split-tag|split-tags|tags|tags-split)"
+  )
+  .option("--base-url <url>", "Override the default base URL applied to generated clients")
+  .option("--mock-type <type>", "Select mock adapter (msw|off)")
+  .option(
+    "--mock-delay <ms>",
+    "Mock response delay in milliseconds",
+    (value: string) => Number.parseInt(value, 10)
+  )
+  .option("--mock-use-examples", "Use OpenAPI examples when generating mocks")
   .action(async function (this: Command, options) {
     const logger = new Logger();
     try {
@@ -58,7 +76,8 @@ program
         configDir,
         logger,
         dryRun: options.dryRun,
-        template
+        template,
+        overrides: buildOverridesFromOptions(options)
       });
     } catch (error) {
       logger.error(error instanceof Error ? error.message : String(error));
@@ -98,3 +117,50 @@ program
   });
 
 program.parseAsync(process.argv);
+
+export { UnifiedGeneratorConfigSchema } from "./config/unified.js";
+export type { UnifiedGeneratorConfig, UnifiedClientOptions, TemplateOverrides } from "./config/unified.js";
+
+function buildOverridesFromOptions(options: Record<string, any>): TemplateOverrides | undefined {
+  const overrides: TemplateOverrides = {};
+
+  if (typeof options.httpClient === "string" && options.httpClient.length > 0) {
+    overrides.httpClient = options.httpClient;
+  }
+
+  if (typeof options.client === "string" && options.client.length > 0) {
+    overrides.client = options.client;
+  }
+
+  if (typeof options.mode === "string" && options.mode.length > 0) {
+    overrides.mode = options.mode;
+  }
+
+  if (typeof options.baseUrl === "string" && options.baseUrl.length > 0) {
+    overrides.baseUrl = options.baseUrl;
+  }
+
+  const mock: NonNullable<TemplateOverrides["mock"]> = {};
+  let hasMockOverride = false;
+
+  if (typeof options.mockType === "string" && options.mockType.length > 0) {
+    mock.type = options.mockType;
+    hasMockOverride = true;
+  }
+
+  if (typeof options.mockDelay === "number" && !Number.isNaN(options.mockDelay)) {
+    mock.delay = options.mockDelay;
+    hasMockOverride = true;
+  }
+
+  if (options.mockUseExamples === true) {
+    mock.useExamples = true;
+    hasMockOverride = true;
+  }
+
+  if (hasMockOverride) {
+    overrides.mock = mock;
+  }
+
+  return Object.keys(overrides).length > 0 ? overrides : undefined;
+}

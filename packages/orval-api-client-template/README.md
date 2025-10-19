@@ -71,19 +71,11 @@ await generateClients(config);
   "project": {
     "name": "demo-client",
     "directory": "./clients/demo",
+    "template": { "name": "@eduardoac/orval-api-client-template" },
     "repository": {
       "owner": "your-handle",
       "name": "demo-client-repo",
-      "pullRequest": {
-        "branchPrefix": "chore/clients"
-      }
-    },
-    "publish": {
-      "npm": {
-        "enabled": true,
-        "tag": "latest",
-        "command": "npm"
-      }
+      "pullRequest": { "branchPrefix": "chore/clients" }
     }
   },
   "clients": [
@@ -93,6 +85,11 @@ await generateClients(config);
       "output": {
         "workspace": "./src/pets",
         "target": "./src/pets/client.ts"
+      },
+      "orval": {
+        "client": "react-query",
+        "httpClient": "axios",
+        "mock": { "type": "msw", "delay": 300 }
       }
     }
   ]

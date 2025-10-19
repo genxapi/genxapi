@@ -1,5 +1,17 @@
 import { z } from "zod";
 
+const MockConfigSchema = z
+  .union([
+    z.boolean(),
+    z
+      .object({
+        type: z.string().default("msw"),
+        delay: z.number().int().nonnegative().optional(),
+        useExamples: z.boolean().optional()
+      })
+      .partial()
+  ]);
+
 export const ClientConfigSchema = z.object({
   name: z.string().min(1),
   swagger: z.string().min(1),
@@ -13,8 +25,9 @@ export const ClientConfigSchema = z.object({
     .object({
       mode: z.string().default("split"),
       client: z.string().default("react-query"),
+      httpClient: z.string().optional(),
       baseUrl: z.string().default("http://localhost:3000"),
-      mock: z.boolean().default(true),
+      mock: MockConfigSchema.optional().default(true),
       prettier: z.boolean().default(true),
       clean: z.boolean().default(true)
     })
