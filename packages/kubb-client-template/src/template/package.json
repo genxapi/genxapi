@@ -27,7 +27,7 @@
     "@kubb/plugin-oas": "^2.3.0",
     "@kubb/plugin-ts": "^2.3.0",
     "@rollup/plugin-typescript": "^12.1.2",
-    "@types/node": "^17.0.18",
+    "@types/node": "^22.0.0",
     "rimraf": "^5.0.10",
     "rollup": "^4.34.0",
     "rollup-plugin-delete": "^2.1.0",
