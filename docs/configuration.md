@@ -77,6 +77,14 @@ Override the path with `--config <path>` when running the CLI.
 | `publish` | `PublishConfig` | `{}` | npm (or registry) publishing settings. |
 | `readme` | `ProjectReadmeConfig` | `undefined` | Custom README content injected into the template. |
 
+You can override the configured template when running the CLI:
+
+```bash
+npx client-api-generator generate --template kubb
+```
+
+Aliases: `orval` → `@eduardoac/api-client-template`, `kubb` → `@eduardoac/kubb-client-template`.
+
 ### Repository Automation
 
 ```jsonc

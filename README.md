@@ -65,6 +65,11 @@ Create a starter config and generate clients locally:
 ```bash
 cp samples/multi-client.config.json ./api-client-generatorrc.json
 npx client-api-generator generate --log-level info
+
+# Switch templates on the fly
+npx client-api-generator generate --template kubb --log-level info
+
+Aliases: `orval` → `@eduardoac/api-client-template` (default), `kubb` → `@eduardoac/kubb-client-template`.
 ```
 
 Dry-run a release to verify GitHub and npm connectivity:
@@ -80,7 +85,7 @@ GITHUB_TOKEN=ghp_xxx NPM_TOKEN=npm_xxx \
 
 | Command | Summary | Frequent flags |
 | ------- | ------- | -------------- |
-| `generate` | Generates clients, runs hooks, and prepares Git changes. | `--config`, `--target`, `--dry-run`, `--log-level` |
+| `generate` | Generates clients, runs hooks, and prepares Git changes. | `--config`, `--target`, `--template`, `--dry-run`, `--log-level` |
 | `publish` | Creates GitHub releases and publishes packages. | `--owner`, `--repo`, `--tag`, `--title`, `--body`, `--draft`, `--prerelease` |
 | `diff` | Compares two OpenAPI documents and classifies breaking changes. | `--base`, `--head`, `--format`, `--output` |
 

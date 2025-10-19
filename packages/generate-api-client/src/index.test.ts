@@ -37,5 +37,39 @@ describe("loadCliConfig", () => {
     const { config } = await loadCliConfig({ file: configPath });
     expect(config.project.name).toBe("demo");
     expect(config.project.publish?.npm?.enabled).toBe(false);
+    expect(config.project.template.name).toBe("@eduardoac/api-client-template");
+  });
+
+  it("overrides template when provided via CLI option", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "generate-api-client-"));
+    const configPath = join(dir, "config.json");
+    await writeFile(
+      configPath,
+      JSON.stringify(
+        {
+          project: {
+            name: "demo",
+            directory: "./demo"
+          },
+          clients: [
+            {
+              name: "pets",
+              swagger: "./specs/pet.yaml",
+              output: {
+                workspace: "./src/pets",
+                target: "./src/pets/client.ts",
+                schemas: "model"
+              }
+            }
+          ]
+        },
+        null,
+        2
+      ),
+      "utf8"
+    );
+
+    const { config } = await loadCliConfig({ file: configPath, template: "kubb" });
+    expect(config.project.template.name).toBe("@eduardoac/kubb-client-template");
   });
 });

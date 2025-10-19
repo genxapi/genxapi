@@ -236,6 +236,7 @@ export async function generateClients(config: MultiClientConfig, options: Genera
 - **Purpose**: CLI that wraps the template package and adds GitHub release automation.
 - **Highlights**:
   - `src/index.ts`: Commander commands (`generate`, `publish`), log-level handling.
+  - `generate` command accepts `--template <alias>` (e.g. `kubb`, `orval`) to override the template package without editing config files.
   - `src/commands/*`: `runGenerateCommand`, `runPublishCommand` (with `ora` spinners and Octokit).
   - `src/config/loader.ts`: Cosmiconfig loader that resolves the template package at runtime (default Orval, optional Kubb) and validates configs.
   - `schemas/generate-api-client.schema.json`: JSON schema for configs.

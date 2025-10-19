@@ -35,7 +35,7 @@ yarn add --dev client-api-generator @eduardoac/api-client-template
 npx client-api-generator --help
 ```
 
-> ℹ️  The Orval template remains the default. Swap `@eduardoac/api-client-template` for `@eduardoac/kubb-client-template` (and ensure Node 20+) when you prefer Kubb’s plug-in ecosystem.
+> ℹ️  The Orval template remains the default. Swap `@eduardoac/api-client-template` for `@eduardoac/kubb-client-template` (and ensure Node 20+) when you prefer Kubb’s plug-in ecosystem, or pass `--template kubb` to the CLI for a one-off switch.
 
 When contributing to this repository, bootstrap everything with:
 
@@ -106,9 +106,22 @@ export default config;
 
 > 💡 Tip: Keep the `$schema` reference (for JSON) or TypeScript import (for TS) so editors provide IntelliSense and validation while you edit.
 
+### Selecting a template from the CLI
+
+Prefer a one-off change? Pass `--template` to override the config without editing files:
+
+```bash
+npx client-api-generator generate --template kubb --log-level info
+```
+
+Aliases:
+
+- `orval` → `@eduardoac/api-client-template` (default)
+- `kubb` → `@eduardoac/kubb-client-template`
+
 ### Switching to the Kubb template
 
-Point `project.template.name` at the Kubb package and optional Kubb-specific options become available under each client:
+Point `project.template.name` at the Kubb package (or run `--template kubb`) and optional Kubb-specific options become available under each client:
 
 ```jsonc
 {

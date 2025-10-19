@@ -104,6 +104,7 @@ Extend the template by editing `packages/api-client-template/src/template`. Run 
 - Generates Kubb configs per client (`kubb.config.ts`) with sensible defaults for `plugin-oas`, `plugin-ts`, and `plugin-client`.
 - Emits opinionated workspace structure (`oas`, `models`, `client` folders) that mirrors the Orval template, keeping downstream tooling uniform.
 - Reuses the README automation, hook execution, and package metadata shape so repository automation behaves identically.
+- Choose it on the fly with `npx client-api-generator generate --template kubb` (alias for `@eduardoac/kubb-client-template`).
 
 Configure Kubb-specific behaviour by populating `clients[].kubb` in your config (see the [configuration reference](./configuration.md#client-configuration) for details).
 

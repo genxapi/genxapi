@@ -13,6 +13,7 @@ const LogLevelSchema = z.enum(["silent", "error", "warn", "info", "debug"]).defa
 export interface LoadCliConfigOptions {
   readonly cwd?: string;
   readonly file?: string;
+  readonly template?: string;
 }
 
 export interface TemplateModule {
@@ -61,7 +62,8 @@ export async function loadCliConfig(options: LoadCliConfigOptions = {}): Promise
     : await searchConfig(cwd);
 
   const rawConfig = rawResult.config;
-  const templateName = resolveTemplateName(rawConfig);
+  const overrideTemplate = options.template ? resolveTemplateAlias(options.template) : undefined;
+  const templateName = overrideTemplate ?? resolveTemplateName(rawConfig);
   const template = await loadTemplateModule(templateName);
 
   const cliSchema = template.schema.extend({
@@ -69,8 +71,19 @@ export async function loadCliConfig(options: LoadCliConfigOptions = {}): Promise
   });
 
   const parsed = cliSchema.parse(rawConfig) as CliConfig;
+  const configWithTemplate: CliConfig = {
+    ...parsed,
+    project: {
+      ...parsed.project,
+      template: {
+        ...parsed.project.template,
+        name: templateName
+      }
+    }
+  };
+
   return {
-    config: parsed,
+    config: configWithTemplate,
     configDir: rawResult.dir,
     template
   };
@@ -116,6 +129,17 @@ function parseConfig(content: string, filePath: string): unknown {
   return JSON.parse(content);
 }
 
+const TEMPLATE_ALIASES: Record<string, string> = {
+  orval: "@eduardoac/api-client-template",
+  kubb: "@eduardoac/kubb-client-template"
+};
+
+function resolveTemplateAlias(name: string): string {
+  const trimmed = name.trim();
+  const normalised = trimmed.toLowerCase();
+  return TEMPLATE_ALIASES[normalised] ?? trimmed;
+}
+
 function resolveTemplateName(rawConfig: unknown): string {
   if (typeof rawConfig !== "object" || rawConfig === null) {
     return DEFAULT_TEMPLATE;
@@ -132,7 +156,7 @@ function resolveTemplateName(rawConfig: unknown): string {
   }
 
   const name = (template as Record<string, unknown>).name;
-  return typeof name === "string" && name.length > 0 ? name : DEFAULT_TEMPLATE;
+  return typeof name === "string" && name.length > 0 ? resolveTemplateAlias(name) : DEFAULT_TEMPLATE;
 }
 
 async function loadTemplateModule(name: string): Promise<TemplateModule> {

@@ -20,11 +20,16 @@ program
   .option("--dry-run", "Validate configuration without generating", false)
   .option("--log-level <level>", "Log level", "info")
   .option("--target <dir>", "Override the project directory output")
+  .option(
+    "--template <name>",
+    "Template package or alias (e.g. orval, kubb, @eduardoac/kubb-client-template)"
+  )
   .action(async function (this: Command, options) {
     const logger = new Logger();
     try {
       const { config: loadedConfig, configDir, template } = await loadCliConfig({
-        file: options.config
+        file: options.config,
+        template: options.template
       });
       let config = loadedConfig;
       logger.setLevel(config.logLevel as LogLevel);
