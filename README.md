@@ -63,7 +63,7 @@ npm install --save-dev client-api-generator @eduardoac/kubb-api-client-template
 Create a unified config and generate clients locally:
 
 ```bash
-cp samples/multi-client.config.json ./api-client-generatorrc.json
+cp samples/orval-multi-client.config.json ./api-client-generatorrc.json
 npx client-api-generator generate --log-level info
 
 # Switch engines or override behaviour at runtime
@@ -78,11 +78,32 @@ npx client-api-generator generate \
 #   kubb  → @eduardoac/kubb-api-client-template
 ```
 
+### Try the bundled samples
+
+Run either sample directly from the repo to see the unified config in action:
+
+```bash
+# Orval-flavoured demo (generates into examples/multi-client-demo)
+npx client-api-generator generate \
+  --config samples/orval-multi-client.config.json \
+  --log-level info
+
+# Kubb-flavoured demo (generates into examples/multi-client-kubb)
+npx client-api-generator generate \
+  --config samples/kubb-multi-client.config.json \
+  --log-level info
+
+# Validate configs without writing files
+npx client-api-generator generate \
+  --config samples/orval-multi-client.config.json \
+  --dry-run
+```
+
 Dry-run a release to verify GitHub and npm connectivity:
 
 ```bash
 GITHUB_TOKEN=ghp_xxx NPM_TOKEN=npm_xxx \
-  npx client-api-generator publish --dry-run
+npx client-api-generator publish --dry-run
 ```
 
 ---

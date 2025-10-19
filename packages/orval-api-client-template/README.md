@@ -12,7 +12,7 @@ Reusable Orval template that supports generating multiple clients from a single 
 ```ts
 import { loadTemplateConfig, generateClients } from "@eduardoac/orval-api-client-template";
 
-const config = await loadTemplateConfig("./multi-client.config.json");
+const config = await loadTemplateConfig("./orval-multi-client.config.json");
 await generateClients(config);
 ```
 
@@ -96,4 +96,4 @@ await generateClients(config);
 }
 ```
 
-See `samples/multi-client.config.json` for a full example.
+See `samples/orval-multi-client.config.json` for a full example.
