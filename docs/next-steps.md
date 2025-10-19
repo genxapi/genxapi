@@ -8,7 +8,7 @@ Ready to go beyond the basics? This page outlines the roadmap, ecosystem, and wa
 
 ## Roadmap Highlights
 
-1. **Diff command GA** – expose the semantic diff tool as `generate-api-client diff`, including JSON/Markdown outputs and CI status integration.
+1. **Diff command enhancements** – expand `client-api-generator diff` with custom reporters and automated PR annotations.
 2. **Python adapter** – ship an official adapter that builds wheels, publishes to PyPI, and mirrors README updates.
 3. **Multi-language hooks** – standardise post-generate scripts for Go, .NET, and Java SDKs.
 4. **Plugin API** – allow external packages to provide custom generators (e.g., GraphQL codegen) that run alongside Orval.
@@ -50,3 +50,4 @@ Although TypeScript is the default, the architecture supports adapters:
 - Revisit [Getting Started](./getting-started.md) when onboarding new teams.
 - Deep-dive into [Configuration](./configuration.md) as specs grow.
 - Jump to [Contributing](./contributing.md) to join development efforts.
+- Return to the [README](../README.md) for an overview you can share with stakeholders.

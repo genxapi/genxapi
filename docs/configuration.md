@@ -4,39 +4,41 @@ title: "Configuration Reference"
 
 # Configuration Reference
 
-`generate-api-client` reads configuration from `api-client-generatorrc.json` (or `.yaml`) and drives the entire automation workflow. This page documents every option, default value, and advanced tweak.
+`client-api-generator` reads a declarative configuration file (`api-client-generatorrc.json`, `.yaml`, or `.ts`) and turns it into a repeatable workflow. This guide documents every option, default value, and pattern for structuring your repositories.
 
-## File Discovery
+## File Resolution Order
 
-The CLI resolves configuration in the following order:
+Configuration is discovered in the current working directory in this order:
 
 1. `api-client-generatorrc`
 2. `api-client-generatorrc.json`
 3. `api-client-generatorrc.yaml` / `.yml`
-4. `api-client-generator.config.json`
-5. `api-client-generator.config.yaml` / `.yml`
+4. `api-client-generatorrc.ts`
+5. `api-client-generator.config.json`
+6. `api-client-generator.config.yaml` / `.yml`
 
-Use `--config <path>` to load an explicit file.
+Override the path with `--config <path>` when running the CLI.
 
-> 💡 Tip: Add the `$schema` reference at the top of your JSON file to enable IntelliSense in VS Code and other editors.
+> 💡 Tip: Add the `$schema` directive to JSON configs or import `CliConfig` in TypeScript configs to unlock editor IntelliSense and validation.
 
-## Top-Level Structure
+## Top-Level Fields
 
 ```jsonc
 {
   "$schema": "https://raw.githubusercontent.com/eduardoac/api-clients/main/schemas/generate-api-client.schema.json",
-  "logLevel": "info",
+  "logLevel": "info",          // optional: silent | error | warn | info | debug
   "project": { /* ProjectConfig */ },
   "clients": [ /* ClientConfig[] */ ],
   "hooks": { /* Hook scripts */ }
 }
 ```
 
-### `logLevel`
-
-| Type | Default | Description |
-| ---- | ------- | ----------- |
-| `"silent" \| "error" \| "warn" \| "info" \| "debug"` | `"info"` | Controls CLI logging verbosity. Override via `--log-level` flag. |
+| Field | Type | Default | Description |
+| ----- | ---- | ------- | ----------- |
+| `logLevel` | `"silent" \| "error" \| "warn" \| "info" \| "debug"` | `"info"` | Controls CLI verbosity. Override with `--log-level`. |
+| `project` | `ProjectConfig` | – | Defines template behaviour, repositories, and publishing policy. |
+| `clients` | `ClientConfig[]` | – | One or more OpenAPI specifications to process. |
+| `hooks` | `HookConfig` | `{}` | Optional commands executed before/after generation. |
 
 ## Project Configuration
 
@@ -48,37 +50,38 @@ Use `--config <path>` to load an explicit file.
   "runGenerate": true,
   "template": {
     "name": "@eduardoac/api-client-template",
-    "path": "./templates/custom",
+    "path": "./templates/custom",   // optional override
     "variables": {
-      "organization": "Acme",
-      "openSource": "true"
+      "organization": "Acme Corp",
+      "docsUrl": "https://docs.acme.dev"
     },
     "installDependencies": true
   },
   "repository": { /* RepositoryConfig */ },
   "publish": { /* PublishConfig */ },
-  "readme": { /* Generated README content */ }
+  "readme": { /* ProjectReadmeConfig */ }
 }
 ```
 
 | Field | Type | Default | Description |
 | ----- | ---- | ------- | ----------- |
-| `name` | `string` | – | Human-readable identifier for logs and PR titles. |
-| `directory` | `string` | – | Relative path where the template is scaffolded. Accepts `./` or `../` prefixes. |
-| `packageManager` | `"npm" \| "pnpm" \| "yarn" \| "bun"` | `"npm"` | Controls lockfile creation and install commands executed by the template. |
-| `runGenerate` | `boolean` | `true` | Skip Orval execution when set to `false` (useful for validating configs in CI). |
-| `template.name` | `string` | `"@eduardoac/api-client-template"` | Template package installed from npm or a workspace. |
-| `template.path` | `string` | `undefined` | Absolute or relative path to a custom template folder. Overrides `template.name`. |
-| `template.variables` | `Record<string,string>` | `{}` | Arbitrary key/value pairs injected into template files (e.g., README placeholders). |
-| `template.installDependencies` | `boolean` | `true` | Controls `npm install` (or equivalent) execution after scaffolding. |
-| `repository` | `RepositoryConfig` | `undefined` | Enables GitHub automation, including repository creation and pull requests. |
-| `publish` | `PublishConfig` | `{}` | Enables npm publishing. |
-| `readme` | `ProjectReadmeConfig` | `undefined` | Customises README sections inside the generated project. |
+| `name` | `string` | – | Human-readable identifier used in logs, branch names, and PR titles. |
+| `directory` | `string` | – | Relative path for the generated project. Accepts `./` and `../`. |
+| `packageManager` | `"npm" \| "pnpm" \| "yarn" \| "bun"` | `"npm"` | Determines the install command executed by the template. |
+| `runGenerate` | `boolean` | `true` | Skip Orval execution when `false`. Useful for dry runs or external orchestration. |
+| `template.name` | `string` | `"@eduardoac/api-client-template"` | Package used as the base template. |
+| `template.path` | `string` | `undefined` | Local template directory. Overrides `template.name` when provided. |
+| `template.variables` | `Record<string,string>` | `{}` | Key/value pairs injected into template placeholders. |
+| `template.installDependencies` | `boolean` | `true` | Controls whether the template runs `npm install` (or equivalent). |
+| `repository` | `RepositoryConfig` | `undefined` | Enables GitHub repository automation. |
+| `publish` | `PublishConfig` | `{}` | npm (or registry) publishing settings. |
+| `readme` | `ProjectReadmeConfig` | `undefined` | Custom README content injected into the template. |
 
 ### Repository Automation
 
 ```jsonc
 "repository": {
+  "provider": "github",
   "owner": "acme",
   "name": "petstore-sdk",
   "defaultBranch": "main",
@@ -89,25 +92,26 @@ Use `--config <path>` to load an explicit file.
     "enabled": true,
     "branchPrefix": "chore/clients",
     "title": "chore: refresh generated clients",
-    "body": "Automated update via generate-api-client."
+    "body": "Automated updates via client-api-generator."
   }
 }
 ```
 
-| Field | Type | Default | Description |
-| ----- | ---- | ------- | ----------- |
-| `owner` | `string` | – | GitHub username or organisation. Leading `@` is stripped automatically. |
-| `name` | `string` | – | Repository name. |
-| `defaultBranch` | `string` | `"main"` | Base branch used for pull requests. |
-| `create` | `boolean` | `true` | Create the repository if it does not exist (requires authenticated user with permissions). |
-| `commitMessage` | `string` | `"chore: update generated client"` | Commit message for generated changes. |
-| `tokenEnv` | `string` | `"GITHUB_TOKEN"` | Environment variable that holds the personal access token. |
-| `pullRequest.enabled` | `boolean` | `true` | Disable to push directly to branch without PRs. |
-| `pullRequest.branchPrefix` | `string` | `"update/generated-client"` | Branch name prefix used for automation. |
-| `pullRequest.title` | `string` | `"chore: update generated client"` | Pull request title. |
-| `pullRequest.body` | `string` | Default template text | Pull request description. |
+| Field | Default | Description |
+| ----- | ------- | ----------- |
+| `provider` | `"github"` | Future-proofed for additional providers. |
+| `owner` | – | GitHub user or organisation (leading `@` is stripped). |
+| `name` | – | Repository name. |
+| `defaultBranch` | `"main"` | Base branch for pull requests. |
+| `create` | `true` | Create the repository if it does not exist (requires authenticated user permissions). |
+| `commitMessage` | `"chore: update generated client"` | Commit message for automated updates. |
+| `tokenEnv` | `"GITHUB_TOKEN"` | Environment variable containing the PAT. |
+| `pullRequest.enabled` | `true` | Set to `false` to push directly to the branch. |
+| `pullRequest.branchPrefix` | `"update/generated-client"` | Prefix used when creating automation branches. |
+| `pullRequest.title` | `"chore: update generated client"` | Default PR title. |
+| `pullRequest.body` | template string | Body text for the PR description. |
 
-> 📘 Note: Provide a token with `repo` scope (classic) or `Contents` + `Pull requests` write access (fine-grained) to allow pushing and PR creation.
+> ⚠️ Warning: Tokens must include `contents:write` and `pull_requests:write` (fine-grained PAT) or the classic `repo` scope and cannot be GitHub Actions default tokens when creating new repositories.
 
 ### npm Publishing
 
@@ -125,15 +129,15 @@ Use `--config <path>` to load an explicit file.
 }
 ```
 
-| Field | Type | Default | Description |
-| ----- | ---- | ------- | ----------- |
-| `enabled` | `boolean` | `false` | Publish the generated package after successful generation. |
-| `tag` | `string` | `"latest"` | npm dist-tag used when publishing. |
-| `access` | `"public" \| "restricted"` | `"public"` | Publish visibility. `restricted` keeps packages private (GitHub Packages, npm org). |
-| `dryRun` | `boolean` | `false` | Run `npm publish --dry-run` without uploading artifacts. |
-| `tokenEnv` | `string` | `"NPM_TOKEN"` | Environment variable containing npm automation token. |
-| `registry` | `string` | `undefined` | Custom registry URL (e.g., GitHub Packages). |
-| `command` | `"npm" \| "pnpm" \| "yarn" \| "bun"` | `"npm"` | CLI used to execute the publish command. |
+| Field | Default | Description |
+| ----- | ------- | ----------- |
+| `enabled` | `false` | Publish the generated package when `true`. |
+| `tag` | `"latest"` | npm dist-tag. Use `next`, `beta`, etc. for prereleases. |
+| `access` | `"public"` | `"restricted"` for private/customer registries. |
+| `dryRun` | `false` | Executes `npm publish --dry-run`. Recommended for CI smoke tests. |
+| `tokenEnv` | `"NPM_TOKEN"` | Environment variable storing the automation token. |
+| `registry` | `undefined` | Overrides the registry (e.g., `https://npm.pkg.github.com/`). |
+| `command` | `"npm"` | Use `pnpm`, `yarn`, or `bun` in monorepos aligned to those tools. |
 
 ### README Customisation
 
@@ -144,7 +148,7 @@ Use `--config <path>` to load an explicit file.
   "additionalSections": [
     {
       "title": "Regeneration",
-      "body": "Run `npm run generate-clients` to refresh the SDK."
+      "body": "Run `npm run generate-clients` whenever the OpenAPI spec changes."
     }
   ]
 }
@@ -152,7 +156,7 @@ Use `--config <path>` to load an explicit file.
 
 ## Client Configuration
 
-Each entry in `clients[]` describes a single API client.
+Each client entry maps to one OpenAPI document.
 
 ```jsonc
 {
@@ -166,7 +170,7 @@ Each entry in `clients[]` describes a single API client.
     "schemas": "./src/pets/model"
   },
   "templateVariables": {
-    "serviceName": "Pets"
+    "serviceName": "Pets API"
   },
   "orval": {
     "mode": "split",
@@ -179,19 +183,19 @@ Each entry in `clients[]` describes a single API client.
 }
 ```
 
-| Field | Type | Default | Description |
-| ----- | ---- | ------- | ----------- |
-| `name` | `string` | – | Identifier used in directory names and logging. |
-| `swagger` | `string` | – | HTTP/HTTPS URL or local file path to the OpenAPI spec. |
-| `copySwagger` | `boolean` | `true` | Copy the OpenAPI document into the generated project. |
-| `swaggerCopyTarget` | `string` | `"swagger-spec.json"` | Path inside the project where the spec is copied. |
-| `templateVariables` | `Record<string,string>` | `{}` | Overrides or extends template placeholders for this client only. |
-| `output.workspace` | `string` | `"./src"` | Base directory passed to Orval's `output.workspace`. |
-| `output.target` | `string` | `"./src/client.ts"` | Client entry file produced by Orval. |
-| `output.schemas` | `string` | `"model"` | Directory suffix for schema models. |
-| `orval.*` | – | See Orval docs | Passed directly to Orval's configuration for the client. |
+| Field | Default | Description |
+| ----- | ------- | ----------- |
+| `name` | – | Logical identifier used for logging and folder naming. |
+| `swagger` | – | URL or relative file path to the OpenAPI document. |
+| `copySwagger` | `true` | Copies the document into the generated project. |
+| `swaggerCopyTarget` | `"swagger-spec.json"` | Destination path within the project. |
+| `templateVariables` | `{}` | Overrides template placeholders for this client only. |
+| `output.workspace` | `"./src"` | Passed to Orval as `output.workspace`. |
+| `output.target` | `"./src/client.ts"` | Client entry point produced by Orval. |
+| `output.schemas` | `"model"` | Schema folder suffix under the workspace. |
+| `orval` | `{}` | Forwarded verbatim to Orval. Refer to [orval.dev](https://orval.dev/) for the full option set. |
 
-## Hook Scripts
+## Hooks
 
 ```jsonc
 "hooks": {
@@ -200,24 +204,24 @@ Each entry in `clients[]` describes a single API client.
 }
 ```
 
-Hooks run inside the generated project directory:
+Hooks execute inside `project.directory`:
 
-- `beforeGenerate` executes after scaffolding but before Orval runs.
-- `afterGenerate` runs once Orval completes and before GitHub/npm automation triggers.
+- `beforeGenerate` runs after scaffolding but before Orval.
+- `afterGenerate` runs after Orval and before GitHub/npm automation.
 
-Use them to run code mods, copy additional assets, or invoke language-specific build steps.
+Use them to run Spectral validation, code formatting, or language-specific packaging scripts.
 
-> 🛠️ Tip: Hooks leverage `execa`, so they inherit environment variables and stream output directly to your terminal/CI logs.
+> 🛠️ Tip: Hooks stream output directly via `execa`. If a hook exits non-zero the generation halts, preventing invalid artifacts from shipping.
 
 ## Environment Variables
 
-| Variable | Purpose |
-| -------- | ------- |
-| `GITHUB_TOKEN` (or custom `repository.tokenEnv`) | Enables repository creation, pushes, and pull request automation. |
-| `NPM_TOKEN` (or custom `publish.npm.tokenEnv`) | Grants permission to publish packages to npm or private registries. |
-| `CI` | When set, the template skips interactive prompts and uses non-TTY spinners/log output. |
+| Variable | Required | Purpose |
+| -------- | -------- | ------- |
+| `GITHUB_TOKEN` (or custom `repository.tokenEnv`) | Optional | Enables repository creation, pushing commits, and opening pull requests. |
+| `NPM_TOKEN` (or custom `publish.npm.tokenEnv`) | Optional | Authenticates npm (or private registry) publishing. |
+| `CI` | Optional | When set, spinners and prompts adapt to non-interactive environments. |
 
-## Example YAML Configuration
+## Example YAML Config
 
 ```yaml
 $schema: https://raw.githubusercontent.com/eduardoac/api-clients/main/schemas/generate-api-client.schema.json
@@ -226,21 +230,15 @@ project:
   name: billing-sdk
   directory: ./sdks/billing
   packageManager: pnpm
-  template:
-    name: "@eduardoac/api-client-template"
-    variables:
-      owner: acme
   repository:
     owner: acme
     name: billing-sdk
-    defaultBranch: main
     pullRequest:
       branchPrefix: chore/billing-client
       title: "chore: refresh billing client"
   publish:
     npm:
       enabled: true
-      tag: next
       access: restricted
       registry: https://npm.pkg.github.com/
 clients:
@@ -255,7 +253,51 @@ hooks:
     - pnpm run test
 ```
 
+## Example TypeScript Config
+
+```ts
+import type { CliConfig } from "client-api-generator/config";
+
+const config: CliConfig = {
+  logLevel: "debug",
+  project: {
+    name: "orders-sdk",
+    directory: "./sdks/orders",
+    template: {
+      name: "@eduardoac/api-client-template",
+      variables: {
+        company: "Acme",
+        docsUrl: "https://docs.acme.dev/orders"
+      }
+    }
+  },
+  clients: [
+    {
+      name: "orders",
+      swagger: "./specs/orders.yaml",
+      output: {
+        workspace: "./src/orders",
+        target: "./src/orders/client.ts"
+      }
+    }
+  ],
+  hooks: {
+    afterGenerate: ["npm run lint", "npm run test"]
+  }
+};
+
+export default config;
+```
+
+> 💡 Tip: Co-locate configs with service specs (e.g., `services/orders/api-client-generatorrc.ts`). Pass `--config` in CI to target the right file.
+
+## Versioning-Friendly Layouts
+
+- Keep generated SDKs in dedicated folders (`./sdks/<service>`). This isolates lockfiles and changelogs.
+- Store OpenAPI specs alongside config files. The upcoming `diff` command can be pointed at `specs/current.yaml` vs. `specs/next.yaml`.
+- Commit generated artifacts when you rely on pull-request based workflows; otherwise add them to `.gitignore` and publish from CI-only builds.
+
 ## Next Steps
 
-- Move on to [CI Integration](./ci-integration.md) to wire the CLI into GitHub Actions.
-- Explore [Templates](./templates.md) to customise scaffolding and add new language adapters.
+- Wire everything into pipelines with [CI Integration →](./ci-integration.md).
+- Customise output scaffolding through the [Templates guide →](./templates.md).

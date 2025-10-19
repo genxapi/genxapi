@@ -4,7 +4,7 @@ title: "Versioning & Releases"
 
 # Versioning & Releases
 
-Consistent versioning keeps generated SDKs trustworthy. This guide covers semantic versioning, changelog automation, and release workflows using `generate-api-client`.
+Consistent versioning keeps generated SDKs trustworthy. This guide covers semantic versioning, changelog automation, and release workflows using `client-api-generator`.
 
 ## Semantic Versioning Principles
 
@@ -22,7 +22,7 @@ The template stores its version in `package.json` and `package-lock.json`. Incre
 
 ```bash
 npm version patch --workspace @eduardoac/api-client-template
-npm version patch --workspace @eduardoac/generate-api-client
+npm version patch --workspace client-api-generator
 ```
 
 Update dependent workspaces if you bump major versions.
@@ -43,7 +43,7 @@ Add to your generated repo:
 ```jsonc
 {
   "scripts": {
-    "release": "generate-api-client publish --owner acme --repo petstore-sdk --tag v$npm_package_version --title \"Release $npm_package_version\""
+    "release": "client-api-generator publish --owner acme --repo petstore-sdk --tag v$npm_package_version --title \"Release $npm_package_version\""
   }
 }
 ```
@@ -81,10 +81,10 @@ CI runs semantic-release after the generator merges changes, producing GitHub re
 
 ## Semantic Diffing
 
-The upcoming `diff` command compares two OpenAPI specs and categorises changes:
+The `diff` command compares two OpenAPI specs and categorises changes. Run it in CI before generation or as part of code review:
 
 ```bash
-npx @eduardoac/generate-api-client diff \
+npx client-api-generator diff \
   --base specs/petstore-v1.yaml \
   --head specs/petstore-v2.yaml \
   --format markdown \
@@ -97,14 +97,14 @@ Suggested commit messages:
 - `fix(api): correct schema for Pet.status` → triggers PATCH bump.
 - Breaking changes produce `fix!` or `feat!` with SemVer major hints.
 
-> 🚧 Note: Until the CLI command is released, import `analyzeSwaggerDiff` from `packages/generate-api-client/src/utils/swaggerDiff` to integrate diff checks manually.
+> 💡 Tip: Pair the diff output with semantic-release custom plugins to auto-select bump types based on detected breaking changes.
 
 ## Tagging Releases with the CLI
 
 Use the `publish` command to create GitHub releases (changelog text is optional):
 
 ```bash
-npx @eduardoac/generate-api-client publish \
+npx client-api-generator publish \
   --token ${GITHUB_TOKEN} \
   --owner acme \
   --repo petstore-sdk \

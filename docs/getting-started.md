@@ -4,27 +4,35 @@ title: "Getting Started"
 
 # Getting Started
 
-Kick off your API client automation journey in minutes. This guide walks through installation, configuration, and running your first generation.
+Welcome to `client-api-generator`. In a few commands you can turn an OpenAPI specification into a versioned SDK that ships through your CI/CD pipeline. This guide walks through installation, configuration, and validating the first generation locally.
 
 ## Prerequisites
 
 - Node.js **20 or newer** (Orval and Commander target Node 20).
-- `npm` (or `pnpm`, `yarn`, `bun` if you adapt commands).
-- Access tokens for GitHub and npm if you plan to push commits or publish packages.
+- A package manager (`npm`, `pnpm`, or `yarn`) installed on your machine.
+- Optional: `GITHUB_TOKEN` and `NPM_TOKEN` environment variables if you plan to push commits or publish packages.
 
-> ⚠️ Warning: Running on Node 18 works but prints engine warnings and may miss newer language features. Stick to Node ≥ 20 in CI/CD.
+> ⚠️ Warning: Node 18 can execute the CLI but emits engine warnings from dependencies. Use Node 20+ for production pipelines.
 
 ## Install the CLI
 
-Install globally or use `npx`:
+Choose your preferred workflow:
 
 ```bash
-npm install --save-dev @eduardoac/generate-api-client
-# or run without installing:
-npx @eduardoac/generate-api-client --help
+# npm (dev dependency)
+npm install --save-dev client-api-generator
+
+# pnpm
+pnpm add -D client-api-generator
+
+# yarn
+yarn add --dev client-api-generator
+
+# Try it instantly
+npx client-api-generator --help
 ```
 
-When working inside this repository, bootstrap everything with:
+When contributing to this repository, bootstrap everything with:
 
 ```bash
 npm install
@@ -33,7 +41,7 @@ npm run build
 
 ## Create a Configuration File
 
-The CLI looks for `api-client-generatorrc.{json,yaml}` by default. Start with the minimal config below:
+By default the CLI looks for `api-client-generatorrc.json` or `api-client-generatorrc.ts` in the current working directory. Start with a minimal JSON config:
 
 ```jsonc
 {
@@ -63,48 +71,82 @@ The CLI looks for `api-client-generatorrc.{json,yaml}` by default. Start with th
 }
 ```
 
-> 💡 Tip: Add this file to your repository root so the CLI finds it automatically; no `--config` flag required.
+Prefer TypeScript? Export the config from `api-client-generatorrc.ts`:
 
-## Run Your First Generation
+```ts
+import type { CliConfig } from "client-api-generator/config";
 
-```bash
-npx @eduardoac/generate-api-client generate --log-level info
+const config: CliConfig = {
+  project: {
+    name: "petstore-sdk",
+    directory: "./sdk/petstore",
+    template: {
+      name: "@eduardoac/api-client-template"
+    }
+  },
+  clients: [
+    {
+      name: "petstore",
+      swagger: "https://petstore3.swagger.io/api/v3/openapi.json",
+      output: {
+        workspace: "./src",
+        target: "./src/client.ts"
+      }
+    }
+  ]
+};
+
+export default config;
 ```
 
-The generator performs the following steps:
+> 💡 Tip: Keep the `$schema` reference (for JSON) or TypeScript import (for TS) so editors provide IntelliSense and validation while you edit.
 
-1. Scaffolds the template into `project.directory`.
-2. Copies OpenAPI specs locally (if `copySwagger` is `true`).
-3. Passes each client configuration to Orval and writes the produced files.
-4. Runs `hooks.beforeGenerate` and `hooks.afterGenerate` scripts if defined.
-5. Optionally syncs with GitHub and publishes to npm based on `project.repository` and `project.publish`.
-
-Export tokens to enable automation:
+## Run the First Generation
 
 ```bash
-export GITHUB_TOKEN=ghp_xxx    # repo + pull request permissions
-export NPM_TOKEN=xxx           # automation or publish token
+npx client-api-generator generate --log-level info
 ```
 
-Run with `--dry-run` to validate the configuration without touching the filesystem:
+The CLI:
+
+1. Scaffolds the TypeScript template into `project.directory`.
+2. Copies the OpenAPI document to the `swaggerCopyTarget`.
+3. Runs Orval for each client definition.
+4. Executes configured hooks.
+5. Optionally syncs commits/pull requests and publishes packages if environment variables are present.
+
+Dry-run the process to validate configuration without modifying files:
 
 ```bash
-npx @eduardoac/generate-api-client generate --dry-run
+npx client-api-generator generate --dry-run
 ```
 
-## Override the Output Directory
-
-Use `--target` to redirect the project output without editing the config file:
+Export tokens to unlock automation:
 
 ```bash
-npx @eduardoac/generate-api-client generate \
-  --target ./tmp/generated-clients \
-  --log-level debug
+export GITHUB_TOKEN=ghp_xxx   # repo + pull request permissions
+export NPM_TOKEN=xxx          # automation or publish token
 ```
 
-The CLI adjusts `project.directory` relative to the configuration file automatically.
+## Inspect the Generated Project
 
-## Verify the Generated SDK
+After a successful run your folder structure will look similar to:
+
+```text
+sdk/petstore/
+├── package.json
+├── README.md
+├── rollup.config.mjs
+├── tsconfig.json
+├── tsconfig.build.json
+├── swagger-spec.json
+└── src/
+    ├── client.ts
+    ├── model/
+    └── runtime/
+```
+
+Move into the generated project to run its scripts:
 
 ```bash
 cd sdk/petstore
@@ -113,15 +155,19 @@ npm test
 npm run build
 ```
 
-Every generated project includes:
+> 📘 Note: If you set `project.runGenerate` to `false` the template is scaffolded but Orval is skipped. This is useful when you want to run Orval yourself or inject a custom build step.
 
-- A ready-to-run `package.json`.
-- Orval-generated clients under `src/`.
-- Template README files and lint/test scripts.
+## Override the Output Directory
 
-> 📘 Note: If you disable `project.runGenerate`, the template scaffolds without running Orval. Use this when orchestrating Orval manually in CI.
+Use the `--target` flag to redirect `project.directory` without editing the config:
+
+```bash
+npx client-api-generator generate --target ./tmp/generated-clients
+```
+
+The CLI rewrites the directory relative to your configuration file and keeps paths consistent.
 
 ## Next Steps
 
-- Continue to the [Configuration guide](./configuration.md) to learn every setting.
-- Explore [CI Integration](./ci-integration.md) when you are ready to automate in pipelines.
+- Continue with the [Configuration Reference →](./configuration.md) to explore every option.
+- Jump ahead to [CI Integration →](./ci-integration.md) when you are ready to automate the workflow in pipelines.

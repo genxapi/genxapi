@@ -4,13 +4,14 @@ title: "Templates & Adapters"
 
 # Templates & Adapters
 
-Templates define the project structure that every generated client inherits. Adapters extend the core TypeScript experience to additional languages such as Python.
+Templates define the project structure that every generated client inherits. Adapters extend the core TypeScript experience to additional languages such as Python, with Go and .NET on the roadmap.
 
 ## Template Overview
 
 `@eduardoac/api-client-template` ships with a production-ready TypeScript project that includes:
 
 - Rollup build pipeline with declaration bundling.
+- Dual ESM/CJS entry points for Node and bundler compatibility.
 - Preconfigured testing via Vitest.
 - README and changelog scaffolding.
 - Environment-ready `.npmrc` and `tsconfig` files.
@@ -190,7 +191,7 @@ The template merges these values into the generated README so downstream repos r
 
 1. Modify files under `packages/api-client-template/src/template`.
 2. Run `npm run build --workspace @eduardoac/api-client-template`.
-3. Execute `npx @eduardoac/generate-api-client generate --config ./samples/multi-client.config.json`.
+3. Execute `npx client-api-generator generate --config ./samples/multi-client.config.json`.
 4. Inspect the output and run the generated project’s test suite.
 
 > 🧪 Tip: Use `npm run test --workspace @eduardoac/api-client-template` to lint and type-check template code before publishing updates.

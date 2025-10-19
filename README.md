@@ -1,93 +1,67 @@
-# Generate API Clients
+# client-api-generator
 
-Automate the creation, testing, and release of API clients across multiple projects. This monorepo contains:
+`client-api-generator` automates the generation, testing, and publishing of API clients from OpenAPI/Swagger specifications. It bundles opinionated templates, semantic-release friendly workflows, and CI/CD integrations so platform teams can deliver consistent SDKs in minutes.
 
-- **`@eduardoac/generate-api-client`** — a CLI that orchestrates generation, repository automation, publishing, and release tooling.
-- **`@eduardoac/api-client-template`** — an opinionated Orval-based template that produces production-ready SDK projects.
+> 💡 Tip: The CLI discovers `api-client-generatorrc.{json,ts}` in your repository root. Keep configs in source control so CI runs match local results.
 
-The tooling is designed for platform teams who maintain many API consumers and want consistent SDKs, automated pull requests, and CI-friendly workflows.
+## Why it exists
 
-> 💡 Tip: The CLI reads configuration from `api-client-generatorrc.{json,yaml}` by default and works best on Node.js 20 or later.
+Maintaining API clients across multiple services is tedious:
 
-## Key Features
+- Specs drift faster than hand-written code.
+- Pull requests pile up with generated churn.
+- Publishing requires ceremony and guarded credentials.
 
-- **One command, many clients** – generate multiple SDKs from a single config file, each with independent Orval settings.
-- **Policy-driven releases** – push commits, open pull requests, and publish packages automatically with GitHub and npm integrations.
-- **Template-first workflow** – customise scaffolding, README content, and template variables for each client or project.
-- **CI/CD ready** – ship a drop-in GitHub Actions workflow (or any CI runner) that installs the CLI, caches artifacts, and runs smoke tests.
-- **Language adapters** – TypeScript SDKs out of the box, with Python adapters on the roadmap and an extension API for additional languages.
+`client-api-generator` solves this by orchestrating:
 
-## Quick Start
+- Orval-powered TypeScript templates (with adapters for Python, Go, .NET on the roadmap).
+- GitHub repository automation (commits, pull requests, releases).
+- npm or internal registry publishing with semantic versioning.
+- CI-friendly commands that run headless and play nicely with caches.
 
-```bash
-# Install dependencies for the monorepo
-npm install
-
-# Build the CLI and template
-npm run build
-```
-
-Generate your first clients using the included sample configuration:
+## Quickstart
 
 ```bash
-npx @eduardoac/generate-api-client generate \
-  --config ./samples/multi-client.config.json \
-  --log-level info
+# Install locally (recommended for monorepos)
+npm install --save-dev client-api-generator
+
+# Or run via npx
+npx client-api-generator --help
 ```
 
-Set `GITHUB_TOKEN` and `NPM_TOKEN` environment variables to enable repository sync and package publishing.
+Scaffold your first SDK:
 
-## CLI Overview
+```bash
+cp samples/multi-client.config.json ./api-client-generatorrc.json
+npx client-api-generator generate --log-level info
+```
+
+Set `GITHUB_TOKEN` and `NPM_TOKEN` environment variables to enable GitHub sync and npm publishing.
+
+## Commands at a glance
 
 | Command | Description | Common Flags |
 | ------- | ----------- | ------------ |
-| `generate` | Scaffold clients from config, run Orval, execute hooks, and sync with GitHub/npm. | `--config`, `--target`, `--dry-run`, `--log-level` |
-| `publish` | Create GitHub releases for generated clients. | `--owner`, `--repo`, `--tag`, `--title`, `--body`, `--draft`, `--prerelease` |
-| `diff` *(planned)* | Compare two OpenAPI specs and suggest semantic version bumps. | `--base`, `--head`, `--format`, `--output` |
+| `generate` | Generates clients, applies templates, runs hooks, syncs to GitHub/npm. | `--config`, `--target`, `--dry-run`, `--log-level` |
+| `publish` | Creates GitHub releases for generated packages. | `--owner`, `--repo`, `--tag`, `--title`, `--body`, `--draft`, `--prerelease` |
+| `diff` | Compares two OpenAPI specs and reports breaking changes. | `--base`, `--head`, `--format`, `--output` |
 
-Run `npx @eduardoac/generate-api-client --help` for the full CLI reference.
+Run `npx client-api-generator --help` for more options.
 
 ## Documentation
 
-The `/docs` folder contains in-depth guides:
+- [Getting Started →](docs/getting-started.md)
+- [Configuration Reference →](docs/configuration.md)
+- [CI Integration →](docs/ci-integration.md)
+- [Templates & Adapters →](docs/templates.md)
+- [Versioning & Releases →](docs/versioning.md)
+- [Contributing →](docs/contributing.md)
+- [Next Steps & Roadmap →](docs/next-steps.md)
 
-- [Getting Started](docs/getting-started.md) – install, configure, and run your first generation.
-- [Configuration](docs/configuration.md) – full schema reference with JSON/YAML examples.
-- [CI Integration](docs/ci-integration.md) – build reusable workflows across repositories.
-- [Templates](docs/templates.md) – customise scaffolding and cross-language adapters.
-- [Versioning](docs/versioning.md) – semantic release flows for generated SDKs.
-- [Contributing](docs/contributing.md) – triage, code style, and release processes.
-- [Next Steps](docs/next-steps.md) – roadmap and ecosystem integrations.
+## When to use it
 
-## Example Workflow
+- You ship multiple SDKs and want reproducible releases.
+- You already write OpenAPI specs and need fast feedback on schema changes.
+- You operate in a CI-first environment (GitHub Actions, GitLab CI, CircleCI, etc.).
 
-1. Copy the sample config and adjust paths:
-
-   ```bash
-   mkdir -p examples/petstore
-   cp samples/multi-client.config.json examples/petstore/api-client-generatorrc.json
-   ```
-
-2. Edit `project.directory` and `clients[].output` so they point to your target folders.
-
-3. Run the generator:
-
-   ```bash
-   GITHUB_TOKEN=ghp_xxx NPM_TOKEN=xxx \
-   npx @eduardoac/generate-api-client generate \
-     --config ./examples/petstore/api-client-generatorrc.json \
-     --target ./examples/petstore/output
-   ```
-
-4. Review the generated SDK, run tests, and merge the automated pull request that the CLI opens in your repository.
-
-> 🚀 The template installs dependencies, copies the OpenAPI spec, and runs Orval automatically unless you disable `project.runGenerate`.
-
-## Learn More
-
-- [Docs index](docs/getting-started.md) – start here for setup instructions.
-- [Examples](examples/) – ready-to-run demos and sample configs.
-- [Templates package](packages/api-client-template/) – customise generation behaviour.
-- [CLI package](packages/generate-api-client/) – dive into the command implementation.
-
-Happy generating! If you get stuck or want to contribute, jump to the [Contributing guide](docs/contributing.md).
+If that sounds familiar, dive into [Getting Started](docs/getting-started.md) and generate your first client in under 10 minutes.

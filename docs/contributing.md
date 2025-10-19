@@ -36,7 +36,7 @@ npm run build
 ```text
 packages/
 ├── api-client-template/     # Template source and runtime utilities
-└── generate-api-client/     # CLI implementation and schemas
+└── client-api-generator/    # CLI implementation, commands, and schemas
 docs/                        # User-facing documentation (this folder)
 examples/                    # Sample configs and generated outputs
 samples/                     # Reference configuration files
@@ -72,7 +72,7 @@ samples/                     # Reference configuration files
 2. Commit the version bump and changelog updates.
 3. Publish packages (`npm run publish:template:npm`, `npm run publish:cli:npm`).
 4. Tag the release (`git tag vX.Y.Z`) and push tags.
-5. Optionally run `npx generate-api-client publish` to create a GitHub release.
+5. Optionally run `npx client-api-generator publish` to create a GitHub release.
 
 > ⚠️ Warning: npm disallows publishing over an existing version. Always increment versions before publishing from CI or locally.
 
@@ -83,3 +83,8 @@ samples/                     # Reference configuration files
 - Join the roadmap conversation in [Next Steps](./next-steps.md).
 
 Thank you for contributing! Your improvements help teams ship reliable SDKs faster.
+
+## Next Steps
+
+- Review the [Versioning guide](./versioning.md) to understand release expectations.
+- Explore the [Next Steps roadmap](./next-steps.md) to see where help is most needed.
