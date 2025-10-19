@@ -106,6 +106,46 @@ GITHUB_TOKEN=ghp_xxx NPM_TOKEN=npm_xxx \
 npx genxapi publish --dry-run
 ```
 
+### Unified publish command
+
+Publishing every workspace now funnels through a single helper script that understands registry presets, access levels, and workspace aliases. From the repo root run:
+
+```bash
+# Publish the Orval template to the default (GitHub Packages) destination
+NPM_TOKEN=xxx npm run publish -- --template template-orval
+
+# Ship the CLI publicly to npmjs.org
+NPM_TOKEN=xxx npm run publish -- --workspace @genxapi/cli --pkg-manager npm --access public
+
+# Perform a dry-run with an explicit config file
+NPM_TOKEN=xxx npm run publish -- \
+  --config scripts/publish.orval.json \
+  --dry-run
+```
+
+Key flags:
+
+- `--workspace` / `--template` – choose the package (aliases include `template-orval`, `template-kubb`, `cli`).
+- `--pkg-manager` or `--registry` – pick a preset (`npm`, `github`) or provide a full registry URL.
+- `--access` – toggle `public` vs `restricted`.
+- `--tag`, `--token-env`, `--command`, `--dry-run`, `--otp` – fine‑tune publish behaviour.
+- `--config <file>` – merge additional JSON config, useful when generators emit publish metadata alongside the generated project.
+
+Defaults live in the root `genxapiPublish` block, so template-generated projects can provide their own publish settings without coding bespoke scripts. You can list available packages with `npm run publish -- --list`.
+
+> Need to publish directly from a workspace? Each package still ships with a plain `npm publish` script, keeping the package self-contained while the unified helper remains available at the repo root.
+
+#### How `genxapiPublish` works
+
+The root `package.json` exposes a `genxapiPublish` section that layers configuration for the helper:
+
+- `defaults` – baseline values (command, tag, token variable) that apply to every workspace.
+- `presets` – shortcuts such as `npm` or `github` that expand into registry/access pairs; you can add more to target other registries.
+- `aliases` – human-friendly names (`template-orval`, `cli`, etc.) that the CLI resolves to real workspace package names.
+- `workspaces` – per-package overrides (e.g. locking templates to GitHub Packages while leaving the CLI free to override at runtime).
+
+The helper merges these layers with any config file you pass (`--config path/to/file.json`) and command-line flags. Template generators can emit JSON payloads with publish settings; drop that file alongside the generated project and invoke `npm run publish -- --config generated-publish.json` to honour whatever the template decided.
+
 ---
 
 ## Command reference

@@ -30,7 +30,6 @@
     "build": "rollup -c",
     "clean": "rimraf dist",
     "lint": "eslint 'src/**/*.ts'",
-    "npm-publish": "node ../../scripts/publish.mjs --workspace @genxapi/cli",
     "prebuild": "npm run clean",
     "test": "vitest run"
   },
