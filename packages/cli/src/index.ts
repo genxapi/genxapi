@@ -3,7 +3,12 @@ import { resolve as resolvePath } from "node:path";
 import { relative as relativePath } from "pathe";
 import { Command } from "commander";
 import { loadCliConfig } from "./config/loader.js";
-import type { TemplateOverrides } from "./config/unified.js";
+import {
+  HTTP_CLIENT_CHOICES,
+  ORVAL_CLIENT_CHOICES,
+  ORVAL_MODE_CHOICES,
+  type TemplateOverrides
+} from "./config/unified.js";
 import { runGenerateCommand } from "./commands/generate.js";
 import { runPublishCommand } from "./commands/publish.js";
 import { Logger, type LogLevel } from "./utils/logger.js";
@@ -42,6 +47,14 @@ program
     (value: string) => Number.parseInt(value, 10)
   )
   .option("--mock-use-examples", "Use OpenAPI examples when generating mocks")
+  .option("--pkg-manager <name>", "Override package manager (npm|pnpm|yarn|bun)")
+  .option("--npm-registry <url>", "Override npm publish registry or preset (npm|github)")
+  .option("--npm-access <level>", "Override npm publish access (public|restricted)")
+  .option("--npm-tag <tag>", "Override npm publish dist-tag")
+  .option("--npm-command <name>", "Override npm publish command (npm|pnpm|yarn|bun)")
+  .option("--npm-token-env <name>", "Override npm publish token environment variable")
+  .option("--npm-dry-run", "Publish to npm in dry-run mode")
+  .option("--no-npm-publish", "Disable npm publish post-generation")
   .action(async function (this: Command, options) {
     const logger = new Logger();
     try {
@@ -77,7 +90,7 @@ program
         logger,
         dryRun: options.dryRun,
         template,
-        overrides: buildOverridesFromOptions(options)
+        overrides: buildOverridesFromOptions(this, options)
       });
     } catch (error) {
       logger.error(error instanceof Error ? error.message : String(error));
@@ -121,19 +134,28 @@ program.parseAsync(process.argv);
 export { UnifiedGeneratorConfigSchema } from "./config/unified.js";
 export type { UnifiedGeneratorConfig, UnifiedClientOptions, TemplateOverrides } from "./config/unified.js";
 
-function buildOverridesFromOptions(options: Record<string, any>): TemplateOverrides | undefined {
+function buildOverridesFromOptions(command: Command, options: Record<string, any>): TemplateOverrides | undefined {
   const overrides: TemplateOverrides = {};
 
   if (typeof options.httpClient === "string" && options.httpClient.length > 0) {
-    overrides.httpClient = options.httpClient;
+    const httpClient = options.httpClient.trim().toLowerCase();
+    if ((HTTP_CLIENT_CHOICES as readonly string[]).includes(httpClient)) {
+      overrides.httpClient = httpClient as TemplateOverrides["httpClient"];
+    }
   }
 
   if (typeof options.client === "string" && options.client.length > 0) {
-    overrides.client = options.client;
+    const client = options.client.trim().toLowerCase();
+    if ((ORVAL_CLIENT_CHOICES as readonly string[]).includes(client)) {
+      overrides.client = client as TemplateOverrides["client"];
+    }
   }
 
   if (typeof options.mode === "string" && options.mode.length > 0) {
-    overrides.mode = options.mode;
+    const mode = options.mode.trim().toLowerCase();
+    if ((ORVAL_MODE_CHOICES as readonly string[]).includes(mode)) {
+      overrides.mode = mode as TemplateOverrides["mode"];
+    }
   }
 
   if (typeof options.baseUrl === "string" && options.baseUrl.length > 0) {
@@ -158,9 +180,79 @@ function buildOverridesFromOptions(options: Record<string, any>): TemplateOverri
     hasMockOverride = true;
   }
 
+  if (typeof options.pkgManager === "string" && options.pkgManager.length > 0) {
+    const normalisedPkg = options.pkgManager.trim().toLowerCase();
+    if (["npm", "pnpm", "yarn", "bun"].includes(normalisedPkg)) {
+      overrides.packageManager = normalisedPkg as TemplateOverrides["packageManager"];
+    }
+  }
+
+  type NpmOverrides = NonNullable<NonNullable<TemplateOverrides["publish"]>["npm"]>;
+  const npmOverrides: NpmOverrides = {};
+  let hasNpmOverride = false;
+
+  if (command.getOptionValueSource("npmPublish") === "cli" && options.npmPublish === false) {
+    npmOverrides.enabled = false;
+    hasNpmOverride = true;
+  }
+
+  if (typeof options.npmAccess === "string" && options.npmAccess.length > 0) {
+    const access = options.npmAccess.trim().toLowerCase();
+    if (access === "public" || access === "restricted") {
+      npmOverrides.access = access;
+      hasNpmOverride = true;
+    }
+  }
+
+  if (typeof options.npmTag === "string" && options.npmTag.length > 0) {
+    npmOverrides.tag = options.npmTag;
+    hasNpmOverride = true;
+  }
+
+  if (typeof options.npmCommand === "string" && options.npmCommand.length > 0) {
+    const commandName = options.npmCommand.trim().toLowerCase();
+    if (["npm", "pnpm", "yarn", "bun"].includes(commandName)) {
+      npmOverrides.command = commandName as NpmOverrides["command"];
+      hasNpmOverride = true;
+    }
+  }
+
+  if (typeof options.npmTokenEnv === "string" && options.npmTokenEnv.length > 0) {
+    npmOverrides.tokenEnv = options.npmTokenEnv;
+    hasNpmOverride = true;
+  }
+
+  if (typeof options.npmRegistry === "string" && options.npmRegistry.length > 0) {
+    npmOverrides.registry = normaliseRegistryPreset(options.npmRegistry);
+    hasNpmOverride = true;
+  }
+
+  if (options.npmDryRun === true) {
+    npmOverrides.dryRun = true;
+    hasNpmOverride = true;
+  }
+
   if (hasMockOverride) {
     overrides.mock = mock;
   }
 
+  if (hasNpmOverride) {
+    overrides.publish = {
+      npm: npmOverrides
+    };
+  }
+
   return Object.keys(overrides).length > 0 ? overrides : undefined;
+}
+
+function normaliseRegistryPreset(value: string): string {
+  const trimmed = value.trim();
+  const lower = trimmed.toLowerCase();
+  if (lower === "github" || lower === "gh" || lower === "github-packages") {
+    return "https://npm.pkg.github.com";
+  }
+  if (lower === "npm" || lower === "public" || lower === "registry") {
+    return "https://registry.npmjs.org/";
+  }
+  return trimmed;
 }

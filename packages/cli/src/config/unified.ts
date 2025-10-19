@@ -14,9 +14,10 @@ import type {
 
 const TemplateIdentifierSchema = z.union([z.literal("orval"), z.literal("kubb"), z.string()]);
 
-const HttpClientSchema = z.enum(["axios", "fetch"]);
+export const HTTP_CLIENT_CHOICES = ["axios", "fetch"] as const;
+const HttpClientSchema = z.enum(HTTP_CLIENT_CHOICES);
 
-const OrvalClientAdapterSchema = z.enum([
+export const ORVAL_CLIENT_CHOICES = [
   "axios",
   "axios-functions",
   "angular",
@@ -26,17 +27,28 @@ const OrvalClientAdapterSchema = z.enum([
   "svelte-query",
   "zod",
   "fetch"
-]);
+] as const;
+const OrvalClientAdapterSchema = z.enum(ORVAL_CLIENT_CHOICES);
 
-const OrvalModeSchema = z.enum(["single", "split", "tags", "split-tags", "split-tag", "tags-split"]);
+export const ORVAL_MODE_CHOICES = [
+  "single",
+  "split",
+  "tags",
+  "split-tags",
+  "split-tag",
+  "tags-split"
+] as const;
+const OrvalModeSchema = z.enum(ORVAL_MODE_CHOICES);
 
-const MockOptionsSchema = z
+const MockOptionsObjectSchema = z
   .object({
     type: z.enum(["msw", "off"]).default("msw"),
     delay: z.number().int().nonnegative().optional(),
     useExamples: z.boolean().optional()
   })
   .partial();
+
+const MockOptionsSchema = z.union([z.boolean(), MockOptionsObjectSchema]);
 
 const PluginOptionsSchema = z
   .object({
@@ -68,6 +80,8 @@ const UnifiedClientOutputSchema = z
     schemas: z.string().optional()
   })
   .default({});
+
+type UnifiedClientOutputInput = z.input<typeof UnifiedClientOutputSchema>;
 
 const UnifiedClientSchema = z
   .object({
@@ -123,18 +137,34 @@ export const UnifiedGeneratorConfigSchema = z
 export type UnifiedGeneratorConfig = z.infer<typeof UnifiedGeneratorConfigSchema>;
 export type UnifiedClientOptions = z.infer<typeof UnifiedClientOptionsSchema>;
 
+type HttpClientValue = z.infer<typeof HttpClientSchema>;
+type OrvalClientAdapterValue = z.infer<typeof OrvalClientAdapterSchema>;
+type OrvalModeValue = z.infer<typeof OrvalModeSchema>;
+
 export interface TemplateOverrides {
-  readonly httpClient?: string;
-  readonly client?: string;
-  readonly mode?: string;
-  readonly baseUrl?: string;
-  readonly prettier?: boolean;
-  readonly clean?: boolean;
-  readonly mock?: {
-    readonly type?: string | null;
-    readonly delay?: number | null;
-    readonly useExamples?: boolean | null;
-    readonly enabled?: boolean;
+  httpClient?: HttpClientValue;
+  client?: OrvalClientAdapterValue;
+  mode?: OrvalModeValue;
+  baseUrl?: string;
+  prettier?: boolean;
+  clean?: boolean;
+  packageManager?: "npm" | "pnpm" | "yarn" | "bun";
+  publish?: {
+    npm?: {
+      enabled?: boolean;
+      tag?: string;
+      access?: "public" | "restricted";
+      dryRun?: boolean;
+      tokenEnv?: string;
+      registry?: string;
+      command?: "npm" | "pnpm" | "yarn" | "bun";
+    };
+  };
+  mock?: {
+    type?: string | null;
+    delay?: number | null;
+    useExamples?: boolean | null;
+    enabled?: boolean;
   };
 }
 
@@ -171,12 +201,13 @@ function resolveWorkspace(base: string | undefined, clientName: string): string 
 
 function resolveOutputs(
   projectOutput: string | undefined,
-  clientOutput: UnifiedClientOutputSchema["_input"],
+  clientOutput: UnifiedClientOutputInput | undefined,
   clientName: string
 ) {
-  const workspace = clientOutput.workspace ?? resolveWorkspace(projectOutput, clientName);
-  const target = clientOutput.target ?? join(workspace, "client.ts");
-  const schemas = clientOutput.schemas ?? join(workspace, "model");
+  const output = clientOutput ?? {};
+  const workspace = output.workspace ?? resolveWorkspace(projectOutput, clientName);
+  const target = output.target ?? join(workspace, "client.ts");
+  const schemas = output.schemas ?? join(workspace, "model");
   return { workspace, target, schemas };
 }
 
@@ -265,16 +296,19 @@ function buildOrvalConfig(
     unified.project.templateOptions
   );
 
-  const projectConfig: OrvalProjectConfig = cleanUndefined({
+  const projectPublish = unified.project.publish as OrvalProjectConfig["publish"] | undefined;
+  const projectRepository = unified.project.repository as OrvalProjectConfig["repository"] | undefined;
+
+  const projectConfig = cleanUndefined({
     name: unified.project.name,
     directory: unified.project.directory,
     packageManager: unified.project.packageManager,
-    runGenerate: unified.project.runGenerate,
+    runGenerate: unified.project.runGenerate ?? true,
     template: projectTemplate,
-    repository: unified.project.repository,
-    publish: unified.project.publish,
+    repository: projectRepository,
+    publish: projectPublish,
     readme: unified.project.readme
-  });
+  }) as OrvalProjectConfig;
 
   const clients: OrvalClientConfig[] = unified.clients.map((client) => {
     const mergedOptions = mergeOptions<UnifiedClientOptions>(
@@ -322,16 +356,19 @@ function buildKubbConfig(
     unified.project.templateOptions
   );
 
-  const projectConfig: KubbProjectConfig = cleanUndefined({
+  const projectPublish = unified.project.publish as KubbProjectConfig["publish"] | undefined;
+  const projectRepository = unified.project.repository as KubbProjectConfig["repository"] | undefined;
+
+  const projectConfig = cleanUndefined({
     name: unified.project.name,
     directory: unified.project.directory,
     packageManager: unified.project.packageManager,
-    runGenerate: unified.project.runGenerate,
+    runGenerate: unified.project.runGenerate ?? true,
     template: projectTemplate,
-    repository: unified.project.repository,
-    publish: unified.project.publish,
+    repository: projectRepository,
+    publish: projectPublish,
     readme: unified.project.readme
-  });
+  }) as KubbProjectConfig;
 
   const clients: KubbClientConfig[] = unified.clients.map((client) => {
     const mergedOptions = mergeOptions<UnifiedClientOptions>(
@@ -380,12 +417,12 @@ function createTemplateOptions(
   templatePackage: string,
   options: z.infer<typeof TemplateOptionsSchema>
 ) {
+  const variables = options.variables ?? {};
   return cleanUndefined({
     name: templatePackage,
-    installDependencies:
-      options.installDependencies !== undefined ? options.installDependencies : undefined,
+    installDependencies: options.installDependencies ?? true,
     path: options.path,
-    variables: options.variables
+    variables
   });
 }
 
@@ -396,6 +433,48 @@ export function applyTemplateOverrides(
 ) {
   if (!overrides) {
     return;
+  }
+
+  const project = (inputConfig as OrvalMultiClientConfig | KubbMultiClientConfig).project as Record<
+    string,
+    unknown
+  >;
+
+  if (overrides.packageManager) {
+    project.packageManager = overrides.packageManager;
+  }
+
+  if (overrides.publish?.npm) {
+    const publish = (project.publish as Record<string, unknown> | undefined) ?? {};
+    const npmConfig = {
+      ...(publish.npm as Record<string, unknown> | undefined)
+    };
+    const npmOverride = overrides.publish.npm;
+
+    if (npmOverride.enabled !== undefined) {
+      npmConfig.enabled = npmOverride.enabled;
+    }
+    if (npmOverride.tag !== undefined) {
+      npmConfig.tag = npmOverride.tag;
+    }
+    if (npmOverride.access !== undefined) {
+      npmConfig.access = npmOverride.access;
+    }
+    if (npmOverride.dryRun !== undefined) {
+      npmConfig.dryRun = npmOverride.dryRun;
+    }
+    if (npmOverride.tokenEnv !== undefined) {
+      npmConfig.tokenEnv = npmOverride.tokenEnv;
+    }
+    if (npmOverride.registry !== undefined) {
+      npmConfig.registry = npmOverride.registry;
+    }
+    if (npmOverride.command !== undefined) {
+      npmConfig.command = npmOverride.command;
+    }
+
+    publish.npm = cleanUndefined(npmConfig);
+    project.publish = publish;
   }
 
   if (templateKind === "orval") {

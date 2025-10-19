@@ -428,8 +428,18 @@ function buildGitErrorMessage(
     if (typeof error.signal === "string") {
       segments.push(`signal ${error.signal}`);
     }
-    const stderr = error.stderr?.trim();
-    const stdout = error.stdout?.trim();
+    const stderr =
+      typeof error.stderr === "string"
+        ? error.stderr.trim()
+        : error.stderr !== undefined && error.stderr !== null
+          ? error.stderr.toString().trim()
+          : undefined;
+    const stdout =
+      typeof error.stdout === "string"
+        ? error.stdout.trim()
+        : error.stdout !== undefined && error.stdout !== null
+          ? error.stdout.toString().trim()
+          : undefined;
     const detail = segments.length > 0 ? ` (${segments.join(", ")})` : "";
     const stderrBlock = stderr ? `\nGit stderr:\n${stderr}` : "";
     const stdoutBlock = stdout ? `\nGit stdout:\n${stdout}` : "";

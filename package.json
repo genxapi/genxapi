@@ -28,7 +28,10 @@
     "publish:kubb-template:npm": "npm run publish:npm --workspace @genxapi/template-kubb",
     "publish:kubb-template:github": "npm run publish:github --workspace @genxapi/template-kubb",
     "publish:cli:npm": "npm run publish:npm --workspace @genxapi/cli",
-    "publish:cli:github": "npm run publish:github --workspace @genxapi/cli"
+    "publish:cli:github": "npm run publish:github --workspace @genxapi/cli",
+    "publish:template:npm-public": "npm run publish:npm-public --workspace @genxapi/template-orval",
+    "publish:kubb-template:npm-public": "npm run publish:npm-public --workspace @genxapi/template-kubb",
+    "publish:cli:npm-public": "npm run publish:npm-public --workspace @genxapi/cli"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
