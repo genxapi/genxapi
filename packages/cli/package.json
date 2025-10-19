@@ -23,15 +23,15 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "publishConfig": {
-    "access": "public"
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
     "build": "rollup -c",
     "clean": "rimraf dist",
     "lint": "eslint 'src/**/*.ts'",
-    "npm-publish": "npm run publish:npm",
-    "publish:npm": "npm publish --access public",
-    "publish:npm-public": "npm publish --access public",
+    "npm-publish": "npm run publish:github",
+    "publish:npm": "npm publish",
     "publish:github": "npm publish --registry https://npm.pkg.github.com",
     "prebuild": "npm run clean",
     "test": "vitest run"

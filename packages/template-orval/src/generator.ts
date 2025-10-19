@@ -88,7 +88,7 @@ async function applyPackageJson(projectDir: string, config: MultiClientConfig) {
   pkg.name = config.project.name;
   pkg.scripts = pkg.scripts ?? {};
   pkg.scripts["generate-clients"] = "orval --config orval.config.ts";
-  pkg.scripts["npm-publish"] = pkg.scripts["npm-publish"] ?? "npm publish --access public";
+  pkg.scripts["npm-publish"] = pkg.scripts["npm-publish"] ?? "npm publish";
   await writeFile(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
 }
 

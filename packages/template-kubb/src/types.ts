@@ -110,7 +110,7 @@ const RepositoryConfigSchema = z.object({
 const NpmPublishConfigSchema = z.object({
   enabled: z.boolean().default(false),
   tag: z.string().default("latest"),
-  access: z.enum(["public", "restricted"]).default("public"),
+  access: z.enum(["public", "restricted"]).default("restricted"),
   dryRun: z.boolean().default(false),
   tokenEnv: z.string().default("NPM_TOKEN"),
   registry: z.string().optional(),

@@ -33,7 +33,10 @@ export async function publishToNpm(options: PublishOptions): Promise<void> {
   }
 
   const command = config.command ?? "npm";
-  const args = ["publish", "--tag", config.tag ?? "latest", "--access", config.access ?? "public"];
+  const args = ["publish", "--tag", config.tag ?? "latest"];
+  if (config.access === "public") {
+    args.push("--access", "public");
+  }
 
   if (config.dryRun) {
     args.push("--dry-run");
