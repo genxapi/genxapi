@@ -1,6 +1,6 @@
 # GenxAPI
 
-> Automate, orchestrate, and publish SDKs — faster.
+> Automate, orchestrate, and publish SDKs — client api generation faster..
 
 `GenxAPI` is a meta-orchestrator that delivers the “client API generator” experience without locking you to a single engine. It discovers your OpenAPI-driven configuration, coordinates code generation for multiple clients, enforces semantic versioning, and pushes releases to GitHub and npm without bespoke scripts. First-party templates currently bundle Orval and Kubb adapters, and you can layer in custom engines through hooks or bespoke templates.
 
