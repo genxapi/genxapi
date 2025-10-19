@@ -2,7 +2,7 @@
 
 ## Overview
 
-`client-api-generator` is a meta-orchestrator that coordinates SDK delivery from OpenAPI specification through to packaged release artefacts. It discovers configuration, delegates code generation to Orval, Kubb, or any other generator you register, then manages versioning, Git automation, and registry publishing. The goal is to replace hand-rolled scripts with a repeatable, configuration-driven workflow that runs the same way on a laptop or in CI.
+`client-api-generator` is a meta-orchestrator that still behaves like a client API generator from the user’s perspective. It coordinates SDK delivery from OpenAPI specification through to packaged release artefacts: discovering configuration, delegating code generation to the engines defined by your templates, then managing versioning, Git automation, and registry publishing. The goal is to replace hand-rolled scripts with a repeatable, configuration-driven workflow that runs the same way on a laptop or in CI.
 
 ## Architecture at a glance
 
@@ -11,7 +11,7 @@
 | Layer | Owned by `client-api-generator` | Delegated / external |
 |-------|---------------------------------|----------------------|
 | CLI, config discovery, command routing | ✅ | |
-| Schema parsing & SDK code generation | | 🧩 Orval, Kubb (and future engines) |
+| Schema parsing & SDK code generation | | 🧩 Template-provided engines (e.g. Orval, Kubb, OpenAPI Generator) |
 | Templates, token replacement, post-processing | ✅ | 🧩 Generator-specific adapters |
 | Diffing & semantic version inference | ✅ | |
 | Git automation (commits, PRs, releases) | ✅ | 🧩 GitHub / Octokit APIs |
@@ -23,17 +23,18 @@
 
 1. **Specification** — OpenAPI documents live alongside the codebase or are fetched from remote sources.
 2. **Configuration** — `api-client-generatorrc.{json,ts}` declares clients, hooks, package metadata, and publishing rules.
-3. **Generation** — The CLI invokes Orval, Kubb, or additional executors to materialise SDKs into the template workspace.
+3. **Generation** — The CLI invokes engine adapters declared by the selected templates to materialise SDKs into the workspace.
 4. **Verification** — `diff` reports breaking changes; hooks perform additional validation.
 5. **Versioning & release** — Semantic version bumps are calculated, changelog notes prepared, Git commits and PRs created.
 6. **Publishing** — npm (public or private) and GitHub releases are issued; artefacts can then be consumed downstream.
 
-## Underlying generators
+## Templates and generators
 
-- **Orval** provides the default TypeScript template layer and CLI entry used by the orchestrator.
-- **Kubb** can be enabled for language adapters such as Python, Go, or .NET.
-- **Additional engines**—any executable generator (OpenAPI Generator, Autorest, bespoke scripts) can be connected through hooks or adapters.
-- The orchestrator treats every generator as a pluggable executor, so future support can be added without rewriting workflows.
+- **TypeScript template (Orval)** — the default adapter ships in-repo, targeting TypeScript SDK generation.
+- **Language adapters (Kubb)** — optional packages expose Python, Go, .NET, and other stacks through the same orchestration flow.
+- **Custom engines** — any executable generator (OpenAPI Generator, Autorest, bespoke code) can be plugged in via hooks or by extending the template folder.
+
+All templates are treated as pluggable executors, letting teams add or swap generators without changing the orchestration layer.
 
 ## Configuration model
 
@@ -79,7 +80,7 @@ Key capabilities:
 
 ### `generate`
 
-- Discovers configuration, prepares template files, and calls Orval, Kubb, or your configured generators.
+- Discovers configuration, prepares template files, and invokes the generators declared by your templates.
 - Supports `--dry-run` for safe CI validation.
 - Writes Git-ready changes without forcing a commit, allowing further review.
 

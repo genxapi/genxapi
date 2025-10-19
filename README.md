@@ -1,8 +1,8 @@
 # client-api-generator
 
-> Automate, orchestrate, and release SDKs — powered by Orval, Kubb, or your preferred generator.
+> Automate, orchestrate, and release SDKs — bring your favourite generators.
 
-`client-api-generator` is a meta-orchestrator that sits above tools such as Orval, Kubb, and any additional generators you wire in. It discovers your OpenAPI-driven configuration, coordinates code generation for multiple clients, enforces semantic versioning, and pushes releases to GitHub and npm without bespoke scripts.
+`client-api-generator` is a meta-orchestrator that delivers the “client API generator” experience without locking you to a single engine. It discovers your OpenAPI-driven configuration, coordinates code generation for multiple clients, enforces semantic versioning, and pushes releases to GitHub and npm without bespoke scripts. First-party templates currently bundle Orval and Kubb adapters, and you can layer in custom engines through hooks or bespoke templates.
 
 > 💡 Configuration lives in `api-client-generatorrc.{json,ts}`. Commit it so local runs and CI pipelines stay aligned.
 
@@ -20,7 +20,7 @@ Maintaining a fleet of SDKs is labour-intensive. Specs drift faster than client 
 
 ## What it does
 
-- Discovers multi-client configs and invokes Orval, Kubb, or other configured generators to build SDKs today, with space for additional language toolchains tomorrow.
+- Discovers multi-client configs and invokes the generators defined by your templates—shipped ones include Orval/Kubb adapters, but you can register alternatives—so the orchestrator still behaves like a full client API generator at the workflow level.
 - Applies reusable templates, hooks, and post-processing to keep scaffolded clients uniform.
 - Calculates semantic version bumps from OpenAPI diffs and writes changelog metadata.
 - Commits, pushes, and raises pull requests; creates GitHub releases; publishes to public or private npm registries.
@@ -28,7 +28,7 @@ Maintaining a fleet of SDKs is labour-intensive. Specs drift faster than client 
 
 ## What it does not do
 
-- Replace Orval, Kubb, or other code generators.
+- Replace your chosen code generators (e.g. Orval, Kubb, OpenAPI Generator).
 - Provide runtime HTTP layers or opinionated API consumption utilities.
 - Offer a graphical dashboard (the focus is CLI and automation tooling).
 - Deploy generated projects beyond packaging and publishing.
@@ -43,14 +43,14 @@ Maintaining a fleet of SDKs is labour-intensive. Specs drift faster than client 
 │ documents  │                   generator    │                    artefacts     │
 └────────────┘                    (CLI)        └─────────────┬────┴──────────────┘
                                                               │
-              delegates generation to Orval / Kubb / custom engines ◄──────────┘
+              delegates generation to template-backed engines ◄──────────┘
 ```
 
 ---
 
 ## Quickstart
 
-Install the orchestrator alongside your chosen generators (for example, Orval):
+Install the orchestrator alongside whichever generation template you plan to use (for example, the Orval adapter):
 
 ```bash
 npm install --save-dev client-api-generator orval
@@ -132,3 +132,10 @@ Start with the [Getting Started guide](docs/getting-started.md) to wire the orch
 - [Versioning & releases](docs/versioning.md)
 - [Contributing](docs/contributing.md)
 - [Next steps & roadmap](docs/next-steps.md)
+### Templates and generators
+
+- **TypeScript template (Orval)** — ships with the monorepo and remains the default starting point.
+- **Language adapters (Kubb)** — optional packages give access to Python, Go, .NET, and other outputs.
+- **Custom engines** — wire in additional generators by extending the template folder or calling them from hooks.
+
+Templates are versioned alongside the orchestrator so teams can upgrade the workflow without rewriting scripts.
