@@ -1,6 +1,8 @@
 # client-api-generator
 
-`client-api-generator` automates the generation, testing, and publishing of API clients from OpenAPI/Swagger specifications. It bundles opinionated templates, semantic-release friendly workflows, and CI/CD integrations so platform teams can deliver consistent SDKs in minutes.
+> Automate API client generation, publishing, and versioning — from OpenAPI schemas to ready-to-use SDKs.
+
+`client-api-generator` helps teams automate API client creation and publishing. It supports generation, diffing, and versioning directly from OpenAPI schemas. From a single config you can scaffold SDKs, open pull requests, publish to npm, and verify schema differences across releases.
 
 > 💡 Tip: The CLI discovers `api-client-generatorrc.{json,ts}` in your repository root. Keep configs in source control so CI runs match local results.
 
@@ -19,13 +21,11 @@ Maintaining API clients across multiple services is tedious:
 - npm or internal registry publishing with semantic versioning.
 - CI-friendly commands that run headless and play nicely with caches.
 
-## Quickstart
+## 🚀 Quickstart
 
 ```bash
-# Install locally (recommended for monorepos)
 npm install --save-dev client-api-generator
 
-# Or run via npx
 npx client-api-generator --help
 ```
 
@@ -48,7 +48,13 @@ Set `GITHUB_TOKEN` and `NPM_TOKEN` environment variables to enable GitHub sync a
 
 Run `npx client-api-generator --help` for more options.
 
-## Documentation
+1. Add an `api-client-generatorrc.json` file at your project root.
+2. Run the generator to create your first client: `npx client-api-generator generate`.
+3. Integrate it in CI/CD to automate updates and publishing.
+
+---
+
+## 📘 Documentation
 
 - [Getting Started →](docs/getting-started.md)
 - [Configuration Reference →](docs/configuration.md)
@@ -65,3 +71,7 @@ Run `npx client-api-generator --help` for more options.
 - You operate in a CI-first environment (GitHub Actions, GitLab CI, CircleCI, etc.).
 
 If that sounds familiar, dive into [Getting Started](docs/getting-started.md) and generate your first client in under 10 minutes.
+
+---
+
+> 💡 **Next:** [Start with the Getting Started guide →](docs/getting-started.md)

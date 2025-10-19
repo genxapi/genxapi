@@ -126,3 +126,7 @@ Combine this with semantic-release or run it manually after reviewing generated 
 
 - Learn how to contribute adapter logic or documentation in the [Contributing guide](./contributing.md).
 - Explore the project roadmap in [Next Steps](./next-steps.md).
+
+---
+
+**Next:** [Contributing →](./contributing.md)

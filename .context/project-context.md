@@ -282,6 +282,7 @@ Security snapshot (as of 2025-10-18):
 - Provide additional config samples (hooks, remote swagger, skip install/generate cases).
 - Consider adding an `examples/` workspace that runs the CLI to produce actual clients for smoke testing.
 - Automate release tagging / changelog generation (e.g., Changesets) building on the `publish` command.
+- Consult `.context/docs-upgrade-playbook.md` for the latest documentation structure and style guardrails before editing `/docs`.
 
 ---
 

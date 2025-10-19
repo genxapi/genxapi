@@ -301,3 +301,7 @@ export default config;
 
 - Wire everything into pipelines with [CI Integration →](./ci-integration.md).
 - Customise output scaffolding through the [Templates guide →](./templates.md).
+
+---
+
+**Next:** [CI Integration →](./ci-integration.md)

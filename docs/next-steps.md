@@ -51,3 +51,7 @@ Although TypeScript is the default, the architecture supports adapters:
 - Deep-dive into [Configuration](./configuration.md) as specs grow.
 - Jump to [Contributing](./contributing.md) to join development efforts.
 - Return to the [README](../README.md) for an overview you can share with stakeholders.
+
+---
+
+**Return to:** [README →](../README.md)

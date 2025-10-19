@@ -88,3 +88,7 @@ Thank you for contributing! Your improvements help teams ship reliable SDKs fast
 
 - Review the [Versioning guide](./versioning.md) to understand release expectations.
 - Explore the [Next Steps roadmap](./next-steps.md) to see where help is most needed.
+
+---
+
+**Next:** [Next Steps →](./next-steps.md)

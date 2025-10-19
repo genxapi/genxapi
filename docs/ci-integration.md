@@ -148,3 +148,7 @@ Ensure the working directory contains the configuration file or pass `--config` 
 
 - Dive into [Templates](./templates.md) to customise project scaffolding.
 - Learn about [Versioning strategies](./versioning.md) to automate releases downstream.
+
+---
+
+**Next:** [Templates →](./templates.md)

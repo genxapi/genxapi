@@ -199,4 +199,8 @@ The template merges these values into the generated README so downstream repos r
 ## Next Steps
 
 - Understand how SDK releases stay consistent in the [Versioning guide](./versioning.md).
+
+---
+
+**Next:** [Versioning →](./versioning.md)
 - Ready to contribute adapters? Read the [Contributing guide](./contributing.md).
