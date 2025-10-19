@@ -2,7 +2,7 @@
 
 ## Overview
 
-`client-api-generator` is a meta-orchestrator that coordinates SDK delivery from OpenAPI specification through to packaged release artefacts. It discovers configuration, delegates code generation to Orval and Kubb, then manages versioning, Git automation, and registry publishing. The goal is to replace hand-rolled scripts with a repeatable, configuration-driven workflow that runs the same way on a laptop or in CI.
+`client-api-generator` is a meta-orchestrator that coordinates SDK delivery from OpenAPI specification through to packaged release artefacts. It discovers configuration, delegates code generation to Orval, Kubb, or any other generator you register, then manages versioning, Git automation, and registry publishing. The goal is to replace hand-rolled scripts with a repeatable, configuration-driven workflow that runs the same way on a laptop or in CI.
 
 ## Architecture at a glance
 
@@ -23,7 +23,7 @@
 
 1. **Specification** — OpenAPI documents live alongside the codebase or are fetched from remote sources.
 2. **Configuration** — `api-client-generatorrc.{json,ts}` declares clients, hooks, package metadata, and publishing rules.
-3. **Generation** — The CLI invokes Orval and Kubb to materialise SDKs into the template workspace.
+3. **Generation** — The CLI invokes Orval, Kubb, or additional executors to materialise SDKs into the template workspace.
 4. **Verification** — `diff` reports breaking changes; hooks perform additional validation.
 5. **Versioning & release** — Semantic version bumps are calculated, changelog notes prepared, Git commits and PRs created.
 6. **Publishing** — npm (public or private) and GitHub releases are issued; artefacts can then be consumed downstream.
@@ -32,7 +32,8 @@
 
 - **Orval** provides the default TypeScript template layer and CLI entry used by the orchestrator.
 - **Kubb** can be enabled for language adapters such as Python, Go, or .NET.
-- The orchestrator treats both as pluggable executors, so future support for OpenAPI Generator or Autorest can be added without rewriting workflows.
+- **Additional engines**—any executable generator (OpenAPI Generator, Autorest, bespoke scripts) can be connected through hooks or adapters.
+- The orchestrator treats every generator as a pluggable executor, so future support can be added without rewriting workflows.
 
 ## Configuration model
 
@@ -78,7 +79,7 @@ Key capabilities:
 
 ### `generate`
 
-- Discovers configuration, prepares template files, and calls Orval/Kubb.
+- Discovers configuration, prepares template files, and calls Orval, Kubb, or your configured generators.
 - Supports `--dry-run` for safe CI validation.
 - Writes Git-ready changes without forcing a commit, allowing further review.
 

@@ -1,8 +1,8 @@
 # client-api-generator
 
-> Automate, orchestrate, and release SDKs — powered by Orval and Kubb.
+> Automate, orchestrate, and release SDKs — powered by Orval, Kubb, or your preferred generator.
 
-`client-api-generator` is a meta-orchestrator that sits above tools such as Orval and Kubb. It discovers your OpenAPI-driven configuration, coordinates code generation for multiple clients, enforces semantic versioning, and pushes releases to GitHub and npm without bespoke scripts.
+`client-api-generator` is a meta-orchestrator that sits above tools such as Orval, Kubb, and any additional generators you wire in. It discovers your OpenAPI-driven configuration, coordinates code generation for multiple clients, enforces semantic versioning, and pushes releases to GitHub and npm without bespoke scripts.
 
 > 💡 Configuration lives in `api-client-generatorrc.{json,ts}`. Commit it so local runs and CI pipelines stay aligned.
 
@@ -20,7 +20,7 @@ Maintaining a fleet of SDKs is labour-intensive. Specs drift faster than client 
 
 ## What it does
 
-- Discovers multi-client configs and invokes Orval (plus optional Kubb adapters) to generate TypeScript SDKs today, with room for other languages tomorrow.
+- Discovers multi-client configs and invokes Orval, Kubb, or other configured generators to build SDKs today, with space for additional language toolchains tomorrow.
 - Applies reusable templates, hooks, and post-processing to keep scaffolded clients uniform.
 - Calculates semantic version bumps from OpenAPI diffs and writes changelog metadata.
 - Commits, pushes, and raises pull requests; creates GitHub releases; publishes to public or private npm registries.
@@ -43,14 +43,14 @@ Maintaining a fleet of SDKs is labour-intensive. Specs drift faster than client 
 │ documents  │                   generator    │                    artefacts     │
 └────────────┘                    (CLI)        └─────────────┬────┴──────────────┘
                                                               │
-              delegates generation to Orval / Kubb ◄──────────┘
+              delegates generation to Orval / Kubb / custom engines ◄──────────┘
 ```
 
 ---
 
 ## Quickstart
 
-Install the orchestrator alongside your generators:
+Install the orchestrator alongside your chosen generators (for example, Orval):
 
 ```bash
 npm install --save-dev client-api-generator orval

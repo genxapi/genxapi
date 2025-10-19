@@ -4,13 +4,13 @@
 
 We are building a **meta-orchestrator** for API client generation that unifies how SDKs are produced, validated, versioned, and published. It co-ordinates generation engines under consistent configuration, CI logic, and release workflows.
 
-This project does **not** replace Orval or Kubb. Instead, it acts as the conductor that executes multiple generation engines with shared guardrails.
+This project does **not** replace Orval, Kubb, or any other generator. Instead, it acts as the conductor that executes multiple generation engines with shared guardrails.
 
 ## Capabilities
 
 ### Generation orchestration
 
-- Uses Orval (and optionally Kubb) to generate SDKs from OpenAPI schemas.
+- Uses Orval, Kubb, or any registered generator to produce SDKs from OpenAPI schemas.
 - Supports multiple clients within a monorepo or spread across repositories.
 - Handles configuration discovery (`api-client-generatorrc.*`) and per-client overrides.
 
@@ -53,7 +53,7 @@ This project does **not** replace Orval or Kubb. Instead, it acts as the conduct
 | Layer | Owned by this project | Delegated / external |
 |-------|-----------------------|----------------------|
 | CLI & orchestration | ✅ | |
-| Schema parsing / SDK codegen | | 🧩 Orval / Kubb |
+| Schema parsing / SDK codegen | | 🧩 Orval / Kubb / other generators |
 | Templates & project scaffolding | ✅ | 🧩 Generator-specific artefacts |
 | Diff & semantic versioning | ✅ | |
 | Publishing (GitHub / npm) | ✅ | |
