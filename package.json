@@ -38,7 +38,8 @@
       },
       "github": {
         "registry": "https://npm.pkg.github.com",
-        "access": "restricted"
+        "access": "restricted",
+        "tokenEnv": "GITHUB_TOKEN"
       }
     },
     "aliases": {
