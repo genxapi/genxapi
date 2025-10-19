@@ -20,18 +20,48 @@
     "clean": "node scripts/clean.mjs",
     "format": "prettier --write \"{packages,samples}/**/*.{ts,tsx,js,json,md}\"",
     "lint": "eslint \"packages/**/*.{ts,tsx,js}\"",
-    "npm-publish": "npm run npm-publish --workspaces",
     "test": "npm run test --workspace @genxapi/template-orval && npm run test --workspace @genxapi/template-kubb && npm run test --workspace @genxapi/cli",
     "typecheck": "tsc -p packages/template-orval/tsconfig.json --noEmit && tsc -p packages/template-kubb/tsconfig.json --noEmit && tsc -p packages/cli/tsconfig.json --noEmit",
-    "publish:template:npm": "npm run publish:npm --workspace @genxapi/template-orval",
-    "publish:template:github": "npm run publish:github --workspace @genxapi/template-orval",
-    "publish:kubb-template:npm": "npm run publish:npm --workspace @genxapi/template-kubb",
-    "publish:kubb-template:github": "npm run publish:github --workspace @genxapi/template-kubb",
-    "publish:cli:npm": "npm run publish:npm --workspace @genxapi/cli",
-    "publish:cli:github": "npm run publish:github --workspace @genxapi/cli",
-    "publish:template:npm-public": "npm run publish:npm-public --workspace @genxapi/template-orval",
-    "publish:kubb-template:npm-public": "npm run publish:npm-public --workspace @genxapi/template-kubb",
-    "publish:cli:npm-public": "npm run publish:npm-public --workspace @genxapi/cli"
+    "publish": "node scripts/publish.mjs",
+    "publish:template": "node scripts/publish.mjs"
+  },
+  "genxapiPublish": {
+    "defaults": {
+      "command": "npm",
+      "tag": "latest",
+      "tokenEnv": "NPM_TOKEN"
+    },
+    "presets": {
+      "npm": {
+        "registry": "https://registry.npmjs.org/",
+        "access": "public"
+      },
+      "github": {
+        "registry": "https://npm.pkg.github.com",
+        "access": "restricted"
+      }
+    },
+    "aliases": {
+      "template-orval": "@genxapi/template-orval",
+      "template-kubb": "@genxapi/template-kubb",
+      "kubb": "@genxapi/template-kubb",
+      "orval": "@genxapi/template-orval",
+      "cli": "@genxapi/cli"
+    },
+    "workspaces": {
+      "@genxapi/template-orval": {
+        "registry": "https://npm.pkg.github.com",
+        "access": "restricted"
+      },
+      "@genxapi/template-kubb": {
+        "registry": "https://npm.pkg.github.com",
+        "access": "restricted"
+      },
+      "@genxapi/cli": {
+        "registry": "https://npm.pkg.github.com",
+        "access": "restricted"
+      }
+    }
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

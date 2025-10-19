@@ -25,10 +25,7 @@
   "scripts": {
     "build": "rollup -c",
     "clean": "rimraf dist",
-    "npm-publish": "npm run publish:github",
-    "publish:npm": "npm publish",
-    "publish:npm-public": "npm publish --registry https://registry.npmjs.org/ --access public",
-    "publish:github": "npm publish --registry https://npm.pkg.github.com",
+    "npm-publish": "node ../../scripts/publish.mjs --workspace @genxapi/template-orval",
     "prebuild": "npm run clean",
     "test": "vitest run"
   },
