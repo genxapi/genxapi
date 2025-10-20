@@ -22,7 +22,7 @@ export default defineConfig([
       "@genxapi/template-kubb",
       "merge-deep",
       "chalk",
-      "commander",
+      "@stricli/core",
       "cosmiconfig",
       "fs-extra",
       "octokit",
