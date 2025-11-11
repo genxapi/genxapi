@@ -190,6 +190,12 @@ jobs:
 
 ---
 
+## Website
+
+The public landing page lives in the `website/` folder and is deployed via the `.github/workflows/deploy-website.yml` workflow. Update that directory (and the workflow inputs) if the hosting platform changes—no other parts of the repo depend on a specific provider.
+
+---
+
 ## When to use it
 
 - You maintain multiple SDKs (internal or public) and need reproducible releases.
