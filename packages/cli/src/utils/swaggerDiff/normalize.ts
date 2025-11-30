@@ -1,5 +1,11 @@
 import { DOC_FIELDS } from "./types.js";
 
+/**
+ * Removes documentation fields from an OpenAPI value recursively.
+ *
+ * @param value - Value to sanitize.
+ * @returns Value without documentation-only fields.
+ */
 export function stripDocFields(value: unknown): unknown {
   if (Array.isArray(value)) {
     return value.map((item) => stripDocFields(item));
@@ -15,10 +21,23 @@ export function stripDocFields(value: unknown): unknown {
   return value;
 }
 
+/**
+ * Performs a stable deep equality check using sorted keys.
+ *
+ * @param a - First value.
+ * @param b - Second value.
+ * @returns True when values are structurally equivalent.
+ */
 export function deepEqual(a: unknown, b: unknown): boolean {
   return JSON.stringify(normalize(a)) === JSON.stringify(normalize(b));
 }
 
+/**
+ * Produces a stable representation of a value with sorted object keys for comparison.
+ *
+ * @param value - Value to normalize.
+ * @returns Normalized value.
+ */
 function normalize(value: unknown): unknown {
   if (Array.isArray(value)) {
     return value.map((item) => normalize(item));
@@ -32,6 +51,12 @@ function normalize(value: unknown): unknown {
   return value;
 }
 
+/**
+ * Clones a value using structuredClone while preserving undefined.
+ *
+ * @param value - Value to clone.
+ * @returns Cloned value.
+ */
 export function clone<T>(value: T): T {
   return value === undefined ? value : (structuredClone(value) as T);
 }

@@ -1,5 +1,12 @@
 import { TemplateOverrides, UnifiedClientOptions } from "src/types";
 
+/**
+ * Resolves the effective mock configuration combining base options and CLI overrides.
+ *
+ * @param mockOptions - Mock options from config.
+ * @param overrides - Override values from CLI/template overrides.
+ * @returns False when disabled, a mock options object when enabled, or undefined when not set.
+ */
 export function normaliseMockValue(
   mockOptions: UnifiedClientOptions["mock"],
   overrides?: TemplateOverrides["mock"]

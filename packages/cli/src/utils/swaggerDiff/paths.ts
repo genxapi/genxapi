@@ -1,6 +1,13 @@
 import { HTTP_METHODS, type DiffReport } from "./types.js";
 import { clone, deepEqual, stripDocFields } from "./normalize.js";
 
+/**
+ * Populates a diff report with path-level changes between two OpenAPI specs.
+ *
+ * @param diff - Mutable diff accumulator.
+ * @param oldPaths - Paths object from the previous spec.
+ * @param newPaths - Paths object from the updated spec.
+ */
 export function analyzePaths(
   diff: DiffReport,
   oldPaths: Record<string, unknown>,
@@ -35,6 +42,14 @@ export function analyzePaths(
   }
 }
 
+/**
+ * Records method-level additions/removals/changes for a given path.
+ *
+ * @param diff - Mutable diff accumulator.
+ * @param path - Current API path being compared.
+ * @param oldItem - Operations in the previous spec.
+ * @param newItem - Operations in the updated spec.
+ */
 function analyzeMethods(
   diff: DiffReport,
   path: string,

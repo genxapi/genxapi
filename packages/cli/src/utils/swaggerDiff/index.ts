@@ -6,6 +6,13 @@ import type { DiffReport } from "./types.js";
 
 export { type SchemaChangeResult } from "./types.js";
 
+/**
+ * Generates a summary diff between two OpenAPI specs.
+ *
+ * @param oldSpec - Previous OpenAPI document.
+ * @param newSpec - Updated OpenAPI document.
+ * @returns Structured diff with type, summary, and detailed changes.
+ */
 export function analyzeSwaggerDiff(
   oldSpec: Record<string, unknown>,
   newSpec: Record<string, unknown>

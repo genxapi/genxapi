@@ -1,6 +1,13 @@
 import { clone, deepEqual, stripDocFields } from "./normalize.js";
 import type { DiffReport } from "./types.js";
 
+/**
+ * Records schema/component-level changes between two OpenAPI specs.
+ *
+ * @param diff - Mutable diff accumulator.
+ * @param oldComponents - Components from the previous spec.
+ * @param newComponents - Components from the updated spec.
+ */
 export function analyzeComponents(
   diff: DiffReport,
   oldComponents: Record<string, unknown>,

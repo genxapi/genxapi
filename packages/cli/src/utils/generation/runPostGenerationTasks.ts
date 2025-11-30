@@ -5,6 +5,11 @@ import { GenerateCommandOptions } from "src/commands/generate.js";
 import { synchronizeRepository } from "src/services/github.js";
 import { publishToNpm } from "src/services/npm.js";
 
+/**
+ * Executes post-generation actions such as repo sync and npm publish.
+ *
+ * @param options - Generation context and config.
+ */
 export async function runPostGenerationTasks(options: GenerateCommandOptions): Promise<void> {
   const projectDir = resolve(options.configDir, options.config.project.directory);
   const repository = options.config.project.repository as unknown as RepositoryConfig | undefined;
