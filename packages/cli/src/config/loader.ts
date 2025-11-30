@@ -8,7 +8,7 @@ import {
   resolveTemplatePackage,
   transformUnifiedConfig
 } from "./unified.js";
-import { ClientApiTemplates, TemplateOptions, UnifiedGeneratorConfigSchema } from "../types/types.js";
+import { ClientApiTemplates, TemplateOptions, UnifiedGeneratorConfigSchema } from "../types/index.js";
 
 import type { LogLevel } from "../utils/logger.js";
 

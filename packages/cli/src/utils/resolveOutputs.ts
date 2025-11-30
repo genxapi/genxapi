@@ -1,5 +1,5 @@
 import { join } from "pathe";
-import { UnifiedClientOutputInput } from "src/types/types";
+import { UnifiedClientOutputInput } from "src/types";
 
 function resolveWorkspace(base: string | undefined, clientName: string): string {
   if (!base) {

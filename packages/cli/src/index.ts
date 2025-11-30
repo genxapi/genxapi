@@ -17,7 +17,7 @@ import {
   ORVAL_CLIENT_CHOICES,
   ORVAL_MODE_CHOICES,
   type TemplateOverrides
-} from "./types/types.js";
+} from "./types/index.js";
 import { runGenerateCommand } from "./commands/generate.js";
 import { runPublishCommand } from "./commands/publish.js";
 import { Logger, type LogLevel } from "./utils/logger.js";
@@ -377,8 +377,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   });
 }
 
-export { UnifiedGeneratorConfigSchema } from "./types/types.js";
-export type { UnifiedGeneratorConfig, UnifiedClientOptions, TemplateOverrides } from "./types/types.js";
+export { UnifiedGeneratorConfigSchema } from "./types/index.js";
+export type { UnifiedGeneratorConfig, UnifiedClientOptions, TemplateOverrides } from "./types/index.js";
 
 function buildOverridesFromFlags(flags: GenerateFlags): TemplateOverrides | undefined {
   const overrides: TemplateOverrides = {};

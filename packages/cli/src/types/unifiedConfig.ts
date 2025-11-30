@@ -1,11 +1,5 @@
 import z from "zod";
-
-export enum ClientApiTemplates {
-  Orval = "orval",
-  Kubb = "kubb"
-};
-
-const TemplateIdentifierSchema = z.union([z.literal(ClientApiTemplates.Orval), z.literal(ClientApiTemplates.Kubb), z.string()]);
+import { TemplateIdentifierSchema, TemplateOptionsSchema } from "./templates.js";
 
 export const HTTP_CLIENT_CHOICES = ["axios", "fetch"] as const;
 const HttpClientSchema = z.enum(HTTP_CLIENT_CHOICES);
@@ -86,14 +80,6 @@ export const UnifiedClientSchema = z
   })
   .passthrough();
 
-export const TemplateOptionsSchema = z
-  .object({
-    variables: z.record(z.string(), z.string()).optional(),
-    installDependencies: z.boolean().optional(),
-    path: z.string().optional()
-  })
-  .default({});
-
 export const UnifiedProjectSchema = z
   .object({
     name: z.string().min(1),
@@ -129,35 +115,6 @@ export const UnifiedGeneratorConfigSchema = z
 
 export type UnifiedGeneratorConfig = z.infer<typeof UnifiedGeneratorConfigSchema>;
 export type UnifiedClientOptions = z.infer<typeof UnifiedClientOptionsSchema>;
-export type TemplateOptions = z.infer<typeof TemplateOptionsSchema>;
-
 export type HttpClientValue = z.infer<typeof HttpClientSchema>;
 export type OrvalClientAdapterValue = z.infer<typeof OrvalClientAdapterSchema>;
 export type OrvalModeValue = z.infer<typeof OrvalModeSchema>;
-
-export interface TemplateOverrides {
-  httpClient?: HttpClientValue;
-  client?: OrvalClientAdapterValue;
-  mode?: OrvalModeValue;
-  baseUrl?: string;
-  prettier?: boolean;
-  clean?: boolean;
-  packageManager?: "npm" | "pnpm" | "yarn" | "bun";
-  publish?: {
-    npm?: {
-      enabled?: boolean;
-      tag?: string;
-      access?: "public" | "restricted";
-      dryRun?: boolean;
-      tokenEnv?: string;
-      registry?: string;
-      command?: "npm" | "pnpm" | "yarn" | "bun";
-    };
-  };
-  mock?: {
-    type?: string | null;
-    delay?: number | null;
-    useExamples?: boolean | null;
-    enabled?: boolean;
-  };
-}

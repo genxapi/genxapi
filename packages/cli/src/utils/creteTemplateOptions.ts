@@ -1,6 +1,6 @@
 import z from "zod";
 import { cleanUndefined } from "./cleanUndefined";
-import { TemplateOptionsSchema } from "src/types/types";
+import { TemplateOptionsSchema } from "src/types";
 
 export function createTemplateOptions(
   templatePackage: string,

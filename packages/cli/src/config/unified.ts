@@ -11,9 +11,9 @@ import {
 } from "src/build/buildKubbConfig";
 import { cleanUndefined } from "src/utils/cleanUndefined";
 import { normaliseMockValue } from "src/utils/normaliseMockValue";
-import { ClientApiTemplates, TemplateOverrides, UnifiedGeneratorConfig } from "src/types/types";
+import { ClientApiTemplates, TemplateOverrides, UnifiedGeneratorConfig } from "src/types";
 
-export type { TemplateOverrides } from "src/types/types";
+export type { TemplateOverrides } from "src/types";
 
 type Mutable<T> = {
   -readonly [P in keyof T]: T[P] extends ReadonlyArray<infer U>

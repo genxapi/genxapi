@@ -1,4 +1,4 @@
-import { UnifiedClientOptions, UnifiedGeneratorConfig } from "src/types/types";
+import { UnifiedClientOptions, UnifiedGeneratorConfig } from "src/types";
 import { cleanUndefined } from "src/utils/cleanUndefined";
 import { mergeOptions } from "src/utils/mergeOptions";
 import { resolveOutputs } from "src/utils/resolveOutputs";

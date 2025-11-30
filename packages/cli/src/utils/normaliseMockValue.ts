@@ -1,4 +1,4 @@
-import { TemplateOverrides, UnifiedClientOptions } from "src/types/types";
+import { TemplateOverrides, UnifiedClientOptions } from "src/types";
 
 export function normaliseMockValue(
   mockOptions: UnifiedClientOptions["mock"],

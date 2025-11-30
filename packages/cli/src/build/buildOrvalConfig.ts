@@ -1,4 +1,4 @@
-import { UnifiedClientOptions, UnifiedGeneratorConfig } from "src/types/types";
+import { UnifiedClientOptions, UnifiedGeneratorConfig } from "src/types";
 import { cleanUndefined } from "src/utils/cleanUndefined";
 import { createTemplateOptions } from "src/utils/creteTemplateOptions";
 import { mergeOptions } from "src/utils/mergeOptions";
