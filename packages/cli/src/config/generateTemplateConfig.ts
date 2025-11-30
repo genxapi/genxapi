@@ -1,7 +1,7 @@
 import { buildOrvalConfig, type OrvalMultiClientConfig } from "src/build/buildOrvalConfig";
 import { buildKubbConfig, type KubbMultiClientConfig } from "src/build/buildKubbConfig";
 import { ClientApiTemplates, UnifiedGeneratorConfig } from "src/types";
-import { TEMPLATE_PACKAGE_MAP } from "./templatePackages.js";
+import { TEMPLATE_PACKAGE_MAP } from "../utils/templatePackages.js";
 
 /**
  * Converts a unified config into the concrete template config for the selected template package.
@@ -10,7 +10,7 @@ import { TEMPLATE_PACKAGE_MAP } from "./templatePackages.js";
  * @param templatePackage - Resolved template package name.
  * @returns Concrete template config and template identifier.
  */
-export function transformUnifiedConfig(
+export function generateTemplateConfig(
   unified: UnifiedGeneratorConfig,
   templatePackage: string
 ): {

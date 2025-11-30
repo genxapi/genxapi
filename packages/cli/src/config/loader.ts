@@ -3,8 +3,8 @@ import { dirname, resolve } from "pathe";
 import { cosmiconfig } from "cosmiconfig";
 import YAML from "yaml";
 import { z } from "zod";
-import { TEMPLATE_PACKAGE_MAP, resolveTemplatePackage } from "./templatePackages.js";
-import { transformUnifiedConfig } from "./transformUnifiedConfig.js";
+import { TEMPLATE_PACKAGE_MAP, resolveTemplatePackage } from "../utils/templatePackages.js";
+import { generateTemplateConfig } from "./generateTemplateConfig.js";
 import { ClientApiTemplates, TemplateOptions, UnifiedGeneratorConfigSchema } from "../types/index.js";
 
 import type { LogLevel } from "../utils/logger.js";
@@ -72,7 +72,7 @@ export async function loadCliConfig(options: LoadCliConfigOptions = {}): Promise
 
   if (unifiedParsed.success) {
     templateName = resolveTemplatePackage(overrideTemplate ?? unifiedParsed.data.project.template);
-    const transformed = transformUnifiedConfig(unifiedParsed.data, templateName);
+    const transformed = generateTemplateConfig(unifiedParsed.data, templateName);
     payload = {
       ...transformed.config,
       logLevel: unifiedParsed.data.logLevel
