@@ -1,4 +1,4 @@
-import { join, relative as relativePath, resolve } from "pathe";
+import { isAbsolute, join, relative as relativePath, resolve } from "pathe";
 import fs from "fs-extra";
 import { writeFile } from "node:fs/promises";
 import type { ClientConfig } from "../types.js";
@@ -7,8 +7,10 @@ export async function ensureClientWorkspaces(projectDir: string, clients: Client
   for (const client of clients) {
     const workspaceDir = resolve(projectDir, client.output.workspace);
     await fs.ensureDir(workspaceDir);
-    const targetDir = resolve(projectDir, client.output.target, "..");
+    const targetDir = resolveOutputPath(projectDir, client, join(client.output.target, ".."));
+    const schemasDir = resolveOutputPath(projectDir, client, client.output.schemas);
     await fs.ensureDir(targetDir);
+    await fs.ensureDir(schemasDir);
   }
 }
 
@@ -53,22 +55,25 @@ export async function writeClientIndex(projectDir: string, client: ClientConfig,
   const workspaceDir = resolve(projectDir, client.output.workspace);
   await fs.ensureDir(workspaceDir);
 
-  const targetPath = resolve(projectDir, client.output.target);
-  const hooksPath = resolve(projectDir, hooksTarget);
-  const schemasPath = resolve(projectDir, client.output.schemas);
+  const targetPath = resolveOutputPath(projectDir, client, client.output.target);
+  const hooksPath = resolveOutputPath(projectDir, client, hooksTarget);
+  const schemasPath = resolveOutputPath(projectDir, client, client.output.schemas);
 
-  const exports = new Set<string>();
-  const clientImport = ensureDotRelative(relativePath(workspaceDir, targetPath));
-  exports.add(withoutExtension(clientImport));
-  const modelsImport = ensureDotRelative(relativePath(workspaceDir, schemasPath));
-  exports.add(withoutExtension(modelsImport));
+  const paths: string[] = [];
+  paths.push(normalizeExportPath(workspaceDir, targetPath, "./client"));
+  paths.push(normalizeExportPath(workspaceDir, schemasPath, "./model"));
   if (client.orval.mock) {
-    const mswTarget = targetPath.replace(/\.ts$/, ".msw");
-    const mswImport = ensureDotRelative(relativePath(workspaceDir, mswTarget));
-    exports.add(withoutExtension(mswImport));
+    const mswTarget = resolveOutputPath(
+      projectDir,
+      client,
+      client.output.target.replace(/\.ts$/, ".msw")
+    );
+    paths.push(normalizeExportPath(workspaceDir, mswTarget, "./client.msw"));
   }
 
-  const lines: string[] = Array.from(exports).map((path) => `export * from "${path}";`);
+  const lines: string[] = Array.from(
+    new Set(paths.filter((path) => path && path !== "."))
+  ).map((path) => `export * from "${path}";`);
   lines.push("");
 
   await writeFile(join(workspaceDir, "index.ts"), lines.join("\n"));
@@ -86,13 +91,34 @@ function ensureDotRelative(path: string): string {
 }
 
 export function resolveGeneratedPath(projectDir: string, client: ClientConfig, target: string): string {
-  const direct = resolve(projectDir, target);
+  const direct = resolve(projectDir, client.output.workspace, target);
   if (fs.existsSync(direct)) {
     return direct;
   }
-  return resolve(projectDir, client.output.workspace, target);
+  return resolve(projectDir, target);
 }
 
 function withoutExtension(path: string): string {
   return path.replace(/\.[^.]+$/, "");
+}
+
+function resolveOutputPath(projectDir: string, client: ClientConfig, target: string): string {
+  if (isAbsolute(target)) {
+    return target;
+  }
+  const normalizedTarget = target.replace(/^[.][/\\]/, "");
+  const workspaceNormalized = client.output.workspace.replace(/^[.][/\\]/, "");
+  if (normalizedTarget.startsWith(workspaceNormalized)) {
+    return resolve(projectDir, target);
+  }
+  return resolve(projectDir, client.output.workspace, target);
+}
+
+function normalizeExportPath(workspaceDir: string, absolutePath: string, fallback: string): string {
+  const rel = ensureDotRelative(relativePath(workspaceDir, absolutePath));
+  const cleaned = rel.replace(/\.ts$/, "");
+  if (!cleaned || cleaned === ".") {
+    return fallback;
+  }
+  return cleaned;
 }
