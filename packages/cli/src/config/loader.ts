@@ -36,7 +36,7 @@ export interface CliConfig {
     readonly directory: string;
     readonly packageManager: "npm" | "pnpm" | "yarn" | "bun";
     readonly runGenerate: boolean;
-    readonly template: ClientApiTemplates;
+    readonly template: ClientApiTemplates | string | { readonly name?: string; readonly [key: string]: unknown };
     readonly repository?: Record<string, unknown>;
     readonly publish?: {
       readonly npm?: Record<string, unknown>;
@@ -91,16 +91,7 @@ export async function loadCliConfig(options: LoadCliConfigOptions = {}): Promise
   });
 
   const parsed = cliSchema.parse(payload) as CliConfig;
-  const configWithTemplate: CliConfig = {
-    ...parsed,
-    project: {
-      ...parsed.project,
-      template: {
-        ...parsed.project.template,
-        name: templateName
-      }
-    }
-  };
+  const configWithTemplate: CliConfig = structuredClone(parsed);
 
   return {
     config: configWithTemplate,
