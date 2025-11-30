@@ -16,11 +16,7 @@ export async function writeRootIndex(projectDir: string, clients: ClientConfig[]
   const srcDir = join(projectDir, "src");
   await fs.ensureDir(srcDir);
 
-  const lines: string[] = ['export * from "./runtime/create-client";'];
-
-  if (clients.length > 0) {
-    lines.push("");
-  }
+  const lines: string[] = [];
 
   for (const client of clients) {
     const namespace = toIdentifier(client.name);
@@ -51,4 +47,39 @@ function toIdentifier(name: string): string {
     return sanitized;
   }
   return `_${sanitized}`;
+}
+
+export async function writeClientIndex(projectDir: string, client: ClientConfig, hooksTarget: string) {
+  const workspaceDir = resolve(projectDir, client.output.workspace);
+  await fs.ensureDir(workspaceDir);
+
+  const targetPath = resolve(projectDir, client.output.target);
+  const hooksPath = resolve(projectDir, hooksTarget);
+  const schemasPath = resolve(projectDir, client.output.schemas);
+
+  const exports = new Set<string>();
+  exports.add(ensureDotRelative(relativePath(workspaceDir, targetPath)));
+  exports.add(ensureDotRelative(relativePath(workspaceDir, hooksPath)));
+  exports.add(ensureDotRelative(relativePath(workspaceDir, schemasPath)));
+
+  const lines: string[] = Array.from(exports).map((path) => `export * from "${path}";`);
+  lines.push("");
+
+  await writeFile(join(workspaceDir, "index.ts"), lines.join("\n"));
+}
+
+function ensureDotRelative(path: string): string {
+  const normalized = path.replace(/\\/g, "/");
+  if (normalized.startsWith(".")) {
+    return normalized;
+  }
+  return `./${normalized}`;
+}
+
+export function resolveGeneratedPath(projectDir: string, client: ClientConfig, target: string): string {
+  const direct = resolve(projectDir, target);
+  if (fs.existsSync(direct)) {
+    return direct;
+  }
+  return resolve(projectDir, client.output.workspace, target);
 }

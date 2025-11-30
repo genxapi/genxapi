@@ -4,7 +4,7 @@ import type { MultiClientConfig, GenerateClientsOptions } from "./types.js";
 import { TEMPLATE_ROOT } from "./generator/constants.js";
 import { applyPackageJson } from "./generator/applyPackageJson.js";
 import { applyTemplateVariables } from "./generator/applyTemplateVariables.js";
-import { ensureClientWorkspaces, writeRootIndex } from "./generator/workspaceFiles.js";
+import { ensureClientWorkspaces, writeRootIndex, writeClientIndex } from "./generator/workspaceFiles.js";
 import { handleSwaggerDocuments } from "./generator/handleSwaggerDocuments.js";
 import { writeOrvalConfig } from "./generator/writeOrvalConfig.js";
 import { generateReadme } from "./generator/writeReadme.js";
@@ -30,7 +30,6 @@ export async function generateClients(
   await applyPackageJson(projectDir, config);
   await applyTemplateVariables(projectDir, config);
   await ensureClientWorkspaces(projectDir, config.clients);
-  await writeRootIndex(projectDir, config.clients);
   const { targets: swaggerTargets, infos: swaggerInfos } = await handleSwaggerDocuments(
     projectDir,
     config,
@@ -51,6 +50,10 @@ export async function generateClients(
   if (options.runOrval ?? config.project.runGenerate) {
     await runOrval(projectDir, config.project.packageManager, logger);
   }
+  for (const client of config.clients) {
+    await writeClientIndex(projectDir, client, client.output.target);
+  }
+  await writeRootIndex(projectDir, config.clients);
 
   if (config.hooks.afterGenerate.length > 0) {
     await runHooks(config.hooks.afterGenerate, projectDir, logger);
