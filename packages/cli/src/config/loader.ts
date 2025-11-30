@@ -5,10 +5,13 @@ import YAML from "yaml";
 import { z } from "zod";
 import {
   TEMPLATE_PACKAGE_MAP,
-  UnifiedGeneratorConfigSchema,
   resolveTemplatePackage,
   transformUnifiedConfig
 } from "./unified.js";
+import {
+  UnifiedGeneratorConfigSchema,
+} from "../types/types.js";
+
 import type { LogLevel } from "../utils/logger.js";
 
 const MODULE_NAME = "genxapi";
