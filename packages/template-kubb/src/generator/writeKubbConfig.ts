@@ -1,5 +1,5 @@
 import { writeFile } from "node:fs/promises";
-import { join } from "pathe";
+import { join, relative as relativePath } from "pathe";
 import merge from "merge-deep";
 import type { MultiClientConfig } from "../types.js";
 import { ensureRelativePath, joinRelative } from "./pathHelpers.js";
@@ -13,10 +13,14 @@ export async function writeKubbConfig(
 
   for (const client of config.clients) {
     const workspace = ensureRelativePath(client.output.workspace);
-    const schemasPath = joinRelative(workspace, client.output.schemas ?? "model");
-    const clientTarget = ensureRelativePath(client.output.target);
+    const targetRelative = ensureRelativePath(relativePath(workspace, client.output.target));
+    const schemasRelative = ensureRelativePath(
+      relativePath(workspace, client.output.schemas ?? "model")
+    );
+    const schemasPath = schemasRelative;
+    const clientTarget = targetRelative;
     const swaggerPath = swaggerTargets[client.name];
-    const oasOutput = joinRelative(workspace, "oas");
+    const oasOutput = "oas";
 
     const defaultOasOptions = {
       output: {

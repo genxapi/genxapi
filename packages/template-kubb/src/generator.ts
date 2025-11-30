@@ -9,6 +9,7 @@ import { handleSwaggerDocuments } from "./generator/handleSwaggerDocuments.js";
 import { writeKubbConfig } from "./generator/writeKubbConfig.js";
 import { writeReadme } from "./generator/writeReadme.js";
 import { installDependencies, runHooks, runKubb } from "./generator/runTasks.js";
+import { writeRootIndex, writeClientIndex } from "./generator/workspaceFiles.js";
 
 export async function generateClients(
   config: MultiClientConfig,
@@ -50,6 +51,11 @@ export async function generateClients(
   if (options.runKubb ?? config.project.runGenerate) {
     await runKubb(projectDir, config.project.packageManager, logger);
   }
+
+  for (const client of config.clients) {
+    await writeClientIndex(projectDir, client);
+  }
+  await writeRootIndex(projectDir, config.clients);
 
   if (config.hooks.afterGenerate.length > 0) {
     await runHooks(config.hooks.afterGenerate, projectDir, logger);

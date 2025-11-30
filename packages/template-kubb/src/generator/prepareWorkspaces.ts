@@ -6,7 +6,9 @@ export async function ensureClientWorkspaces(projectDir: string, clients: Client
   for (const client of clients) {
     const workspaceDir = resolve(projectDir, client.output.workspace);
     await fs.ensureDir(workspaceDir);
-    const targetDir = resolve(projectDir, dirname(client.output.target));
+    const targetDir = resolve(workspaceDir, dirname(client.output.target));
+    const schemasDir = resolve(workspaceDir, client.output.schemas ?? "model");
     await fs.ensureDir(targetDir);
+    await fs.ensureDir(schemasDir);
   }
 }
