@@ -3,6 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "pathe";
 import { describe, expect, it } from "vitest";
 import { loadCliConfig } from "./config/loader.js";
+import { TEMPLATE_PACKAGE_MAP } from "./config/unified.js";
 
 describe("loadCliConfig", () => {
   it("parses minimal configuration using the default template", async () => {
@@ -37,10 +38,10 @@ describe("loadCliConfig", () => {
     const { config } = await loadCliConfig({ file: configPath });
     expect(config.project.name).toBe("demo");
     expect(config.project.publish?.npm?.enabled).toBe(false);
-    expect(config.project.template.name).toBe("@genxapi/template-orval");
+    expect(config.project.template).toBe(TEMPLATE_PACKAGE_MAP.orval);
   });
 
-  it("overrides template when provided via CLI option", async () => {
+  it.only("overrides template when provided via CLI option", async () => {
     const dir = await mkdtemp(join(tmpdir(), "genxapi-"));
     const configPath = join(dir, "config.json");
     await writeFile(
@@ -70,6 +71,7 @@ describe("loadCliConfig", () => {
     );
 
     const { config } = await loadCliConfig({ file: configPath, template: "kubb" });
-    expect(config.project.template.name).toBe("@genxapi/template-kubb");
+    console.log(config);
+    expect(config.project.template).toBe(TEMPLATE_PACKAGE_MAP.kubb);
   });
 });

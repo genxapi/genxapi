@@ -8,7 +8,7 @@ import {
   resolveTemplatePackage,
   transformUnifiedConfig
 } from "./unified.js";
-import { ClientApiTemplates, UnifiedGeneratorConfigSchema } from "../types/types.js";
+import { ClientApiTemplates, TemplateOptions, UnifiedGeneratorConfigSchema } from "../types/types.js";
 
 import type { LogLevel } from "../utils/logger.js";
 
@@ -36,7 +36,8 @@ export interface CliConfig {
     readonly directory: string;
     readonly packageManager: "npm" | "pnpm" | "yarn" | "bun";
     readonly runGenerate: boolean;
-    readonly template: ClientApiTemplates | string | { readonly name?: string; readonly [key: string]: unknown };
+    readonly template: ClientApiTemplates | string;
+    readonly templateOptions?: TemplateOptions;
     readonly repository?: Record<string, unknown>;
     readonly publish?: {
       readonly npm?: Record<string, unknown>;
@@ -91,7 +92,15 @@ export async function loadCliConfig(options: LoadCliConfigOptions = {}): Promise
   });
 
   const parsed = cliSchema.parse(payload) as CliConfig;
-  const configWithTemplate: CliConfig = structuredClone(parsed);
+  const templateOptions = extractTemplateOptions(parsed.project.template);
+  const configWithTemplate: CliConfig = {
+    ...parsed,
+    project: {
+      ...parsed.project,
+      template: templateName,
+      templateOptions
+    }
+  };
 
   return {
     config: configWithTemplate,
@@ -159,12 +168,24 @@ function resolveTemplateName(rawConfig: unknown): string {
     return resolveTemplateAlias(template);
   }
 
+  return DEFAULT_TEMPLATE;
+}
+
+function extractTemplateOptions(template: unknown): TemplateOptions {
   if (typeof template !== "object" || template === null) {
-    return DEFAULT_TEMPLATE;
+    return {};
   }
 
-  const name = (template as Record<string, unknown>).name;
-  return typeof name === "string" && name.length > 0 ? resolveTemplateAlias(name) : DEFAULT_TEMPLATE;
+  const tpl = template as Record<string, unknown>;
+  const variables = tpl.variables;
+  return {
+    path: typeof tpl.path === "string" ? tpl.path : undefined,
+    installDependencies: typeof tpl.installDependencies === "boolean" ? tpl.installDependencies : undefined,
+    variables:
+      variables && typeof variables === "object" && !Array.isArray(variables)
+        ? (variables as Record<string, string>)
+        : undefined
+  };
 }
 
 async function loadTemplateModule(name: string): Promise<TemplateModule> {

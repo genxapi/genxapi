@@ -129,6 +129,7 @@ export const UnifiedGeneratorConfigSchema = z
 
 export type UnifiedGeneratorConfig = z.infer<typeof UnifiedGeneratorConfigSchema>;
 export type UnifiedClientOptions = z.infer<typeof UnifiedClientOptionsSchema>;
+export type TemplateOptions = z.infer<typeof TemplateOptionsSchema>;
 
 export type HttpClientValue = z.infer<typeof HttpClientSchema>;
 export type OrvalClientAdapterValue = z.infer<typeof OrvalClientAdapterSchema>;

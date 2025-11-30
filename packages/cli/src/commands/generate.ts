@@ -6,6 +6,7 @@ import {
   applyTemplateOverrides,
   type TemplateOverrides
 } from "../config/unified.js";
+import { ClientApiTemplates } from "../types/types.js";
 import type { Logger } from "../utils/logger.js";
 import {
   synchronizeRepository,
@@ -30,13 +31,15 @@ export async function runGenerateCommand(options: GenerateCommandOptions): Promi
       return;
     }
 
-    const config = applyTemplateOverrides(options.config, options.overrides);
+    const templateKind = inferTemplateKind(options.template.name);
+    const config = applyTemplateOverrides(options.config, templateKind, options.overrides);
+    const templateConfig = buildTemplateConfig(config, options.template.name);
 
-    await options.template.generateClients(config, {
+    await options.template.generateClients(templateConfig, {
       configDir: options.configDir,
       logger: options.logger,
-      runOrval: config.project.runGenerate,
-      runKubb: config.project.runGenerate
+      runOrval: templateConfig.project.runGenerate,
+      runKubb: templateConfig.project.runGenerate
     });
 
     spinner.succeed("Clients generated successfully");
@@ -78,12 +81,45 @@ async function runPostGenerationTasks(options: GenerateCommandOptions): Promise<
   }
 }
 
-function inferTemplateKind(templateName: string): "orval" | "kubb" | undefined {
+function inferTemplateKind(templateName: string): ClientApiTemplates | undefined {
   if (templateName === TEMPLATE_PACKAGE_MAP.orval) {
-    return "orval";
+    return ClientApiTemplates.Orval;
   }
   if (templateName === TEMPLATE_PACKAGE_MAP.kubb) {
-    return "kubb";
+    return ClientApiTemplates.Kubb;
   }
   return undefined;
+}
+
+type TemplateProject = Omit<CliConfig["project"], "template"> & {
+  template: {
+    name: string;
+    installDependencies: boolean;
+    path?: string;
+    variables: Record<string, string>;
+  };
+};
+
+type TemplateReadyConfig = Omit<CliConfig, "project"> & {
+  project: TemplateProject;
+};
+
+function buildTemplateConfig(config: CliConfig, templateName: string): TemplateReadyConfig {
+  const templateOptions = config.project.templateOptions ?? {};
+  const template = {
+    name: templateName,
+    installDependencies: templateOptions.installDependencies ?? true,
+    path: templateOptions.path,
+    variables: templateOptions.variables ?? {}
+  };
+
+  const templateConfig: TemplateReadyConfig = {
+    ...config,
+    project: {
+      ...config.project,
+      template
+    }
+  };
+
+  return templateConfig;
 }

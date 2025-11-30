@@ -62,34 +62,31 @@ export function transformUnifiedConfig(
 
 export function applyTemplateOverrides(
   inputConfig: CliConfig,
+  templateKind: ClientApiTemplates | undefined,
   overrides: TemplateOverrides | undefined
 ): CliConfig {
   const config = structuredClone(inputConfig) as Mutable<CliConfig>;
   if (!overrides) {
     return config;
   }
-  
-  const templateKind = config.project.template
+
+  const resolvedTemplateKind = templateKind ?? config.project.template;
 
   applyProjectOverrides(config.project as Mutable<CliConfig["project"]>, overrides);
 
-  if (templateKind === ClientApiTemplates.Orval) {
-    const orvalClients = config.clients as unknown as OrvalClientConfig[];
-    config.clients = applyOrvalOverrides(
-      orvalClients,
-      overrides
-    ) as Mutable<CliConfig["clients"]>;
+  if (resolvedTemplateKind === ClientApiTemplates.Orval) {
+    const orvalClients = config.clients as OrvalClientConfig[];
+    config.clients = applyOrvalOverrides(orvalClients, overrides) as Mutable<CliConfig["clients"]>;
   }
 
-  if(templateKind === ClientApiTemplates.Kubb) {
-    const kubbClients = config.clients as unknown as KubbClientConfig[];
-    config.clients = applyKubbOverrides(
-      kubbClients,
-      overrides
-    ) as Mutable<CliConfig["clients"]>;
+  if (resolvedTemplateKind === ClientApiTemplates.Kubb) {
+    const kubbClients = config.clients as KubbClientConfig[];
+    config.clients = applyKubbOverrides(kubbClients, overrides) as Mutable<CliConfig["clients"]>;
   }
-  return config as CliConfig;
+
+  return config;
 }
+
 
 function applyProjectOverrides(
   project: Mutable<CliConfig["project"]>,
