@@ -8,9 +8,7 @@ import {
   resolveTemplatePackage,
   transformUnifiedConfig
 } from "./unified.js";
-import {
-  UnifiedGeneratorConfigSchema,
-} from "../types/types.js";
+import { ClientApiTemplates, UnifiedGeneratorConfigSchema } from "../types/types.js";
 
 import type { LogLevel } from "../utils/logger.js";
 
@@ -38,10 +36,7 @@ export interface CliConfig {
     readonly directory: string;
     readonly packageManager: "npm" | "pnpm" | "yarn" | "bun";
     readonly runGenerate: boolean;
-    readonly template: {
-      readonly installDependencies: boolean;
-      readonly [key: string]: unknown;
-    };
+    readonly template: ClientApiTemplates;
     readonly repository?: Record<string, unknown>;
     readonly publish?: {
       readonly npm?: Record<string, unknown>;

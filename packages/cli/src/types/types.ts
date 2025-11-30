@@ -1,6 +1,11 @@
 import z from "zod";
 
-const TemplateIdentifierSchema = z.union([z.literal("orval"), z.literal("kubb"), z.string()]);
+export enum ClientApiTemplates {
+  Orval = "orval",
+  Kubb = "kubb"
+};
+
+const TemplateIdentifierSchema = z.union([z.literal(ClientApiTemplates.Orval), z.literal(ClientApiTemplates.Kubb), z.string()]);
 
 export const HTTP_CLIENT_CHOICES = ["axios", "fetch"] as const;
 const HttpClientSchema = z.enum(HTTP_CLIENT_CHOICES);

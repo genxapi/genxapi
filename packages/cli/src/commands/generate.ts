@@ -30,11 +30,10 @@ export async function runGenerateCommand(options: GenerateCommandOptions): Promi
       return;
     }
 
-    const config = structuredClone(options.config) as CliConfig;
     const templateKind = inferTemplateKind(options.template.name);
-    if (templateKind) {
-      applyTemplateOverrides(config, templateKind, options.overrides);
-    }
+    const config = templateKind
+      ? applyTemplateOverrides(options.config, templateKind, options.overrides)
+      : (structuredClone(options.config) as CliConfig);
 
     await options.template.generateClients(config, {
       configDir: options.configDir,

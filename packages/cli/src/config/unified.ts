@@ -1,8 +1,27 @@
 import { CliConfig } from "./loader";
-import { buildOrvalConfig, OrvalMultiClientConfig } from "src/build/buildOrvalConfig";
+import {
+  buildOrvalConfig,
+  type OrvalClientConfig,
+  type OrvalMultiClientConfig
+} from "src/build/buildOrvalConfig";
+import {
+  buildKubbConfig,
+  type KubbClientConfig,
+  type KubbMultiClientConfig
+} from "src/build/buildKubbConfig";
 import { cleanUndefined } from "src/utils/cleanUndefined";
-import { buildKubbConfig, KubbMultiClientConfig } from "src/build/buildKubbConfig";
-import { TemplateOverrides, UnifiedGeneratorConfig } from "src/types/types";
+import { normaliseMockValue } from "src/utils/normaliseMockValue";
+import { ClientApiTemplates, TemplateOverrides, UnifiedGeneratorConfig } from "src/types/types";
+
+export type { TemplateOverrides } from "src/types/types";
+
+type Mutable<T> = {
+  -readonly [P in keyof T]: T[P] extends ReadonlyArray<infer U>
+    ? Mutable<U>[]
+    : T[P] extends Array<infer U>
+      ? Mutable<U>[]
+      : Mutable<T[P]>;
+};
 
 export const TEMPLATE_PACKAGE_MAP: Record<string, string> = {
   orval: "@genxapi/template-orval",
@@ -19,18 +38,18 @@ export function transformUnifiedConfig(
   templatePackage: string
 ): {
   readonly config: OrvalMultiClientConfig | KubbMultiClientConfig;
-  readonly template: "orval" | "kubb";
+  readonly template: ClientApiTemplates;
 } {
   if (templatePackage === TEMPLATE_PACKAGE_MAP.orval) {
     return {
       config: buildOrvalConfig(unified, templatePackage),
-      template: "orval"
+      template: ClientApiTemplates.Orval
     };
   }
   if (templatePackage === TEMPLATE_PACKAGE_MAP.kubb) {
     return {
       config: buildKubbConfig(unified, templatePackage),
-      template: "kubb"
+      template: ClientApiTemplates.Kubb
     };
   }
 
@@ -43,101 +62,155 @@ export function transformUnifiedConfig(
 
 export function applyTemplateOverrides(
   inputConfig: CliConfig,
-  templateKind: "orval" | "kubb",
   overrides: TemplateOverrides | undefined
-) {
+): CliConfig {
+  const config = structuredClone(inputConfig) as Mutable<CliConfig>;
   if (!overrides) {
-    return;
+    return config;
+  }
+  
+  const templateKind = config.project.template
+
+  applyProjectOverrides(config.project as Mutable<CliConfig["project"]>, overrides);
+
+  if (templateKind === ClientApiTemplates.Orval) {
+    const orvalClients = config.clients as unknown as OrvalClientConfig[];
+    config.clients = applyOrvalOverrides(
+      orvalClients,
+      overrides
+    ) as Mutable<CliConfig["clients"]>;
   }
 
-  const project = inputConfig.project;
+  if(templateKind === ClientApiTemplates.Kubb) {
+    const kubbClients = config.clients as unknown as KubbClientConfig[];
+    config.clients = applyKubbOverrides(
+      kubbClients,
+      overrides
+    ) as Mutable<CliConfig["clients"]>;
+  }
+  return config as CliConfig;
+}
 
+function applyProjectOverrides(
+  project: Mutable<CliConfig["project"]>,
+  overrides: TemplateOverrides
+): void {
   if (overrides.packageManager) {
     project.packageManager = overrides.packageManager;
   }
 
-  if (overrides.publish?.npm) {
-    const publish = (project.publish as Record<string, unknown> | undefined) ?? {};
-    const npmConfig = {
-      ...(publish.npm as Record<string, unknown> | undefined)
-    };
-    const npmOverride = overrides.publish.npm;
+  applyPublishOverrides(project, overrides.publish);
+}
 
-    if (npmOverride.enabled !== undefined) {
-      npmConfig.enabled = npmOverride.enabled;
-    }
-    if (npmOverride.tag !== undefined) {
-      npmConfig.tag = npmOverride.tag;
-    }
-    if (npmOverride.access !== undefined) {
-      npmConfig.access = npmOverride.access;
-    }
-    if (npmOverride.dryRun !== undefined) {
-      npmConfig.dryRun = npmOverride.dryRun;
-    }
-    if (npmOverride.tokenEnv !== undefined) {
-      npmConfig.tokenEnv = npmOverride.tokenEnv;
-    }
-    if (npmOverride.registry !== undefined) {
-      npmConfig.registry = npmOverride.registry;
-    }
-    if (npmOverride.command !== undefined) {
-      npmConfig.command = npmOverride.command;
-    }
-
-    publish.npm = cleanUndefined(npmConfig);
-    project.publish = publish;
-  }
-
-  if (templateKind === "orval") {
-    for (const client of (inputConfig as OrvalMultiClientConfig).clients) {
-      const options = client.orval ?? {};
-      if (overrides.mode) {
-        options.mode = overrides.mode;
-      }
-      if (overrides.client) {
-        options.client = overrides.client;
-      }
-      if (overrides.httpClient) {
-        (options as Record<string, unknown>).httpClient = overrides.httpClient;
-      }
-      if (overrides.baseUrl) {
-        options.baseUrl = overrides.baseUrl;
-      }
-      if (typeof overrides.prettier === "boolean") {
-        options.prettier = overrides.prettier;
-      }
-      if (typeof overrides.clean === "boolean") {
-        options.clean = overrides.clean;
-      }
-      const mockValue = normaliseMockValue(
-        typeof options.mock === "object" ? (options.mock as any) : undefined,
-        overrides.mock
-      );
-      if (mockValue !== undefined) {
-        options.mock = mockValue;
-      }
-      client.orval = options;
-    }
+function applyPublishOverrides(
+  project: Mutable<CliConfig["project"]>,
+  publishOverrides: TemplateOverrides["publish"] | undefined
+): void {
+  if (!publishOverrides?.npm) {
     return;
   }
 
-  if (templateKind === "kubb") {
-    for (const client of (inputConfig as KubbMultiClientConfig).clients) {
-      const options = client.kubb ?? {};
-      if (overrides.httpClient) {
-        options.client = {
-          ...(options.client as Record<string, unknown>),
-          client: overrides.httpClient
-        };
-      }
-      if (overrides.baseUrl) {
-        options.client = {
-          ...(options.client as Record<string, unknown>),
-          baseURL: overrides.baseUrl
-        };
-      }
-      client.kubb = options;
-    }
+  const publish: { [key: string]: unknown; npm?: Record<string, unknown> } =
+    (project.publish as { [key: string]: unknown; npm?: Record<string, unknown> }) ?? {};
+  const npmConfig: Record<string, unknown> = {
+    ...(publish.npm as Record<string, unknown> | undefined)
+  };
+  const npmOverride = publishOverrides.npm;
+
+  if (npmOverride.enabled !== undefined) {
+    npmConfig.enabled = npmOverride.enabled;
   }
+  if (npmOverride.tag !== undefined) {
+    npmConfig.tag = npmOverride.tag;
+  }
+  if (npmOverride.access !== undefined) {
+    npmConfig.access = npmOverride.access;
+  }
+  if (npmOverride.dryRun !== undefined) {
+    npmConfig.dryRun = npmOverride.dryRun;
+  }
+  if (npmOverride.tokenEnv !== undefined) {
+    npmConfig.tokenEnv = npmOverride.tokenEnv;
+  }
+  if (npmOverride.registry !== undefined) {
+    npmConfig.registry = npmOverride.registry;
+  }
+  if (npmOverride.command !== undefined) {
+    npmConfig.command = npmOverride.command;
+  }
+
+  publish.npm = cleanUndefined(npmConfig);
+  project.publish = publish as Mutable<CliConfig["project"]>["publish"];
+}
+
+function applyOrvalOverrides(
+  clients: OrvalClientConfig[],
+  overrides: TemplateOverrides
+): OrvalClientConfig[] {
+  return clients.map((client) => {
+    const options: Record<string, unknown> = {
+      ...(client.orval as Record<string, unknown> | undefined)
+    };
+
+    if (overrides.mode) {
+      options.mode = overrides.mode;
+    }
+    if (overrides.client) {
+      options.client = overrides.client;
+    }
+    if (overrides.httpClient) {
+      options.httpClient = overrides.httpClient;
+    }
+    if (overrides.baseUrl) {
+      options.baseUrl = overrides.baseUrl;
+    }
+    if (typeof overrides.prettier === "boolean") {
+      options.prettier = overrides.prettier;
+    }
+    if (typeof overrides.clean === "boolean") {
+      options.clean = overrides.clean;
+    }
+
+    const mockValue = normaliseMockValue(
+      typeof options.mock === "object" ? (options.mock as Record<string, unknown>) : undefined,
+      overrides.mock
+    );
+    if (mockValue !== undefined) {
+      options.mock = mockValue;
+    }
+
+    return {
+      ...client,
+      orval: options as OrvalClientConfig["orval"]
+    } as OrvalClientConfig;
+  });
+}
+
+function applyKubbOverrides(
+  clients: KubbClientConfig[],
+  overrides: TemplateOverrides
+): KubbClientConfig[] {
+  return clients.map((client) => {
+    const options: Record<string, unknown> = {
+      ...(client.kubb as Record<string, unknown> | undefined)
+    };
+
+    if (overrides.httpClient) {
+      options.client = {
+        ...(options.client as Record<string, unknown>),
+        client: overrides.httpClient
+      };
+    }
+    if (overrides.baseUrl) {
+      options.client = {
+        ...(options.client as Record<string, unknown>),
+        baseURL: overrides.baseUrl
+      };
+    }
+
+    return {
+      ...client,
+      kubb: options as KubbClientConfig["kubb"]
+    } as KubbClientConfig;
+  });
 }
