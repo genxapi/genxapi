@@ -7,6 +7,7 @@ export type NavItem = {
 
 export function getNav(): NavItem[] {
   return [
+    { title: "Overview", href: "/overview" },
     {
       title: "Getting Started",
       href: "/docs/getting-started"

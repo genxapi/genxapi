@@ -6,7 +6,7 @@
 
 :root {
   color-scheme: light;
-  --bg: #f4f7ff;
+  --bg: #ffffff;
   --ink: #0c1224;
   --muted: #5d6682;
   --border: #e3e7f2;
@@ -15,13 +15,60 @@
   --accent: #1bb36f;
 }
 
+@layer components {
+  .container {
+    @apply mx-auto w-full;
+    max-width: 100%;
+  }
+
+  @media (min-width: 1400px) {
+    .container {
+      max-width: 1400px;
+    }
+  }
+}
+
 body {
   margin: 0;
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   background: var(--bg);
   color: var(--ink);
+  font-size: 18px;
+  line-height: 1.65;
 }
 
 a {
   color: inherit;
+}
+
+code {
+  font-family: "DM Mono", "SFMono-Regular", Menlo, monospace;
+}
+
+/* Ensure readable prose defaults */
+.prose {
+  color: var(--ink);
+}
+
+.prose code {
+  color: var(--ink);
+  background: rgba(30, 74, 245, 0.12);
+  padding: 0.15rem 0.35rem;
+  border-radius: 0.4rem;
+  font-weight: 600;
+}
+
+.prose pre {
+  background: #0e1326;
+  color: #e9edf8;
+  border-radius: 1rem;
+  border: 1px solid #0e1326;
+  padding: 1.1rem 1.25rem;
+  overflow-x: auto;
+}
+
+.prose pre code {
+  background: transparent;
+  color: #e9edf8;
+  padding: 0;
 }

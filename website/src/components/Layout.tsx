@@ -2,55 +2,45 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 import { getNav, type NavItem } from "../lib/nav";
 import { PREVIEW_QUERY } from "../lib/preview";
+import { SiteHeader } from "./SiteHeader";
 
 type Props = {
   children: ReactNode;
   title?: string;
+  showNav?: boolean;
+  showTitle?: boolean;
 };
 
-export function Layout({ children, title }: Props) {
+export function Layout({ children, title, showNav = true, showTitle = true }: Props) {
   const navItems = getNav();
 
   return (
-    <div className="min-h-screen bg-surface text-navy">
-      <header className="sticky top-0 z-30 border-b border-border bg-white/80 backdrop-blur">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
-          <Link className="flex items-center gap-3" href={`/${PREVIEW_QUERY}`}>
-            <div className="h-9 w-9 rounded-xl bg-primary/10 border border-primary/20 flex items-center justify-center">
-              <span className="text-lg font-bold text-primary">G</span>
-            </div>
-            <div>
-              <div className="text-sm font-semibold text-primary">GenxAPI</div>
-              <div className="text-sm text-muted">Docs preview</div>
-            </div>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link
-              className="text-sm font-semibold text-navy hover:text-primary"
-              href="https://github.com/genxapi/genxapi"
-            >
-              GitHub
-            </Link>
-            <Link
-              className="text-sm font-semibold text-navy hover:text-primary"
-              href="https://github.com/genxapi/genxapi/blob/main/docs/getting-started.md"
-            >
-              Docs on GitHub
-            </Link>
-          </div>
-        </div>
-      </header>
+    <div className="min-h-screen bg-white text-navy">
+      <SiteHeader />
 
-      <div className="mx-auto flex max-w-6xl gap-6 px-4 py-8">
-        <aside className="hidden w-64 shrink-0 lg:block">
-          <NavList items={navItems} />
-        </aside>
-        <main className="flex-1">
-          {title ? <h1 className="mb-6 text-3xl font-bold tracking-tight">{title}</h1> : null}
-          <div className="prose max-w-none prose-headings:text-navy prose-p:text-muted prose-strong:text-navy prose-code:text-navy">
-            {children}
-          </div>
-        </main>
+      <div className="w-full px-4 py-10">
+        <div className="container flex gap-6">
+          {showNav ? (
+            <>
+              <aside className="hidden w-64 shrink-0 lg:block">
+                <NavList items={navItems} />
+              </aside>
+              <main className="flex-1" suppressHydrationWarning>
+                {showTitle && title ? (
+                  <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight text-navy">{title}</h1>
+                ) : null}
+                <div className="prose prose-xl max-w-none">{children}</div>
+              </main>
+            </>
+          ) : (
+            <main className="w-full" suppressHydrationWarning>
+              {showTitle && title ? (
+                <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight text-navy">{title}</h1>
+              ) : null}
+              <div className="prose prose-xl max-w-none">{children}</div>
+            </main>
+          )}
+        </div>
       </div>
     </div>
   );

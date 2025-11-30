@@ -7,6 +7,7 @@ const config = {
   eslint: {
     ignoreDuringBuilds: true
   },
+  optimizeFonts: false,
   experimental: {
     externalDir: true
   }
