@@ -3,7 +3,7 @@ import { join } from "pathe";
 import type { MultiClientConfig } from "../types.js";
 import type { SwaggerInfo } from "./handleSwaggerDocuments.js";
 
-export async function generateReadme(
+export async function writeReadme(
   projectDir: string,
   config: MultiClientConfig,
   swaggerInfos: Record<string, SwaggerInfo | null>
@@ -16,7 +16,7 @@ export async function generateReadme(
 
   const intro = readmeConfig?.introduction
     ? readmeConfig.introduction
-    : `This package contains generated API clients produced by \`@genxapi/cli\` using the Orval toolchain.`;
+    : `This package contains generated API clients produced by \`@genxapi/cli\` using the Kubb toolchain.`;
   lines.push(intro);
   lines.push("");
 
@@ -28,7 +28,7 @@ export async function generateReadme(
     const info = swaggerInfos[client.name];
     const swaggerLabel = info?.title ?? client.swagger;
     const swaggerLink = `[${swaggerLabel}](${info?.source ?? client.swagger})`;
-    const baseUrl = client.orval?.baseUrl ?? "—";
+    const baseUrl = client.kubb.client.baseURL ?? "—";
     const description = info?.description ? info.description.replace(/\n+/g, " ") : "—";
     lines.push(`| ${client.name} | ${swaggerLink} | ${baseUrl} | ${description} |`);
   }
@@ -45,7 +45,7 @@ export async function generateReadme(
     usageLines.push("npm run generate-clients");
     usageLines.push("```");
     usageLines.push("");
-    usageLines.push("The generated Orval configuration is available at `orval.config.ts`.");
+    usageLines.push("The generated Kubb configuration is available at `kubb.config.ts`.");
   }
   lines.push("## Usage");
   lines.push("");
