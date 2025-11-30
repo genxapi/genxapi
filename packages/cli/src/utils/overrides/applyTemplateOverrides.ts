@@ -1,9 +1,9 @@
 import { CliConfig } from "src/config/loader";
 import { ClientApiTemplates, TemplateOverrides } from "src/types";
-import { applyKubbOverrides } from "./applyKubbOverrides.js";
-import { applyOrvalOverrides } from "./applyOrvalOverrides.js";
-import { applyProjectOverrides } from "./applyProjectOverrides.js";
-import { Mutable } from "./types.js";
+import { applyKubbOverrides } from "./applyKubbOverrides";
+import { applyOrvalOverrides } from "./applyOrvalOverrides";
+import { applyProjectOverrides } from "./applyProjectOverrides";
+import { Mutable } from "./types";
 
 /**
  * Applies CLI/template overrides to a config and returns a new config instance.

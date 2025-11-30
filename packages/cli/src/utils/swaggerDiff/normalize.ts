@@ -1,4 +1,4 @@
-import { DOC_FIELDS } from "./types.js";
+import { DOC_FIELDS } from "./types";
 
 /**
  * Removes documentation fields from an OpenAPI value recursively.

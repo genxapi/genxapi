@@ -1,10 +1,10 @@
-import { analyzeComponents } from "./components.js";
-import { analyzePaths } from "./paths.js";
-import { buildSummary, determineResultType } from "./summary.js";
-import type { SchemaChangeResult } from "./types.js";
-import type { DiffReport } from "./types.js";
+import { analyzeComponents } from "./components";
+import { analyzePaths } from "./paths";
+import { buildSummary, determineResultType } from "./summary";
+import type { SchemaChangeResult } from "./types";
+import type { DiffReport } from "./types";
 
-export { type SchemaChangeResult } from "./types.js";
+export { type SchemaChangeResult } from "./types";
 
 /**
  * Generates a summary diff between two OpenAPI specs.

@@ -1,5 +1,5 @@
-import { clone, deepEqual, stripDocFields } from "./normalize.js";
-import type { DiffReport } from "./types.js";
+import { clone, deepEqual, stripDocFields } from "./normalize";
+import type { DiffReport } from "./types";
 
 /**
  * Records schema/component-level changes between two OpenAPI specs.

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import baseSpecJson from "./swaggerDiff/fixtures/base.json";
-import { analyzeSwaggerDiff } from "./swaggerDiff/index.js";
+import { analyzeSwaggerDiff } from "./swaggerDiff/index";
 
 type AnySpec = Record<string, any>;
 const baseSpec = baseSpecJson as AnySpec;

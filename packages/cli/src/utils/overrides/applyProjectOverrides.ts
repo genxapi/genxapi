@@ -1,7 +1,7 @@
 import { CliConfig } from "src/config/loader";
 import { cleanUndefined } from "src/utils/cleanUndefined";
 import { TemplateOverrides } from "src/types";
-import { Mutable } from "./types.js";
+import { Mutable } from "./types";
 
 function applyPublishOverrides(
   project: Mutable<CliConfig["project"]>,

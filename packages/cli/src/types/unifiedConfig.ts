@@ -1,5 +1,5 @@
 import z from "zod";
-import { TemplateIdentifierSchema, TemplateOptionsSchema } from "./templates.js";
+import { TemplateIdentifierSchema, TemplateOptionsSchema } from "./templates";
 
 export const HTTP_CLIENT_CHOICES = ["axios", "fetch"] as const;
 const HttpClientSchema = z.enum(HTTP_CLIENT_CHOICES);

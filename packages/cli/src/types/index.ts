@@ -1,3 +1,3 @@
-export * from "./templates.js";
-export * from "./unifiedConfig.js";
-export * from "./overrides.js";
+export * from "./templates";
+export * from "./unifiedConfig";
+export * from "./overrides";

@@ -1,13 +1,13 @@
 import { z } from "zod";
-import { TEMPLATE_PACKAGE_MAP, resolveTemplatePackage } from "../../utils/templatePackages.js";
-import { generateTemplateConfig } from "../generateTemplateConfig.js";
-import { inferTemplateFromConfig, resolveTemplateAlias } from "./utils/templateResolution.js";
-import { readConfigAtPath, searchConfig } from "./utils/readConfig.js";
-import { extractTemplateOptions } from "./utils/templateOptions.js";
-import { loadTemplateModule, type TemplateModule } from "./templateModule.js";
-import { ClientApiTemplates, TemplateOptions, UnifiedGeneratorConfigSchema } from "../../types/index.js";
+import { TEMPLATE_PACKAGE_MAP, resolveTemplatePackage } from "../../utils/templatePackages";
+import { generateTemplateConfig } from "../generateTemplateConfig";
+import { inferTemplateFromConfig, resolveTemplateAlias } from "./utils/templateResolution";
+import { readConfigAtPath, searchConfig } from "./utils/readConfig";
+import { extractTemplateOptions } from "./utils/templateOptions";
+import { loadTemplateModule, type TemplateModule } from "./templateModule";
+import { ClientApiTemplates, TemplateOptions, UnifiedGeneratorConfigSchema } from "../../types";
 
-import type { LogLevel } from "../../utils/logger.js";
+import type { LogLevel } from "../../utils/logger";
 
 const LogLevelSchema = z.enum(["silent", "error", "warn", "info", "debug"]).default("info");
 

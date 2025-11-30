@@ -1,4 +1,4 @@
-import { TEMPLATE_PACKAGE_MAP, resolveTemplatePackage } from "src/utils/templatePackages.js";
+import { TEMPLATE_PACKAGE_MAP, resolveTemplatePackage } from "src/utils/templatePackages";
 
 const DEFAULT_TEMPLATE = TEMPLATE_PACKAGE_MAP.orval;
 

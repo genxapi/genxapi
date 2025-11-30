@@ -1,5 +1,5 @@
 import { execa } from "execa";
-import type { Logger } from "../utils/logger.js";
+import type { Logger } from "../utils/logger";
 
 export interface NpmPublishConfig {
   readonly enabled: boolean;

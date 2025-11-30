@@ -11,16 +11,16 @@ import {
   type CommandContext,
   type StricliDynamicCommandContext
 } from "@stricli/core";
-import { loadCliConfig } from "./config/loader/index.js";
+import { loadCliConfig } from "./config/loader";
 import {
   HTTP_CLIENT_CHOICES,
   ORVAL_CLIENT_CHOICES,
   ORVAL_MODE_CHOICES,
   type TemplateOverrides
-} from "./types/index.js";
-import { runGenerateCommand } from "./commands/generate.js";
-import { runPublishCommand } from "./commands/publish.js";
-import { Logger, type LogLevel } from "./utils/logger.js";
+} from "./types";
+import { runGenerateCommand } from "./commands/generate";
+import { runPublishCommand } from "./commands/publish";
+import { Logger, type LogLevel } from "./utils/logger";
 
 const CURRENT_VERSION = "0.1.0";
 const LOG_LEVEL_CHOICES: readonly LogLevel[] = ["silent", "error", "warn", "info", "debug"] as const;
@@ -377,8 +377,8 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   });
 }
 
-export { UnifiedGeneratorConfigSchema } from "./types/index.js";
-export type { UnifiedGeneratorConfig, UnifiedClientOptions, TemplateOverrides } from "./types/index.js";
+export { UnifiedGeneratorConfigSchema } from "./types";
+export type { UnifiedGeneratorConfig, UnifiedClientOptions, TemplateOverrides } from "./types";
 
 function buildOverridesFromFlags(flags: GenerateFlags): TemplateOverrides | undefined {
   const overrides: TemplateOverrides = {};

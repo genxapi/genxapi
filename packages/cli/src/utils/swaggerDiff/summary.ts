@@ -1,4 +1,4 @@
-import { HTTP_METHODS, type ChangeType, type DiffReport } from "./types.js";
+import { HTTP_METHODS, type ChangeType, type DiffReport } from "./types";
 
 const METHOD_PATTERN = /^operation\s+(\w+)/i;
 

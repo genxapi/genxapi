@@ -1,5 +1,5 @@
-import { HTTP_METHODS, type DiffReport } from "./types.js";
-import { clone, deepEqual, stripDocFields } from "./normalize.js";
+import { HTTP_METHODS, type DiffReport } from "./types";
+import { clone, deepEqual, stripDocFields } from "./normalize";
 
 /**
  * Populates a diff report with path-level changes between two OpenAPI specs.

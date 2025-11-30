@@ -1,6 +1,6 @@
 import { Octokit } from "octokit";
 import ora from "ora";
-import type { Logger } from "../utils/logger.js";
+import type { Logger } from "../utils/logger";
 
 export interface PublishCommandOptions {
   readonly token: string;

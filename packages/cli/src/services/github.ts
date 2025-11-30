@@ -3,7 +3,7 @@ import { join } from "node:path";
 import { Octokit } from "octokit";
 import { execa } from "execa";
 import type { ExecaError } from "execa";
-import type { Logger } from "../utils/logger.js";
+import type { Logger } from "../utils/logger";
 
 export interface PullRequestConfig {
   readonly enabled: boolean;

@@ -1,9 +1,9 @@
 import { resolve } from "node:path";
 
 import { RepositoryConfig, NpmPublishConfig } from "@genxapi/template-orval";
-import { GenerateCommandOptions } from "src/commands/generate.js";
-import { synchronizeRepository } from "src/services/github.js";
-import { publishToNpm } from "src/services/npm.js";
+import { GenerateCommandOptions } from "src/commands/generate";
+import { synchronizeRepository } from "src/services/github";
+import { publishToNpm } from "src/services/npm";
 
 /**
  * Executes post-generation actions such as repo sync and npm publish.

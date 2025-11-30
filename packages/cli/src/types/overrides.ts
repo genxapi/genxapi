@@ -1,4 +1,4 @@
-import { HttpClientValue, OrvalClientAdapterValue, OrvalModeValue } from "./unifiedConfig.js";
+import { HttpClientValue, OrvalClientAdapterValue, OrvalModeValue } from "./unifiedConfig";
 
 export interface TemplateOverrides {
   httpClient?: HttpClientValue;

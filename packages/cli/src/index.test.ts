@@ -2,8 +2,8 @@ import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "pathe";
 import { describe, expect, it } from "vitest";
-import { loadCliConfig } from "./config/loader/index.js";
-import { TEMPLATE_PACKAGE_MAP } from "./utils/templatePackages.js";
+import { loadCliConfig } from "./config/loader";
+import { TEMPLATE_PACKAGE_MAP } from "./utils/templatePackages";
 
 describe("loadCliConfig", () => {
   it("parses minimal configuration using the default template", async () => {

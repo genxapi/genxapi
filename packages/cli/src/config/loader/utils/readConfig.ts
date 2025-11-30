@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises";
 import { dirname, resolve } from "pathe";
 import { cosmiconfig } from "cosmiconfig";
-import { parseConfig } from "./parseConfig.js";
+import { parseConfig } from "./parseConfig";
 
 const MODULE_NAME = "genxapi";
 

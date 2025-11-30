@@ -1,4 +1,4 @@
-import { TEMPLATE_PACKAGE_MAP } from "src/utils/templatePackages.js";
+import { TEMPLATE_PACKAGE_MAP } from "src/utils/templatePackages";
 import { ClientApiTemplates } from "src/types";
 
 /**

@@ -1,11 +1,11 @@
 import ora from "ora";
-import type { CliConfig, TemplateModule } from "../config/loader/index.js";
-import { applyTemplateOverrides } from "../utils/overrides/index.js";
+import type { CliConfig, TemplateModule } from "../config/loader";
+import { applyTemplateOverrides } from "../utils/overrides";
 import type { TemplateOverrides } from "../types";
-import type { Logger } from "../utils/logger.js";
-import { inferTemplateKind } from "src/utils/generation/inferTemplateKind.js";
-import { buildTemplateConfig } from "src/utils/generation/buildTemplateConfig.js";
-import { runPostGenerationTasks } from "src/utils/generation/runPostGenerationTasks.js";
+import type { Logger } from "../utils/logger";
+import { inferTemplateKind } from "src/utils/generation/inferTemplateKind";
+import { buildTemplateConfig } from "src/utils/generation/buildTemplateConfig";
+import { runPostGenerationTasks } from "src/utils/generation/runPostGenerationTasks";
 
 export interface GenerateCommandOptions {
   readonly config: CliConfig;
