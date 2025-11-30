@@ -11,7 +11,7 @@ type Props = {
   showTitle?: boolean;
 };
 
-export function Layout({ children, title, showNav = true, showTitle = true }: Props) {
+export function Layout({ children, title, showNav = true, showTitle = false }: Props) {
   const navItems = getNav();
 
   return (
@@ -48,8 +48,8 @@ export function Layout({ children, title, showNav = true, showTitle = true }: Pr
 
 function NavList({ items }: { items: NavItem[] }) {
   return (
-    <nav className="sticky top-20 rounded-2xl border border-border bg-white/90 p-3 shadow-sm">
-      <ul className="space-y-2 text-sm">
+    <nav className="sticky top-20 bg-white/90 p-3">
+      <ul className="space-y-2 text-md">
         {items.map((item) => (
           <li key={item.title}>
             <NavLink item={item} />

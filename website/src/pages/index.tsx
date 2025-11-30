@@ -14,9 +14,9 @@ export default function HomePage() {
     <div className="min-h-screen bg-white text-navy">
       <SiteHeader sticky={false} />
       <main className="pb-16">
-        <section className="relative overflow-hidden px-12 py-14 w-full">
+        <section className="relative overflow-hidden py-14 w-full">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/16 via-white to-accent/14 pointer-events-none" />
-          <div className="relative grid gap-12 lg:grid-cols-2 lg:items-center">
+          <div className="relative container grid gap-12 px-4 lg:grid-cols-2 lg:items-center">
             <div className="space-y-6">
               <p className="text-base font-semibold uppercase tracking-[0.35em] text-primary">GenxAPI</p>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.04] text-navy">
