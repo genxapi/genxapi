@@ -11,7 +11,7 @@ import {
   type CommandContext,
   type StricliDynamicCommandContext
 } from "@stricli/core";
-import { loadCliConfig } from "./config/loader.js";
+import { loadCliConfig } from "./config/loader/index.js";
 import {
   HTTP_CLIENT_CHOICES,
   ORVAL_CLIENT_CHOICES,

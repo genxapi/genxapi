@@ -1,5 +1,5 @@
 import ora from "ora";
-import type { CliConfig, TemplateModule } from "../config/loader.js";
+import type { CliConfig, TemplateModule } from "../config/loader/index.js";
 import { applyTemplateOverrides } from "../utils/overrides/index.js";
 import type { TemplateOverrides } from "../types";
 import type { Logger } from "../utils/logger.js";
