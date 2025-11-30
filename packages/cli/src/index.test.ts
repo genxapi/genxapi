@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "pathe";
 import { describe, expect, it } from "vitest";
 import { loadCliConfig } from "./config/loader.js";
-import { TEMPLATE_PACKAGE_MAP } from "./config/unified.js";
+import { TEMPLATE_PACKAGE_MAP } from "./config/templatePackages.js";
 
 describe("loadCliConfig", () => {
   it("parses minimal configuration using the default template", async () => {

@@ -1,4 +1,4 @@
-import { TEMPLATE_PACKAGE_MAP } from "src/config/unified.js";
+import { TEMPLATE_PACKAGE_MAP } from "src/config/templatePackages.js";
 import { ClientApiTemplates } from "src/types";
 
 /**

@@ -3,11 +3,8 @@ import { dirname, resolve } from "pathe";
 import { cosmiconfig } from "cosmiconfig";
 import YAML from "yaml";
 import { z } from "zod";
-import {
-  TEMPLATE_PACKAGE_MAP,
-  resolveTemplatePackage,
-  transformUnifiedConfig
-} from "./unified.js";
+import { TEMPLATE_PACKAGE_MAP, resolveTemplatePackage } from "./templatePackages.js";
+import { transformUnifiedConfig } from "./transformUnifiedConfig.js";
 import { ClientApiTemplates, TemplateOptions, UnifiedGeneratorConfigSchema } from "../types/index.js";
 
 import type { LogLevel } from "../utils/logger.js";

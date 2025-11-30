@@ -1,9 +1,7 @@
 import ora from "ora";
 import type { CliConfig, TemplateModule } from "../config/loader.js";
-import {
-  applyTemplateOverrides,
-  type TemplateOverrides
-} from "../config/unified.js";
+import { applyTemplateOverrides } from "../utils/overrides/index.js";
+import type { TemplateOverrides } from "../types";
 import type { Logger } from "../utils/logger.js";
 import { inferTemplateKind } from "src/utils/generation/inferTemplateKind.js";
 import { buildTemplateConfig } from "src/utils/generation/buildTemplateConfig.js";
@@ -48,4 +46,3 @@ export async function runGenerateCommand(options: GenerateCommandOptions): Promi
     throw error;
   }
 }
-
