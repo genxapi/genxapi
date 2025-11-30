@@ -58,9 +58,15 @@ export async function writeClientIndex(projectDir: string, client: ClientConfig,
   const schemasPath = resolve(projectDir, client.output.schemas);
 
   const exports = new Set<string>();
-  exports.add(ensureDotRelative(relativePath(workspaceDir, targetPath)));
-  exports.add(ensureDotRelative(relativePath(workspaceDir, hooksPath)));
-  exports.add(ensureDotRelative(relativePath(workspaceDir, schemasPath)));
+  const clientImport = ensureDotRelative(relativePath(workspaceDir, targetPath));
+  exports.add(withoutExtension(clientImport));
+  const modelsImport = ensureDotRelative(relativePath(workspaceDir, schemasPath));
+  exports.add(withoutExtension(modelsImport));
+  if (client.orval.mock) {
+    const mswTarget = targetPath.replace(/\.ts$/, ".msw");
+    const mswImport = ensureDotRelative(relativePath(workspaceDir, mswTarget));
+    exports.add(withoutExtension(mswImport));
+  }
 
   const lines: string[] = Array.from(exports).map((path) => `export * from "${path}";`);
   lines.push("");
@@ -70,6 +76,9 @@ export async function writeClientIndex(projectDir: string, client: ClientConfig,
 
 function ensureDotRelative(path: string): string {
   const normalized = path.replace(/\\/g, "/");
+  if (normalized === "") {
+    return ".";
+  }
   if (normalized.startsWith(".")) {
     return normalized;
   }
@@ -82,4 +91,8 @@ export function resolveGeneratedPath(projectDir: string, client: ClientConfig, t
     return direct;
   }
   return resolve(projectDir, client.output.workspace, target);
+}
+
+function withoutExtension(path: string): string {
+  return path.replace(/\.[^.]+$/, "");
 }
