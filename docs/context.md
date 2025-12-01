@@ -21,18 +21,18 @@
 
 ### Orchestration flow
 
-1. **Specification** — OpenAPI documents live alongside the codebase or are fetched from remote sources.
-2. **Configuration** — `genxapi.config.{json,ts}` declares clients, hooks, package metadata, and publishing rules.
-3. **Generation** — The CLI invokes engine adapters declared by the selected templates to materialise SDKs into the workspace.
-4. **Verification** — `diff` reports breaking changes; hooks perform additional validation.
-5. **Versioning & release** — Semantic version bumps are calculated, changelog notes prepared, Git commits and PRs created.
-6. **Publishing** — npm (public or private) and GitHub releases are issued; artefacts can then be consumed downstream.
+1. **Specification**: OpenAPI documents live alongside the codebase or are fetched from remote sources.
+2. **Configuration**: `genxapi.config.{json,ts}` declares clients, hooks, package metadata, and publishing rules.
+3. **Generation**: The CLI invokes engine adapters declared by the selected templates to materialise SDKs into the workspace.
+4. **Verification**: `diff` reports breaking changes; hooks perform additional validation.
+5. **Versioning & release**: Semantic version bumps are calculated, changelog notes prepared, Git commits and PRs created.
+6. **Publishing**: npm (public or private) and GitHub releases are issued; artefacts can then be consumed downstream.
 
 ## Templates and generators
 
-- **TypeScript template (Orval)** — the default adapter ships in-repo, targeting TypeScript SDK generation.
-- **Language adapters (Kubb)** — optional packages expose Python, Go, .NET, and other stacks through the same orchestration flow.
-- **Custom engines** — any executable generator (OpenAPI Generator, Autorest, bespoke code) can be plugged in via hooks or by extending the template folder.
+- **TypeScript template (Orval)**: the default adapter ships in-repo, targeting TypeScript SDK generation.
+- **Language adapters (Kubb)**: optional packages expose Python, Go, .NET, and other stacks through the same orchestration flow.
+- **Custom engines**: any executable generator (OpenAPI Generator, Autorest, bespoke code) can be plugged in via hooks or by extending the template folder.
 
 All templates are treated as pluggable executors, letting teams add or swap generators without changing the orchestration layer.
 
@@ -122,9 +122,9 @@ Key capabilities:
 
 ## Integration patterns
 
-- **Monorepo** — Workspaces house generated clients; the orchestrator maintains consistent TypeScript config and tooling.
-- **Polyrepo** — Use GitHub automation to open pull requests against downstream repositories after generation.
-- **Hybrid** — Share configuration via git submodules or package registries; the CLI honours absolute paths and remote specs.
+- **Monorepo**: Workspaces house generated clients; the orchestrator maintains consistent TypeScript config and tooling.
+- **Polyrepo**: Use GitHub automation to open pull requests against downstream repositories after generation.
+- **Hybrid**: Share configuration via git submodules or package registries; the CLI honours absolute paths and remote specs.
 
 ## Further reading
 

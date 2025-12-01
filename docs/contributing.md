@@ -45,10 +45,10 @@ samples/                         # Reference configuration files
 
 ## Coding Guidelines
 
-- **TypeScript** – Target ES2022, enable strict mode, and prefer explicit return types.
-- **Testing** – Add coverage to Vitest suites for new features. Use snapshot tests for template output when feasible.
-- **Formatting** – Run `npm run format` before submitting. The repo enforces Prettier defaults (2 spaces, single quotes where applicable).
-- **Commits** – Follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat`, `fix`, `docs`, `chore`, etc.). This keeps changelog automation reliable.
+- **TypeScript**: Target ES2022, enable strict mode, and prefer explicit return types.
+- **Testing**: Add coverage to Vitest suites for new features. Use snapshot tests for template output when feasible.
+- **Formatting**: Run `npm run format` before submitting. The repo enforces Prettier defaults (2 spaces, single quotes where applicable).
+- **Commits**: Follow [Conventional Commits](https://www.conventionalcommits.org/) (`feat`, `fix`, `docs`, `chore`, etc.). This keeps changelog automation reliable.
 
 > 🛠️ Tip: If you touch both template and CLI, split changes into separate commits for clarity.
 

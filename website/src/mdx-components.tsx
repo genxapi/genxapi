@@ -20,7 +20,7 @@ export const mdxComponents = {
       <h2
         {...rest}
         className={cx(
-          "my-2 text-4xl font-semibold leading-tight tracking-[-0.01em] text-navy",
+          "my-4 text-4xl font-semibold leading-tight tracking-[-0.01em] text-navy",
           className
         )}
       >
@@ -33,7 +33,7 @@ export const mdxComponents = {
     return (
       <h3
         {...rest}
-        className={cx("my-2 text-2xl font-semibold leading-snug text-navy", className)}
+        className={cx("my-3 text-2xl font-semibold leading-snug text-navy", className)}
       >
         {props.children}
       </h3>
@@ -77,6 +77,9 @@ export const mdxComponents = {
     <p className="my-p-block">{props.children}</p>
   ),
   ul: (props: any) => (
+    <ul className="my-ul-block">{props.children}</ul>
+  ),
+  ol: (props: any) => (
     <ul className="my-ul-block">{props.children}</ul>
   )
 };
