@@ -1,7 +1,12 @@
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { fileURLToPath } from "node:url";
+import { join } from "pathe";
+import fs from "fs-extra";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { runGenerateCommand } from "./generate";
-import type { CliConfig, TemplateModule } from "../config/loader";
+import { loadCliConfig, type CliConfig, type TemplateModule } from "../config/loader";
 import type { Logger } from "../utils/logger";
 
 vi.mock("src/utils/generation/runPostGenerationTasks", () => ({
@@ -20,13 +25,7 @@ describe("runGenerateCommand", () => {
       }),
       generateClients
     };
-    const logger: Logger = {
-      debug: vi.fn(),
-      info: vi.fn(),
-      warn: vi.fn(),
-      error: vi.fn(),
-      setLevel: vi.fn()
-    } as any;
+    const logger = createLogger();
 
     const config: CliConfig = {
       logLevel: "info",
@@ -68,4 +67,206 @@ describe("runGenerateCommand", () => {
     });
     expect(generatedConfig.clients[0].orval.httpClient).toBe("fetch");
   });
+
+  it("passes the kubb sample config through to generate both pets and store clients", async () => {
+    const samplePath = fileURLToPath(
+      new URL("../../../../samples/kubb-multi-client.config.json", import.meta.url)
+    );
+    const { config, configDir, template } = await loadCliConfig({ file: samplePath });
+    const generateClients = vi.fn().mockResolvedValue(undefined);
+
+    await runGenerateCommand({
+      config,
+      configDir,
+      logger: createLogger(),
+      template: { ...template, generateClients }
+    });
+
+    expect(generateClients).toHaveBeenCalledTimes(1);
+    const [generatedConfig] = generateClients.mock.calls[0] as [any];
+    expect(generatedConfig.project.template.name).toBe("@genxapi/template-kubb");
+
+    const pets = generatedConfig.clients.find((client: any) => client.name === "pets");
+    const store = generatedConfig.clients.find((client: any) => client.name === "store");
+
+    expect(pets).toBeDefined();
+    expect(store).toBeDefined();
+    expect(pets.output.workspace).toBe("src/pets");
+    expect(pets.kubb.client.client).toBe("fetch");
+    expect(pets.kubb.client.baseURL).toBe("https://api.pets.local");
+    expect(pets.kubb.client.dataReturnType).toBe("data");
+    expect(pets.kubb.ts.enumType).toBe("asConst");
+
+    expect(store.output.workspace).toBe("src/store");
+    expect(store.kubb.client.client).toBe("axios");
+    expect(store.kubb.client.baseURL).toBe("https://api.store.local");
+    expect(store.kubb.client.dataReturnType).toBe("full");
+    expect(store.kubb.ts.enumType).toBe("enum");
+  });
+
+  it("passes the orval sample config through to generate both pets and store clients", async () => {
+    const samplePath = fileURLToPath(
+      new URL("../../../../samples/orval-multi-client.config.json", import.meta.url)
+    );
+    const { config, configDir, template } = await loadCliConfig({ file: samplePath });
+    const generateClients = vi.fn().mockResolvedValue(undefined);
+
+    await runGenerateCommand({
+      config,
+      configDir,
+      logger: createLogger(),
+      template: { ...template, generateClients }
+    });
+
+    expect(generateClients).toHaveBeenCalledTimes(1);
+    const [generatedConfig] = generateClients.mock.calls[0] as [any];
+    expect(generatedConfig.project.template.name).toBe("@genxapi/template-orval");
+
+    const pets = generatedConfig.clients.find((client: any) => client.name === "pets");
+    const store = generatedConfig.clients.find((client: any) => client.name === "store");
+
+    expect(pets).toBeDefined();
+    expect(store).toBeDefined();
+    expect(pets.output.target).toBe("src/pets/client.ts");
+    expect(pets.orval.baseUrl).toBe("https://api.pets.local");
+    expect(pets.orval.client).toBe("react-query");
+    expect(pets.orval.mock).toEqual({ type: "msw", useExamples: true });
+
+    expect(store.output.target).toBe("src/store/client.ts");
+    expect(store.orval.httpClient).toBe("axios");
+    expect(store.orval.baseUrl).toBe("https://api.store.local");
+    expect(store.orval.client).toBe("axios");
+    expect(store.orval.mock).toBe(false);
+  });
+
+  it("runs kubb sample generation end-to-end into a temp workspace", async () => {
+    const samplePath = fileURLToPath(
+      new URL("../../../../samples/kubb-multi-client.config.json", import.meta.url)
+    );
+    const { config: loadedConfig, configDir, template } = await loadCliConfig({ file: samplePath });
+    const { projectDir, swaggerPath, cleanup } = await createWorkspace();
+
+    const config = withE2eOverrides(loadedConfig, projectDir, swaggerPath);
+
+    try {
+      await runGenerateCommand({
+        config,
+        configDir,
+        logger: createLogger(),
+        template
+      });
+
+      await assertGeneratedWorkspace(projectDir, config.clients as any[]);
+    } finally {
+      await cleanup();
+    }
+  });
+
+  it("runs orval sample generation end-to-end into a temp workspace", async () => {
+    const samplePath = fileURLToPath(
+      new URL("../../../../samples/orval-multi-client.config.json", import.meta.url)
+    );
+    const { config: loadedConfig, configDir, template } = await loadCliConfig({ file: samplePath });
+    const { projectDir, swaggerPath, cleanup } = await createWorkspace();
+
+    const config = withE2eOverrides(loadedConfig, projectDir, swaggerPath);
+
+    try {
+      await runGenerateCommand({
+        config,
+        configDir,
+        logger: createLogger(),
+        template
+      });
+
+      await assertGeneratedWorkspace(projectDir, config.clients as any[]);
+    } finally {
+      await cleanup();
+    }
+  });
 });
+
+function createLogger(): Logger {
+  return {
+    debug: vi.fn(),
+    info: vi.fn(),
+    warn: vi.fn(),
+    error: vi.fn(),
+    setLevel: vi.fn()
+  } as any;
+}
+
+async function createWorkspace() {
+  const baseDir = await mkdtemp(join(tmpdir(), "genxapi-e2e-"));
+  const projectDir = join(baseDir, "project");
+  const specsDir = join(baseDir, "specs");
+  const swaggerPath = join(specsDir, "petstore.json");
+
+  await fs.ensureDir(specsDir);
+  await writeFile(
+    swaggerPath,
+    JSON.stringify(
+      {
+        openapi: "3.0.0",
+        info: { title: "Petstore", version: "1.0.0" },
+        paths: {
+          "/pets": {
+            get: {
+              operationId: "listPets",
+              responses: {
+                "200": { description: "ok" }
+              }
+            }
+          }
+        }
+      },
+      null,
+      2
+    ),
+    "utf8"
+  );
+
+  return {
+    projectDir,
+    swaggerPath,
+    cleanup: () => fs.remove(baseDir)
+  };
+}
+
+function withE2eOverrides(config: CliConfig, projectDir: string, swaggerPath: string): CliConfig {
+  const templateOptions = {
+    ...(config.project.templateOptions ?? {}),
+    installDependencies: false
+  };
+
+  return {
+    ...config,
+    project: {
+      ...config.project,
+      directory: projectDir,
+      runGenerate: false,
+      templateOptions
+    },
+    clients: (config.clients as any[]).map((client) => ({
+      ...client,
+      swagger: swaggerPath,
+      copySwagger: true,
+      swaggerCopyTarget: `${client.name}-openapi.json`
+    }))
+  };
+}
+
+async function assertGeneratedWorkspace(projectDir: string, clients: any[]) {
+  const rootIndex = await fs.readFile(join(projectDir, "src/index.ts"), "utf8");
+  expect(rootIndex).toContain('export * as pets from "./pets";');
+  expect(rootIndex).toContain('export * as store from "./store";');
+
+  for (const client of clients) {
+    const indexPath = join(projectDir, client.output.workspace, "index.ts");
+    expect(await fs.pathExists(indexPath)).toBe(true);
+    const content = await fs.readFile(indexPath, "utf8");
+    expect(content).toContain('export * from "./client"');
+    expect(content).toContain('export * from "./model"');
+    expect(await fs.pathExists(join(projectDir, client.swaggerCopyTarget))).toBe(true);
+  }
+}

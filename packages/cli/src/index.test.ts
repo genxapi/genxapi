@@ -41,7 +41,7 @@ describe("loadCliConfig", () => {
     expect(config.project.template).toBe(TEMPLATE_PACKAGE_MAP.orval);
   });
 
-  it.only("overrides template when provided via CLI option", async () => {
+  it("overrides template when provided via CLI option", async () => {
     const dir = await mkdtemp(join(tmpdir(), "genxapi-"));
     const configPath = join(dir, "config.json");
     await writeFile(
