@@ -6,10 +6,10 @@ title: "Configuration Overview"
 
 `GenxAPI` reads a single configuration file (`genxapi.config.json`, `.yaml`, or `.ts`) that now uses a **unified interface** regardless of whether you run Orval, Kubb, or future adapters. This page provides a narrative overview and links to the full schema reference.
 
-- **Unified schema** – One set of fields expresses generator intent (`httpClient`, `client`, `mode`, `mock`, plugin overrides). The CLI maps these options onto the selected template.
-- **Template selection** – `project.template` accepts the aliases `"orval"` and `"kubb"` (or a full package name such as `@genxapi/template-orval`).
-- **Per-client overrides** – `clients[].config` can override any project-level option.
-- **CLI flags** – `--template`, `--http-client`, `--client`, `--mode`, `--mock-*`, and `--base-url` mirror their config counterparts for one-off runs or CI jobs.
+- **Unified schema**: One set of fields expresses generator intent (`httpClient`, `client`, `mode`, `mock`, plugin overrides). The CLI maps these options onto the selected template.
+- **Template selection**: `project.template` accepts the aliases `"orval"` and `"kubb"` (or a full package name such as `@genxapi/template-orval`).
+- **Per-client overrides**: `clients[].config` can override any project-level option.
+- **CLI flags**: `--template`, `--http-client`, `--client`, `--mode`, `--mock-*`, and `--base-url` mirror their config counterparts for one-off runs or CI jobs.
 
 For the full JSON Schema, mapping tables, and advanced examples read the dedicated guide:
 

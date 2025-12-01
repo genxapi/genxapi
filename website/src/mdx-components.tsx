@@ -20,7 +20,7 @@ export const mdxComponents = {
       <h2
         {...rest}
         className={cx(
-          "mt-10 mb-4 text-4xl font-semibold leading-tight tracking-[-0.01em] text-navy",
+          "my-2 text-4xl font-semibold leading-tight tracking-[-0.01em] text-navy",
           className
         )}
       >
@@ -33,7 +33,7 @@ export const mdxComponents = {
     return (
       <h3
         {...rest}
-        className={cx("mt-8 mb-3 text-2xl font-semibold leading-snug text-navy", className)}
+        className={cx("my-2 text-2xl font-semibold leading-snug text-navy", className)}
       >
         {props.children}
       </h3>
@@ -42,15 +42,17 @@ export const mdxComponents = {
   h4: (props: any) => {
     const { className, ...rest } = props;
     return (
-      <h4 {...rest} className={cx("mt-6 mb-2 text-xl font-semibold text-navy", className)}>
+      <h4 {...rest} className={cx("my-2 text-xl font-semibold text-navy", className)}>
         {props.children}
       </h4>
     );
   },
   a: (props: any) => {
     const href = props.href ?? "#";
-    const isExternal = href.startsWith("http");
-    const targetHref = isExternal ? href : withPreview(href);
+    const isExternal =
+      href.startsWith("http") || href.startsWith("mailto:") || href.startsWith("tel:");
+    const normalizedHref = isExternal ? href : normalizeDocHref(href);
+    const targetHref = isExternal ? normalizedHref : withPreview(normalizedHref);
     return isExternal ? (
       <a {...props} href={targetHref} target="_blank" rel="noreferrer" />
     ) : (
@@ -79,7 +81,36 @@ export const mdxComponents = {
   )
 };
 
+function normalizeDocHref(href: string) {
+  if (!href) return "#";
+  if (href.startsWith("#")) return href;
+
+  const [pathWithQuery, hashPart] = href.split("#", 2);
+  const [pathPart, queryPart] = pathWithQuery.split("?", 2);
+
+  let path = pathPart;
+
+  const isMarkdownLink = /\.(md|mdx)$/i.test(path);
+  if (isMarkdownLink) {
+    let cleanPath = path.replace(/\.(md|mdx)$/i, "");
+    cleanPath = cleanPath.replace(/^\.?\//, "");
+    cleanPath = cleanPath.replace(/^docs\//, "");
+    while (cleanPath.startsWith("../")) {
+      cleanPath = cleanPath.slice(3);
+    }
+    path = `/docs/${cleanPath}`;
+  } else if (!path.startsWith("/")) {
+    path = `/${path}`;
+  }
+
+  const query = queryPart ? `?${queryPart}` : "";
+  const hash = hashPart ? `#${hashPart}` : "";
+
+  return `${path}${query}${hash}`;
+}
+
 function withPreview(href: string) {
+  if (!href || href.startsWith("#")) return href;
   if (href.includes("preview=")) return href;
   const hasQuery = href.includes("?");
   return `${href}${hasQuery ? "&" : "?"}${PREVIEW_QUERY.replace("?", "")}`;
