@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { PREVIEW_QUERY } from "./lib/preview";
 
+const cx = (...classes: (string | undefined | false)[]) => classes.filter(Boolean).join(" ");
+
 export const mdxComponents = {
   h1: (props: any) => {
     return (
@@ -10,6 +12,39 @@ export const mdxComponents = {
       >
         {props.children}
       </h1>
+    );
+  },
+  h2: (props: any) => {
+    const { className, ...rest } = props;
+    return (
+      <h2
+        {...rest}
+        className={cx(
+          "mt-10 mb-4 text-4xl font-semibold leading-tight tracking-[-0.01em] text-navy",
+          className
+        )}
+      >
+        {props.children}
+      </h2>
+    );
+  },
+  h3: (props: any) => {
+    const { className, ...rest } = props;
+    return (
+      <h3
+        {...rest}
+        className={cx("mt-8 mb-3 text-2xl font-semibold leading-snug text-navy", className)}
+      >
+        {props.children}
+      </h3>
+    );
+  },
+  h4: (props: any) => {
+    const { className, ...rest } = props;
+    return (
+      <h4 {...rest} className={cx("mt-6 mb-2 text-xl font-semibold text-navy", className)}>
+        {props.children}
+      </h4>
     );
   },
   a: (props: any) => {
