@@ -27,7 +27,6 @@ export default defineConfig([
       "fs-extra",
       "octokit",
       "ora",
-      "pathe",
       "execa",
       "node:fs",
       "node:fs/promises",

@@ -1,4 +1,4 @@
-import { join } from "pathe";
+import { join } from "node:path";
 import { UnifiedClientOutputInput } from "src/types";
 
 /**

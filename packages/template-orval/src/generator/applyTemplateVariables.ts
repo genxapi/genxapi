@@ -1,5 +1,5 @@
 import { readFile, writeFile } from "node:fs/promises";
-import { extname, join } from "pathe";
+import { extname, join } from "node:path";
 import { globby } from "globby";
 import type { MultiClientConfig } from "../types.js";
 import { TEXT_EXTENSIONS } from "./constants.js";

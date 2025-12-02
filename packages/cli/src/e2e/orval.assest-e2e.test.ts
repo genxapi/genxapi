@@ -2,7 +2,7 @@ import { createServer, type Server } from "node:http";
 import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { join } from "pathe";
+import { join } from "node:path";
 import { execa } from "execa";
 import fs from "fs-extra";
 import { describe, expect, it, beforeAll, afterAll } from "vitest";

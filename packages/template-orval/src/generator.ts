@@ -1,4 +1,4 @@
-import { resolve } from "pathe";
+import { resolve } from "node:path";
 import fs from "fs-extra";
 import type { MultiClientConfig, GenerateClientsOptions } from "./types.js";
 import { TEMPLATE_ROOT } from "./generator/constants.js";

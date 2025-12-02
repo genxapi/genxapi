@@ -1,5 +1,5 @@
 import { writeFile } from "node:fs/promises";
-import { join } from "pathe";
+import { join } from "node:path";
 import type { MultiClientConfig } from "../types.js";
 import type { SwaggerInfo } from "./handleSwaggerDocuments.js";
 

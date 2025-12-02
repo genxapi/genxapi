@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { relative as relativePath, resolve } from "pathe";
+import { relative as relativePath, resolve } from "node:path";
 import fs from "fs-extra";
 import YAML from "yaml";
 import type { ClientConfig, MultiClientConfig, GenerateClientsOptions } from "../types.js";

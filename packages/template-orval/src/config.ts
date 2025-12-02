@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { resolve } from "pathe";
+import { resolve } from "node:path";
 import { cosmiconfig } from "cosmiconfig";
 import { MultiClientConfigSchema, MultiClientConfig } from "./types.js";
 

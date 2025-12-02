@@ -1,4 +1,4 @@
-import { join, relative as relativePath, resolve } from "pathe";
+import { join, relative as relativePath, resolve } from "node:path";
 import fs from "fs-extra";
 import { writeFile } from "node:fs/promises";
 import type { ClientConfig } from "../types.js";

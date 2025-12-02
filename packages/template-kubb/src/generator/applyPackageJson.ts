@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
-import { join } from "pathe";
+import { join } from "node:path";
 import type { MultiClientConfig, NpmPublishConfig } from "../types.js";
 
 export async function applyPackageJson(projectDir: string, config: MultiClientConfig) {

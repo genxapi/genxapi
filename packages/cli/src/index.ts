@@ -1,6 +1,5 @@
 #!/usr/bin/env node
-import { resolve as resolvePath } from "node:path";
-import { relative as relativePath } from "pathe";
+import { relative, resolve } from "node:path";
 import {
   buildApplication,
   buildChoiceParser,
@@ -234,8 +233,8 @@ const generateCommand = buildCommand<GenerateFlags, GenerateArgs, CliContext>({
       }
 
       if (flags.target) {
-        const resolvedTarget = resolvePath(process.cwd(), flags.target);
-        const relativeTarget = relativePath(configDir, resolvedTarget) || "./";
+        const resolvedTarget = resolve(process.cwd(), flags.target);
+        const relativeTarget = relative(configDir, resolvedTarget) || "./";
         config = {
           ...config,
           project: {

@@ -1,4 +1,4 @@
-import { dirname, resolve } from "pathe";
+import { dirname, resolve } from "node:path";
 import fs from "fs-extra";
 import type { ClientConfig } from "../types.js";
 

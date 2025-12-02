@@ -36,7 +36,6 @@ export default defineConfig([
       "fs-extra",
       "globby",
       "merge-deep",
-      "pathe",
       "yaml",
       "zod",
       "node:fs",

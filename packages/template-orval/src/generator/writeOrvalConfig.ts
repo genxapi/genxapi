@@ -1,7 +1,6 @@
 import { writeFile } from "node:fs/promises";
-import { join } from "pathe";
+import { join, relative as relativePath } from "node:path";
 import merge from "merge-deep";
-import { relative as relativePath } from "pathe";
 import type { MultiClientConfig } from "../types.js";
 
 export async function writeOrvalConfig(

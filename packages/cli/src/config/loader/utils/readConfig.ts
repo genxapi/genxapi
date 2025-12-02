@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { dirname, resolve } from "pathe";
+import { dirname, resolve } from "node:path";
 import { cosmiconfig } from "cosmiconfig";
 import { parseConfig } from "./parseConfig";
 

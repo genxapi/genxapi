@@ -1,5 +1,5 @@
 import { existsSync } from "node:fs";
-import { join } from "pathe";
+import { join } from "node:path";
 import { execa } from "execa";
 import type { GenerateClientsOptions } from "../types.js";
 

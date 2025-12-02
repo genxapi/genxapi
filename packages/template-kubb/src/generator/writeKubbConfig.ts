@@ -1,5 +1,5 @@
 import { writeFile } from "node:fs/promises";
-import { join, relative as relativePath } from "pathe";
+import { join, relative as relativePath } from "node:path";
 import merge from "merge-deep";
 import type { MultiClientConfig } from "../types.js";
 import { ensureRelativePath, joinRelative } from "./pathHelpers.js";

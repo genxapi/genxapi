@@ -34,7 +34,6 @@ export default defineConfig([
       "fs-extra",
       "globby",
       "merge-deep",
-      "pathe",
       "zod",
       "@orval/core"
     ]
