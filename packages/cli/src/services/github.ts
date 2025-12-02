@@ -164,20 +164,36 @@ async function synchronizeWithPullRequest({
 
   await fetchBranch(projectDir, token, owner, repo, defaultBranch);
 
-  let needsExplicitCheckout = await hasLocalBranch(projectDir, defaultBranch);
-  if (!needsExplicitCheckout) {
-    const checkedOutFromRemote = await checkoutFromRemote(projectDir, defaultBranch);
-    if (!checkedOutFromRemote) {
-      throw new Error(
-        `Unable to check out default branch "${defaultBranch}". ` +
-          "Make sure the branch exists in the remote repository and that the configured token has read access."
+  const hasLocalDefaultBranch = await hasLocalBranch(projectDir, defaultBranch);
+  const workingTreeStatus = await getStatus(projectDir);
+  const shouldStash = !hasLocalDefaultBranch && Boolean(workingTreeStatus);
+  let stashRestored = false;
+
+  try {
+    if (shouldStash) {
+      logger.debug?.("Stashing local changes before checking out default branch.");
+      await runGit(
+        ["stash", "push", "--include-untracked", "-m", "genxapi-auto-stash"],
+        projectDir
       );
+    }
+
+    if (!hasLocalDefaultBranch) {
+      await checkoutFromRemote(projectDir, defaultBranch);
+    } else {
+      await runGit(["checkout", defaultBranch], projectDir);
+    }
+
+    if (shouldStash) {
+      await runGit(["stash", "pop"], projectDir);
+      stashRestored = true;
+    }
+  } finally {
+    if (shouldStash && !stashRestored) {
+      await runGit(["stash", "pop"], projectDir, true);
     }
   }
 
-  if (needsExplicitCheckout) {
-    await runGit(["checkout", defaultBranch], projectDir);
-  }
 
   const branchName = buildBranchName(repository.pullRequest);
   await runGit(["checkout", "-B", branchName], projectDir);
@@ -356,7 +372,7 @@ async function fetchBranch(
     if (cleanUrl !== authUrl) {
       await runGit(["remote", "set-url", remoteName, authUrl], projectDir);
     }
-    await runGit(["fetch", remoteName, branch], projectDir, true);
+    await runGit(["fetch", remoteName, branch], projectDir);
   } finally {
     if (cleanUrl && cleanUrl !== authUrl) {
       await runGit(["remote", "set-url", remoteName, cleanUrl], projectDir, true);
@@ -373,13 +389,8 @@ async function getRemoteUrl(projectDir: string, name: string): Promise<string | 
   }
 }
 
-async function checkoutFromRemote(projectDir: string, branch: string): Promise<boolean> {
-  try {
-    await runGit(["checkout", "-b", branch, `origin/${branch}`], projectDir);
-    return true;
-  } catch {
-    return false;
-  }
+async function checkoutFromRemote(projectDir: string, branch: string): Promise<void> {
+  await runGit(["checkout", "-B", branch, `origin/${branch}`], projectDir);
 }
 
 async function repositoryHasCommits(projectDir: string): Promise<boolean> {
