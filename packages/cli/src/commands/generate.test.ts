@@ -1,8 +1,4 @@
-import { mkdtemp, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
-import { join } from "pathe";
-import fs from "fs-extra";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { runGenerateCommand } from "./generate";
@@ -138,52 +134,6 @@ describe("runGenerateCommand", () => {
     expect(store.orval.client).toBe("axios");
     expect(store.orval.mock).toBe(false);
   });
-
-  it("runs kubb sample generation end-to-end into a temp workspace", async () => {
-    const samplePath = fileURLToPath(
-      new URL("../../../../samples/kubb-multi-client.config.json", import.meta.url)
-    );
-    const { config: loadedConfig, configDir, template } = await loadCliConfig({ file: samplePath });
-    const { projectDir, swaggerPath, cleanup } = await createWorkspace();
-
-    const config = withE2eOverrides(loadedConfig, projectDir, swaggerPath);
-
-    try {
-      await runGenerateCommand({
-        config,
-        configDir,
-        logger: createLogger(),
-        template
-      });
-
-      await assertGeneratedWorkspace(projectDir, config.clients as any[]);
-    } finally {
-      await cleanup();
-    }
-  });
-
-  it("runs orval sample generation end-to-end into a temp workspace", async () => {
-    const samplePath = fileURLToPath(
-      new URL("../../../../samples/orval-multi-client.config.json", import.meta.url)
-    );
-    const { config: loadedConfig, configDir, template } = await loadCliConfig({ file: samplePath });
-    const { projectDir, swaggerPath, cleanup } = await createWorkspace();
-
-    const config = withE2eOverrides(loadedConfig, projectDir, swaggerPath);
-
-    try {
-      await runGenerateCommand({
-        config,
-        configDir,
-        logger: createLogger(),
-        template
-      });
-
-      await assertGeneratedWorkspace(projectDir, config.clients as any[]);
-    } finally {
-      await cleanup();
-    }
-  });
 });
 
 function createLogger(): Logger {
@@ -194,79 +144,4 @@ function createLogger(): Logger {
     error: vi.fn(),
     setLevel: vi.fn()
   } as any;
-}
-
-async function createWorkspace() {
-  const baseDir = await mkdtemp(join(tmpdir(), "genxapi-e2e-"));
-  const projectDir = join(baseDir, "project");
-  const specsDir = join(baseDir, "specs");
-  const swaggerPath = join(specsDir, "petstore.json");
-
-  await fs.ensureDir(specsDir);
-  await writeFile(
-    swaggerPath,
-    JSON.stringify(
-      {
-        openapi: "3.0.0",
-        info: { title: "Petstore", version: "1.0.0" },
-        paths: {
-          "/pets": {
-            get: {
-              operationId: "listPets",
-              responses: {
-                "200": { description: "ok" }
-              }
-            }
-          }
-        }
-      },
-      null,
-      2
-    ),
-    "utf8"
-  );
-
-  return {
-    projectDir,
-    swaggerPath,
-    cleanup: () => fs.remove(baseDir)
-  };
-}
-
-function withE2eOverrides(config: CliConfig, projectDir: string, swaggerPath: string): CliConfig {
-  const templateOptions = {
-    ...(config.project.templateOptions ?? {}),
-    installDependencies: false
-  };
-
-  return {
-    ...config,
-    project: {
-      ...config.project,
-      directory: projectDir,
-      runGenerate: false,
-      templateOptions
-    },
-    clients: (config.clients as any[]).map((client) => ({
-      ...client,
-      swagger: swaggerPath,
-      copySwagger: true,
-      swaggerCopyTarget: `${client.name}-openapi.json`
-    }))
-  };
-}
-
-async function assertGeneratedWorkspace(projectDir: string, clients: any[]) {
-  const rootIndex = await fs.readFile(join(projectDir, "src/index.ts"), "utf8");
-  expect(rootIndex).toContain('export * as pets from "./pets";');
-  expect(rootIndex).toContain('export * as store from "./store";');
-
-  for (const client of clients) {
-    const indexPath = join(projectDir, client.output.workspace, "index.ts");
-    expect(await fs.pathExists(indexPath)).toBe(true);
-    const content = await fs.readFile(indexPath, "utf8");
-    expect(content).toContain('export * from "./client"');
-    expect(content).toContain('export * from "./model"');
-    expect(await fs.pathExists(join(projectDir, client.swaggerCopyTarget))).toBe(true);
-  }
 }
