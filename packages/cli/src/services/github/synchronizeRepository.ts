@@ -29,14 +29,19 @@ export async function synchronizeRepository(options: SyncOptions): Promise<void>
   const owner = repository.owner;
   const repo = repository.name;
 
+  logger.debug("[GitHub] 1/4 Validate existance and create repository if required")
   const repoData = await ensureRepository(octokit, repository, logger);
+
+  logger.debug("[GitHub] 2/4 Validate git initialisation and init git if required")
   await ensureGitInitialization(projectDir, repository, logger);
 
   const defaultBranch = repository.defaultBranch ?? repoData?.data.default_branch ?? "main";
+  logger.debug("[GitHub] 3/4 Check branch existance on remote")
   const repoHasBaseBranch =
-    repoData && (await hasBranch(octokit, owner, repo, defaultBranch));
+  repoData && (await hasBranch(octokit, owner, repo, defaultBranch));
 
   if (repoHasBaseBranch) {
+    logger.debug("[GitHub] 4/4 Sync existing repository with local generated code")
     await synchronizeExistingRepository({
       octokit,
       owner,
@@ -48,6 +53,7 @@ export async function synchronizeRepository(options: SyncOptions): Promise<void>
       logger
     });
   } else {
+    logger.debug("[GitHub] 4/4 Push initial commit to remote")
     await pushInitialCommit({
       projectDir,
       repository,

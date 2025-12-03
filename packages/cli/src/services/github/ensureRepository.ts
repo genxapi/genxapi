@@ -33,7 +33,7 @@ export async function ensureRepository(
         logger.info(`Creating GitHub repository ${owner}/${name}`);
         return await octokit.rest.repos.createForAuthenticatedUser({
           name,
-          private: false
+          private: true
         });
       }
       logger.info(`Creating GitHub repository ${owner}/${name} under organisation ${owner}`);
