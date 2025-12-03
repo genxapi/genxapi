@@ -3,7 +3,9 @@ import { join } from "node:path";
 import { Octokit } from "octokit";
 import { execa } from "execa";
 import type { ExecaError } from "execa";
+import fsExtra from "fs-extra";
 import type { Logger } from "../utils/logger";
+const { copy, emptyDir, pathExists, readJson, remove } = fsExtra;
 
 export interface PullRequestConfig {
   readonly enabled: boolean;
@@ -50,7 +52,7 @@ export async function synchronizeRepository(options: SyncOptions): Promise<void>
     repoData && (await hasBranch(octokit, owner, repo, defaultBranch));
 
   if (repoHasBaseBranch) {
-    await synchronizeWithPullRequest({
+    await synchronizeExistingRepository({
       octokit,
       owner,
       repo,
@@ -140,7 +142,7 @@ async function pushInitialCommit({
   logger.info(`Pushed initial commit to ${owner}/${repo}@${defaultBranch}.`);
 }
 
-async function synchronizeWithPullRequest({
+async function synchronizeExistingRepository({
   octokit,
   owner,
   repo,
@@ -164,77 +166,75 @@ async function synchronizeWithPullRequest({
 
   await fetchBranch(projectDir, token, owner, repo, defaultBranch);
 
-  const hasLocalDefaultBranch = await hasLocalBranch(projectDir, defaultBranch);
+  const hasAnyCommits = await repositoryHasCommits(projectDir);
   const workingTreeStatus = await getStatus(projectDir);
-  const shouldStash = !hasLocalDefaultBranch && Boolean(workingTreeStatus);
-  let stashRestored = false;
+  let restoreWorkingTree = await prepareWorkingTreeForBranchSwitch(
+    projectDir,
+    hasAnyCommits,
+    workingTreeStatus,
+    logger
+  );
 
   try {
-    if (shouldStash) {
-      logger.debug?.("Stashing local changes before checking out default branch.");
-      await runGit(
-        ["stash", "push", "--include-untracked", "-m", "genxapi-auto-stash"],
-        projectDir
-      );
-    }
-
-    if (!hasLocalDefaultBranch) {
-      await checkoutFromRemote(projectDir, defaultBranch);
-    } else {
+    const hasLocalDefaultBranch = await hasLocalBranch(projectDir, defaultBranch);
+    if (hasLocalDefaultBranch) {
       await runGit(["checkout", defaultBranch], projectDir);
+    } else {
+      await checkoutFromRemote(projectDir, defaultBranch);
     }
 
-    if (shouldStash) {
-      await runGit(["stash", "pop"], projectDir);
-      stashRestored = true;
+    await runGit(["reset", "--hard", `origin/${defaultBranch}`], projectDir);
+
+    const branchName = await buildBranchName(repository.pullRequest, projectDir);
+    await runGit(["checkout", "-B", branchName, defaultBranch], projectDir);
+
+    if (restoreWorkingTree) {
+      await restoreWorkingTree();
+      restoreWorkingTree = null;
     }
+
+    const hasChanges = await commitAll(projectDir, repository.commitMessage, logger);
+    if (!hasChanges) {
+      logger.info("No changes detected. Skipping GitHub pull request creation.");
+      return;
+    }
+
+    await pushBranch(projectDir, branchName, token, owner, repo, logger);
+
+    if (!repository.pullRequest.enabled) {
+      logger.info("Pull request creation disabled. Changes pushed to remote branch.");
+      return;
+    }
+
+    const existing = await octokit.rest.pulls.list({
+      owner,
+      repo,
+      state: "open",
+      head: `${owner}:${branchName}`
+    });
+
+    if (existing.data.length > 0) {
+      logger.info(
+        `Pull request for branch ${branchName} already exists (#${existing.data[0].number}).`
+      );
+      return;
+    }
+
+    const pr = await octokit.rest.pulls.create({
+      owner,
+      repo,
+      base: defaultBranch,
+      head: branchName,
+      title: repository.pullRequest.title,
+      body: repository.pullRequest.body
+    });
+
+    logger.info(`Opened pull request #${pr.data.number} for ${owner}/${repo}.`);
   } finally {
-    if (shouldStash && !stashRestored) {
-      await runGit(["stash", "pop"], projectDir, true);
+    if (restoreWorkingTree) {
+      await restoreWorkingTree().catch(() => {});
     }
   }
-
-
-  const branchName = buildBranchName(repository.pullRequest);
-  await runGit(["checkout", "-B", branchName], projectDir);
-
-  const hasChanges = await commitAll(projectDir, repository.commitMessage, logger);
-  if (!hasChanges) {
-    logger.info("No changes detected. Skipping GitHub pull request creation.");
-    return;
-  }
-
-  await pushBranch(projectDir, branchName, token, owner, repo, logger);
-
-  if (!repository.pullRequest.enabled) {
-    logger.info("Pull request creation disabled. Changes pushed to remote branch.");
-    return;
-  }
-
-  const existing = await octokit.rest.pulls.list({
-    owner,
-    repo,
-    state: "open",
-    head: `${owner}:${branchName}`
-  });
-
-  if (existing.data.length > 0) {
-    logger.info(
-      `Pull request for branch ${branchName} already exists (#${existing.data[0].number}).`
-    );
-    return;
-  }
-
-  const pr = await octokit.rest.pulls.create({
-    owner,
-    repo,
-    base: defaultBranch,
-    head: branchName,
-    title: repository.pullRequest.title,
-    body: repository.pullRequest.body
-  });
-
-  logger.info(`Opened pull request #${pr.data.number} for ${owner}/${repo}.`);
 }
 
 async function hasBranch(
@@ -352,10 +352,116 @@ async function getStatus(projectDir: string): Promise<string> {
   return result.trim();
 }
 
-function buildBranchName(config: PullRequestConfig): string {
-  const prefix = config.branchPrefix || "update/generated-client";
-  const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
-  return `${prefix}/${timestamp}`;
+function parseStatusPaths(status: string): string[] {
+  return status
+    .split("\n")
+    .map((line) => line.trimEnd())
+    .filter(Boolean)
+    .flatMap((line) => {
+      if (line.length <= 3) {
+        return [];
+      }
+      const rawPath = line.slice(3);
+      if (rawPath.includes(" -> ")) {
+        const [source, target] = rawPath.split(" -> ");
+        return [source, target];
+      }
+      return [rawPath];
+    });
+}
+
+async function removeWorkingTreePaths(projectDir: string, paths: string[]): Promise<void> {
+  await Promise.all(
+    paths.map(async (relativePath) => {
+      const target = join(projectDir, relativePath);
+      await remove(target).catch(() => {});
+    })
+  );
+}
+
+async function backupWorkingTree(
+  projectDir: string,
+  paths: string[]
+): Promise<() => Promise<void>> {
+  const gitDir = join(projectDir, ".git");
+  const backupDir = join(gitDir, "genxapi-working-tree-backup");
+
+  await remove(backupDir).catch(() => {});
+  await emptyDir(backupDir);
+  for (const relativePath of paths) {
+    const source = join(projectDir, relativePath);
+    if (!(await pathExists(source))) {
+      continue;
+    }
+    const destination = join(backupDir, relativePath);
+    await copy(source, destination, { overwrite: true });
+  }
+
+  return async () => {
+    try {
+      for (const relativePath of paths) {
+        const source = join(backupDir, relativePath);
+        if (!(await pathExists(source))) {
+          continue;
+        }
+        const destination = join(projectDir, relativePath);
+        await copy(source, destination, { overwrite: true });
+      }
+    } finally {
+      await remove(backupDir).catch(() => {});
+    }
+  };
+}
+
+async function prepareWorkingTreeForBranchSwitch(
+  projectDir: string,
+  hasAnyCommits: boolean,
+  workingTreeStatus: string,
+  logger: Logger
+): Promise<(() => Promise<void>) | null> {
+  if (!workingTreeStatus) {
+    return null;
+  }
+
+  if (hasAnyCommits) {
+    logger.debug?.("Stashing local changes before switching branches.");
+    await runGit(
+      ["stash", "push", "--include-untracked", "-m", "genxapi-auto-stash"],
+      projectDir
+    );
+    return async () => {
+      await runGit(["stash", "pop"], projectDir, true);
+    };
+  }
+
+  logger.debug?.("Backing up working tree (no commits yet) before switching branches.");
+  const dirtyPaths = parseStatusPaths(workingTreeStatus);
+  if (dirtyPaths.length === 0) {
+    return null;
+  }
+  const restore = await backupWorkingTree(projectDir, dirtyPaths);
+  await removeWorkingTreePaths(projectDir, dirtyPaths);
+  return restore;
+}
+
+async function buildBranchName(config: PullRequestConfig, projectDir: string): Promise<string> {
+  const prefix = config.branchPrefix || "fix/generated-package";
+  const version = await readPackageVersion(projectDir);
+  const suffix = version ?? new Date().toISOString().replace(/[:.]/g, "-");
+  const safeSuffix = suffix.replace(/[^0-9A-Za-z.-]/g, "-");
+  return `${prefix}-${safeSuffix}`;
+}
+
+async function readPackageVersion(projectDir: string): Promise<string | null> {
+  try {
+    const pkg = await readJson(join(projectDir, "package.json"));
+    if (pkg && typeof pkg.version === "string") {
+      return pkg.version;
+    }
+  } catch {
+    return null;
+  }
+  return null;
 }
 
 async function fetchBranch(
