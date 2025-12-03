@@ -25,9 +25,14 @@ export async function runGenerateCommand(options: GenerateCommandOptions): Promi
     }
 
     const templateKind = inferTemplateKind(options.template.name);
+    options.logger.info(`Generation step 1/4: applying template overrides for ${templateKind}.`);
     const config = applyTemplateOverrides(options.config, templateKind, options.overrides);
+    options.logger.info("Generation step 2/4: building template configuration.");
     const templateConfig = buildTemplateConfig(config, options.template.name);
 
+    options.logger.info(
+      `Generation step 3/4: running ${options.template.name} client generator (runGenerate=${templateConfig.project.runGenerate}).`
+    );
     await options.template.generateClients(templateConfig, {
       configDir: options.configDir,
       logger: options.logger,
@@ -37,6 +42,7 @@ export async function runGenerateCommand(options: GenerateCommandOptions): Promi
 
     spinner.succeed("Clients generated successfully");
 
+    options.logger.info("Generation step 4/4: executing post-generation tasks (repo sync, publish).");
     await runPostGenerationTasks({
       ...options,
       config

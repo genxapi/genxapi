@@ -16,6 +16,7 @@ export async function runPostGenerationTasks(options: GenerateCommandOptions): P
   const { publish } = options.config.project;
 
   if (repository) {
+    options.logger.info("Post-generation: synchronizing repository (fetch/push/PR).");
     const normalisedRepository: RepositoryConfig = {
       ...repository,
       owner: repository.owner.replace(/^@/, "")
@@ -29,6 +30,7 @@ export async function runPostGenerationTasks(options: GenerateCommandOptions): P
 
   const npmPublish = publish?.npm as unknown as NpmPublishConfig | undefined;
   if (npmPublish?.enabled) {
+    options.logger.info("Post-generation: publishing package to npm registry.");
     await publishToNpm({
       projectDir,
       config: npmPublish,
