@@ -2,6 +2,7 @@
 const config = {
   reactStrictMode: true,
   output: "export",
+  distDir: 'dist',
   trailingSlash: true,
   images: { unoptimized: true },
   eslint: {

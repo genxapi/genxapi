@@ -3,6 +3,7 @@ node_modules
 dist
 website/.next
 website/out
+website/dist
 *.log
 coverage
 *.local
