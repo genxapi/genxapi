@@ -25,6 +25,9 @@ jobs:
         with:
           node-version-file: ".nvmrc"
 
+      - name: Go to Website
+        run: 'cd website'
+
       - name: Install dependencies
         run: npm install
 
@@ -32,7 +35,6 @@ jobs:
         run: npm run build
         env:
           NEXT_PUBLIC_BASE_URL: https://genxapi.dev
-
 
       - name: Publish to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
