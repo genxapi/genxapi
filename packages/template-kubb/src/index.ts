@@ -13,6 +13,7 @@ export type {
   RepositoryConfig,
   PullRequestConfig,
   NpmPublishConfig,
+  GithubPublishConfig,
   ProjectReadmeConfig,
   ReadmeSection
 } from "./types.js";

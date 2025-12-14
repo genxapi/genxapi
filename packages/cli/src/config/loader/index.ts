@@ -29,6 +29,7 @@ export interface CliConfig {
     readonly repository?: Record<string, unknown>;
     readonly publish?: {
       readonly npm?: Record<string, unknown>;
+      readonly github?: Record<string, unknown>;
       readonly [key: string]: unknown;
     };
     readonly [key: string]: unknown;

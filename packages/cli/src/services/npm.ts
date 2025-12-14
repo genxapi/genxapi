@@ -19,6 +19,11 @@ interface PublishOptions {
 
 export async function publishToNpm(options: PublishOptions): Promise<void> {
   const { projectDir, config, logger } = options;
+  const registry = config.registry ?? process.env["npm_config_registry"];
+
+  logger.info(
+    `Start publishing package via ${config.command ?? "npm"} to ${registry ?? "https://registry.npmjs.org/"}`
+  );
 
   if (!config.enabled) {
     return;
@@ -32,6 +37,7 @@ export async function publishToNpm(options: PublishOptions): Promise<void> {
     return;
   }
 
+  logger.info(`Setting up config for publishing ${projectDir}`)
   const command = config.command ?? "npm";
   const args = ["publish", "--tag", config.tag ?? "latest"];
   if (config.access === "public") {
@@ -45,8 +51,8 @@ export async function publishToNpm(options: PublishOptions): Promise<void> {
   logger.info("Publishing package to npm...");
 
   const environment: NodeJS.ProcessEnv = { ...process.env, NPM_TOKEN: token };
-  if (config.registry) {
-    environment["npm_config_registry"] = config.registry;
+  if (registry) {
+    environment["npm_config_registry"] = registry;
   }
 
   await execa(command, args, {

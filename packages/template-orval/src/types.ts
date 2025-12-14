@@ -68,6 +68,12 @@ const NpmPublishConfigSchema = z.object({
   command: z.enum(["npm", "pnpm", "yarn", "bun"]).default("npm")
 });
 
+const GithubPublishConfigSchema = NpmPublishConfigSchema.extend({
+  access: z.enum(["public", "restricted"]).default("restricted"),
+  tokenEnv: z.string().default("GITHUB_TOKEN"),
+  registry: z.string().default("https://npm.pkg.github.com")
+});
+
 const ReadmeSectionSchema = z.object({
   title: z.string().min(1),
   body: z.string().min(1)
@@ -97,7 +103,8 @@ export const ProjectConfigSchema = z.object({
   repository: RepositoryConfigSchema.optional(),
   publish: z
     .object({
-      npm: NpmPublishConfigSchema.default({})
+      npm: NpmPublishConfigSchema.default({}),
+      github: GithubPublishConfigSchema.default({})
     })
     .default({}),
   readme: ProjectReadmeSchema.optional()
@@ -120,6 +127,7 @@ export type MultiClientConfig = z.infer<typeof MultiClientConfigSchema>;
 export type RepositoryConfig = z.infer<typeof RepositoryConfigSchema>;
 export type PullRequestConfig = z.infer<typeof PullRequestConfigSchema>;
 export type NpmPublishConfig = z.infer<typeof NpmPublishConfigSchema>;
+export type GithubPublishConfig = z.infer<typeof GithubPublishConfigSchema>;
 export type ProjectReadmeConfig = z.infer<typeof ProjectReadmeSchema>;
 export type ReadmeSection = z.infer<typeof ReadmeSectionSchema>;
 

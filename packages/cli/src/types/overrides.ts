@@ -18,6 +18,15 @@ export interface TemplateOverrides {
       registry?: string;
       command?: "npm" | "pnpm" | "yarn" | "bun";
     };
+    github?: {
+      enabled?: boolean;
+      tag?: string;
+      access?: "public" | "restricted";
+      dryRun?: boolean;
+      tokenEnv?: string;
+      registry?: string;
+      command?: "npm" | "pnpm" | "yarn" | "bun";
+    };
   };
   mock?: {
     type?: string | null;

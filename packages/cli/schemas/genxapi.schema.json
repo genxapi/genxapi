@@ -233,6 +233,31 @@
           },
           "additionalProperties": true,
           "default": {}
+        },
+        "github": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "boolean", "default": false },
+            "tag": { "type": "string", "default": "latest" },
+            "access": {
+              "type": "string",
+              "enum": ["public", "restricted"],
+              "default": "restricted"
+            },
+            "dryRun": { "type": "boolean", "default": false },
+            "tokenEnv": { "type": "string", "default": "GITHUB_TOKEN" },
+            "registry": {
+              "type": "string",
+              "default": "https://npm.pkg.github.com"
+            },
+            "command": {
+              "type": "string",
+              "enum": ["npm", "pnpm", "yarn", "bun"],
+              "default": "npm"
+            }
+          },
+          "additionalProperties": true,
+          "default": {}
         }
       },
       "additionalProperties": true,
