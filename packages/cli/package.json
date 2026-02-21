@@ -1,6 +1,6 @@
 {
   "name": "@genxapi/cli",
-  "version": "0.1.1",
+  "version": "0.1.8",
   "description": "GenxAPI CLI — Automate, orchestrate, and publish SDKs — faster.",
   "license": "MIT",
   "engines": {
@@ -8,9 +8,13 @@
   },
   "type": "module",
   "bin": {
-    "genxapi": "./bin/genxapi.js"
+    "genxapi": "./dist/cli.js",
+    "cli": "./dist/cli.js"
   },
-  "repository": "https://github.com/genxapi/genxapi",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/genxapi/genxapi.git"
+  },
   "exports": {
     "./package.json": "./package.json",
     ".": {
@@ -20,7 +24,6 @@
   },
   "files": [
     "dist",
-    "bin",
     "schemas"
   ],
   "main": "./dist/index.js",
@@ -34,7 +37,9 @@
     "clean": "rimraf dist",
     "lint": "eslint 'src/**/*.ts'",
     "prebuild": "npm run clean",
-    "prepack": "npm run build",
+    "postbuild": "node -e \"const fs=require('node:fs'); const targets=['dist/cli.js','dist/index.js']; for (const target of targets) { if (fs.existsSync(target)) fs.chmodSync(target, 0o755); }\"",
+    "prepack": "npm run build && npm run smoke:cli",
+    "smoke:cli": "node dist/cli.js --help",
     "test": "vitest run"
   },
   "dependencies": {

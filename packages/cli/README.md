@@ -12,6 +12,11 @@ CLI to scaffold, regenerate, synchronise, and publish multiple API clients using
 - `genxapi generate` – Generate clients defined in configuration, optionally override the output directory (`--target`), initialise/synchronise a GitHub repository, and publish to npm.
 - `genxapi publish` – Create GitHub releases using Octokit.
 
+## Running the CLI
+
+- One-off (no install): `npx @genxapi/cli --help`
+- Local install: add `"cli": "genxapi"` to `package.json` scripts, then run `npm run cli -- --help`
+
 ### Environment Variables
 
 - `GITHUB_TOKEN` (configurable via `project.repository.tokenEnv`) – required to push commits or open pull requests.

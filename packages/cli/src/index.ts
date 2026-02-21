@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { relative, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   buildApplication,
   buildChoiceParser,
@@ -364,12 +365,12 @@ const application = buildApplication(rootRoutes, {
   }
 });
 
-async function runCli(argv: readonly string[] = process.argv.slice(2)) {
+export async function runCli(argv: readonly string[] = process.argv.slice(2)) {
   const context = createDynamicContext();
   await run(application, argv, context);
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (isDirectInvocation()) {
   runCli().catch((error) => {
     console.error(error instanceof Error ? error.message : String(error));
     process.exitCode = 1;
@@ -491,6 +492,12 @@ function normaliseRegistryPreset(value: string): string {
 
 function trimInput(input: string): string {
   return input.trim();
+}
+
+function isDirectInvocation(): boolean {
+  if (!process.argv[1]) return false;
+  const entryPath = resolve(process.argv[1]);
+  return fileURLToPath(import.meta.url) === entryPath;
 }
 
 function createDynamicContext(): StricliDynamicCommandContext<CliContext> {

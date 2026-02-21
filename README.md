@@ -66,6 +66,9 @@ Create a unified config and generate clients locally:
 cp samples/orval-multi-client.config.json ./genxapi.config.json
 npx genxapi generate --log-level info
 
+# One-off runs without a local install
+npx @genxapi/cli generate --log-level info
+
 # Switch engines or override behaviour at runtime
 npx genxapi generate \
   --template kubb \
