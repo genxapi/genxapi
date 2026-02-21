@@ -3,6 +3,9 @@
   "version": "0.1.1",
   "description": "GenxAPI CLI — Automate, orchestrate, and publish SDKs — faster.",
   "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "type": "module",
   "bin": {
     "genxapi": "./bin/genxapi.js"
@@ -23,14 +26,15 @@
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "publishConfig": {
-    "access": "restricted",
-    "registry": "https://npm.pkg.github.com"
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
   },
   "scripts": {
     "build": "rollup -c",
     "clean": "rimraf dist",
     "lint": "eslint 'src/**/*.ts'",
     "prebuild": "npm run clean",
+    "prepack": "npm run build",
     "test": "vitest run"
   },
   "dependencies": {
