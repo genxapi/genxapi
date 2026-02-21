@@ -1,6 +1,6 @@
 {
   "name": "@genxapi/cli",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "description": "GenxAPI CLI — Automate, orchestrate, and publish SDKs — faster.",
   "license": "MIT",
   "engines": {
@@ -8,8 +8,8 @@
   },
   "type": "module",
   "bin": {
-    "genxapi": "./bin/cli.js",
-    "cli": "./bin/cli.js"
+    "genxapi": "./dist/index.js",
+    "cli": "./dist/index.js"
   },
   "repository": {
     "type": "git",
@@ -24,7 +24,6 @@
   },
   "files": [
     "dist",
-    "bin",
     "schemas"
   ],
   "main": "./dist/index.js",
@@ -38,6 +37,7 @@
     "clean": "rimraf dist",
     "lint": "eslint 'src/**/*.ts'",
     "prebuild": "npm run clean",
+    "postbuild": "node -e \"const fs=require('node:fs'); if (fs.existsSync('dist/index.js')) fs.chmodSync('dist/index.js', 0o755)\"",
     "prepack": "npm run build",
     "test": "vitest run"
   },

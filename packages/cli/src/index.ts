@@ -369,9 +369,7 @@ async function runCli(argv: readonly string[] = process.argv.slice(2)) {
   await run(application, argv, context);
 }
 
-const invokedFromWrapper = process.env.GENXAPI_CLI === "1";
-
-if (invokedFromWrapper || import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === `file://${process.argv[1]}`) {
   runCli().catch((error) => {
     console.error(error instanceof Error ? error.message : String(error));
     process.exitCode = 1;
