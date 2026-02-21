@@ -82,17 +82,12 @@ Run `npm run typecheck` at the repository root to validate both packages before 
 ### Publishing the CLI
 
 ```bash
-# Default npm publish (public access)
-npm run npm-publish --workspace @genxapi/cli
-
-# Explicit public publish
-npm run publish:npm-public --workspace @genxapi/cli
-
-# GitHub Packages
-npm run publish:github --workspace @genxapi/cli
+# Build + publish to npmjs.org (public)
+npm run build --workspace @genxapi/cli
+npm publish --workspace @genxapi/cli --access public
 ```
 
-Publishing to GitHub Packages requires a PAT with `read:packages` and `write:packages` scopes.
+Publishing to GitHub Packages is optional; include `--registry https://npm.pkg.github.com` and use a PAT with `read:packages` and `write:packages` scopes.
 
 ### Installing from GitHub Packages
 

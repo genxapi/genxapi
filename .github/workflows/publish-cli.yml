@@ -1,0 +1,31 @@
+name: Publish CLI
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish-cli:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+          registry-url: "https://registry.npmjs.org/"
+          cache: "npm"
+      - name: Install dependencies
+        run: npm ci
+      - name: Build CLI
+        run: npm run build --workspace "@genxapi/cli"
+      - name: Publish CLI
+        run: npm publish --workspace "@genxapi/cli" --access public --provenance
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
