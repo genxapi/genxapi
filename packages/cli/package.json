@@ -1,6 +1,6 @@
 {
   "name": "@genxapi/cli",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "GenxAPI CLI — Automate, orchestrate, and publish SDKs — faster.",
   "license": "MIT",
   "engines": {
