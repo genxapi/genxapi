@@ -23,7 +23,8 @@
     "test": "npm run test --workspace @genxapi/template-orval && npm run test --workspace @genxapi/template-kubb && npm run test --workspace @genxapi/cli",
     "typecheck": "tsc -p packages/template-orval/tsconfig.json --noEmit && tsc -p packages/template-kubb/tsconfig.json --noEmit && tsc -p packages/cli/tsconfig.json --noEmit",
     "publish": "node scripts/publish.mjs",
-    "publish:template": "node scripts/publish.mjs"
+    "publish:template": "node scripts/publish.mjs",
+    "pack:cli:smoke": "node scripts/pack-cli-smoke.mjs"
   },
   "genxapiPublish": {
     "defaults": {

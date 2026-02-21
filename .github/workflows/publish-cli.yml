@@ -25,6 +25,8 @@ jobs:
         run: npm ci
       - name: Build CLI
         run: npm run build --workspace "@genxapi/cli"
+      - name: Pack smoke test
+        run: npm run pack:cli:smoke
       - name: Publish CLI
         run: npm publish --workspace "@genxapi/cli" --access public --provenance
         env:
