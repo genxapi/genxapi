@@ -53,6 +53,7 @@ async function main() {
     ],
     { cwd: execDir, env: npmEnv }
   );
+  await runCommand("npx", ["--no-install", "@genxapi/cli", "--help"], { cwd: execDir, env: npmEnv });
   await runCommand("npx", ["--no-install", "cli", "--help"], { cwd: execDir, env: npmEnv });
   await runCommand("npx", ["--no-install", "genxapi", "--help"], { cwd: execDir, env: npmEnv });
 

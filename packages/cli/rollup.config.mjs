@@ -5,14 +5,16 @@ import dts from "rollup-plugin-dts";
 
 export default defineConfig([
   {
-    input: "src/index.ts",
-    output: [
-      {
-        file: "dist/index.js",
-        format: "esm",
-        sourcemap: true
-      }
-    ],
+    input: {
+      index: "src/index.ts",
+      cli: "src/cli.ts"
+    },
+    output: {
+      dir: "dist",
+      format: "esm",
+      sourcemap: true,
+      entryFileNames: "[name].js"
+    },
     plugins: [
       del({ targets: "dist/*", hook: "buildStart" }),
       typescript({ tsconfig: "./tsconfig.build.json", outputToFilesystem: true })
@@ -31,6 +33,7 @@ export default defineConfig([
       "node:fs",
       "node:fs/promises",
       "node:path",
+      "node:url",
       "yaml",
       "zod"
     ]
