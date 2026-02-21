@@ -8,8 +8,8 @@
   },
   "type": "module",
   "bin": {
-    "genxapi": "./dist/index.js",
-    "cli": "./dist/index.js"
+    "genxapi": "./bin/cli.js",
+    "cli": "./bin/cli.js"
   },
   "repository": {
     "type": "git",
