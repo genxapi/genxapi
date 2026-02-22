@@ -1,8 +1,30 @@
-# Overview
+# GenX API Overview
 
-`GenxAPI` automates the “client API generator” workflow without locking you to a single engine. It discovers OpenAPI-driven configs, runs the template of your choice (Orval, Kubb, or custom), enforces semantic versioning, and publishes packages through GitHub and npm.
+GenX API is orchestration for API client generation. It discovers OpenAPI-driven configs, runs the template of your choice (Orval, Kubb, or custom), enforces semantic versioning, and publishes packages through GitHub and npm.
+
+## What GenX API is
+
+GenX API is orchestration for API client generation that keeps specs, generators, packaging, and releases aligned.
+
+### Capabilities
+
+- Orchestrates API client generation workflows from a unified config.
+- Supports generator-driven client creation via templates (Orval, Kubb, or custom).
+- Produces ready-to-consume client packages/projects.
+- Automates GitHub and npm workflows where configured.
+- Aligns releases with semantic diffing and versioning.
+
+### Benefits
+
+- Continuous alignment between APIs and clients.
+- Faster delivery cycles with fewer handoffs.
+- Reduced release coordination friction.
+- Better traceability and auditability.
+- Developer autonomy with confidence for consumers.
 
 ## Why it exists
+
+Manual duplication across specs, SDKs, and releases slows teams down. API client generation helps, packaging helps, but coordination still creates friction. GenX API adds orchestration to shift left on API client generation so automation keeps clients and releases aligned.
 
 - Keep SDK generation, versioning, and releases aligned from one config file.
 - Reuse your preferred generator instead of rewriting pipelines.

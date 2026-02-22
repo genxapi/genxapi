@@ -2,13 +2,13 @@
 
 ## Overview
 
-`GenxAPI` is a meta-orchestrator that still behaves like a client API generator from the user’s perspective. It coordinates SDK delivery from OpenAPI specification through to packaged release artefacts: discovering configuration, delegating code generation to the engines defined by your templates, then managing versioning, Git automation, and registry publishing. Configuration is now **unified**—you describe intent once (`httpClient`, `client`, `mode`, `mock`, plugin overrides) and the CLI maps it onto the selected template (`@genxapi/template-orval`, `@genxapi/template-kubb`, or a custom adapter).
+GenX API is orchestration for API client generation that still behaves like a client API generator from the user’s perspective. It coordinates SDK delivery from OpenAPI specification through to packaged release artefacts: discovering configuration, delegating code generation to the engines defined by your templates, then managing versioning, Git automation, and registry publishing. Configuration is **unified** - you describe intent once (`httpClient`, `client`, `mode`, `mock`, plugin overrides) and the CLI maps it onto the selected template (`@genxapi/template-orval`, `@genxapi/template-kubb`, or a custom adapter).
 
 ## Architecture at a glance
 
 ### Component boundaries
 
-| Layer | Owned by `GenxAPI` | Delegated / external |
+| Layer | Owned by GenX API | Delegated / external |
 |-------|---------------------------------|----------------------|
 | CLI, config discovery, command routing | ✅ | |
 | Schema parsing & SDK code generation | | 🧩 Template-provided engines (e.g. Orval, Kubb, OpenAPI Generator) |

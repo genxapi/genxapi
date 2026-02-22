@@ -1,6 +1,6 @@
 # @genxapi/cli
 
-CLI to scaffold, regenerate, synchronise, and publish multiple API clients using the GenxAPI templates.
+CLI to scaffold, regenerate, synchronise, and publish multiple API clients using the GenX API templates.
 
 ## Requirements
 

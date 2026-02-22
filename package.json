@@ -2,7 +2,7 @@
   "name": "@genxapi/genxapi",
   "private": true,
   "version": "0.1.0",
-  "description": "GenxAPI — Automate, orchestrate, and publish SDKs — client api generation faster.",
+  "description": "GenX API - Orchestration for API client generation.",
   "license": "Apache-2.0",
   "engines": {
     "node": ">=24.0.0"

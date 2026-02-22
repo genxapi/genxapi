@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { PREVIEW_QUERY } from "./lib/preview";
 
 const cx = (...classes: (string | undefined | false)[]) => classes.filter(Boolean).join(" ");
 
@@ -52,11 +51,10 @@ export const mdxComponents = {
     const isExternal =
       href.startsWith("http") || href.startsWith("mailto:") || href.startsWith("tel:");
     const normalizedHref = isExternal ? href : normalizeDocHref(href);
-    const targetHref = isExternal ? normalizedHref : withPreview(normalizedHref);
     return isExternal ? (
-      <a {...props} href={targetHref} target="_blank" rel="noreferrer" />
+      <a {...props} href={normalizedHref} target="_blank" rel="noreferrer" />
     ) : (
-      <Link href={targetHref}>{props.children}</Link>
+      <Link href={normalizedHref}>{props.children}</Link>
     );
   },
   pre: (props: any) => (
@@ -110,11 +108,4 @@ function normalizeDocHref(href: string) {
   const hash = hashPart ? `#${hashPart}` : "";
 
   return `${path}${query}${hash}`;
-}
-
-function withPreview(href: string) {
-  if (!href || href.startsWith("#")) return href;
-  if (href.includes("preview=")) return href;
-  const hasQuery = href.includes("?");
-  return `${href}${hasQuery ? "&" : "?"}${PREVIEW_QUERY.replace("?", "")}`;
 }

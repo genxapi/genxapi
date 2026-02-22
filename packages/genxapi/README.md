@@ -1,6 +1,6 @@
 # GenX API
 
-GenX API is an OpenAPI SDK generation CLI you can run with `npx genxapi` to generate API clients.
+GenX API is orchestration for API client generation. Run `npx genxapi` to launch the GenX API CLI without a local install.
 
 ## 🚀 Quick Start
 
@@ -12,7 +12,7 @@ This runs the latest `@genxapi/cli` without requiring a local install.
 
 ## 🧠 What is this package?
 
-- Thin proxy wrapper around the GenX CLI
+- Thin proxy wrapper around the GenX API CLI
 - Improves developer experience with a single entry point
 - Always resolves the latest CLI version
 - No local install required
@@ -25,7 +25,7 @@ This runs the latest `@genxapi/cli` without requiring a local install.
 
 ## 🔎 Keywords
 
-OpenAPI, API client generator, SDK generator, TypeScript codegen, REST API tooling, GenX API.
+API client generation, API orchestration, client release automation, OpenAPI tooling, TypeScript codegen, GenX API.
 
 ## 📦 Node Support
 

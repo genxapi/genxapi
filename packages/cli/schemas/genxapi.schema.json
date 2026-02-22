@@ -1,7 +1,7 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/genxapi/genxapi/main/schemas/genxapi.schema.json",
-  "title": "GenxAPI CLI Configuration",
+  "title": "GenX API CLI Configuration",
   "type": "object",
   "required": ["project", "clients"],
   "properties": {

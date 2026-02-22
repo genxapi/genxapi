@@ -1,6 +1,6 @@
 {
   "name": "genxapi",
-  "description": "GenX API. Run the GenX API client generator with `npx genxapi`. Fast OpenAPI SDK generation and API orchestration for modern TypeScript and REST workflows.",
+  "description": "GenX API. Run orchestration for API client generation with `npx genxapi`. Align configuration, generation, packaging, and releases.",
   "version": "0.1.0",
   "type": "module",
   "license": "Apache-2.0",

@@ -4,7 +4,7 @@ title: "Getting Started"
 
 # Getting Started
 
-Welcome to `GenxAPI`. In a few commands you can turn an OpenAPI specification into a versioned SDK that ships through your CI/CD pipeline. This guide walks through installation, configuration, and validating the first generation locally.
+Welcome to GenX API. Orchestration for API client generation lets you shift left on client delivery. In a few commands you can turn an OpenAPI specification into a versioned SDK that ships through your CI/CD pipeline. This guide walks through installation, configuration, and validating the first generation locally.
 
 ## Prerequisites
 

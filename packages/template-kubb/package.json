@@ -1,7 +1,7 @@
 {
   "name": "@genxapi/template-kubb",
   "version": "0.1.0",
-  "description": "GenxAPI Kubb template — Automate, orchestrate, and publish SDKs — faster.",
+  "description": "GenX API Kubb template - Adapter for API client generation workflows.",
   "license": "MIT",
   "type": "module",
   "repository": "https://github.com/genxapi/genxapi",
