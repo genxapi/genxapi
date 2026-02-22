@@ -88,14 +88,14 @@ export const mdxComponents = {
   pre: (props: any) => (
     <div className="my-pre-block">
       <pre
-        className="overflow-x-auto rounded-2xl border border-border bg-[#0E1326] px-4 py-3 text-sm text-white shadow-inner my-0"
+        className="overflow-x-auto overscroll-x-contain rounded-2xl border border-border bg-[#0E1326] px-3 py-3 sm:px-4 sm:py-3.5 text-xs sm:text-sm leading-relaxed text-white shadow-inner my-0"
         {...props}
       />
     </div>
   ),
   code: (props: any) => (
     <code
-      className="font-mono text-[0.98em] rounded-md bg-primary/10 px-1.5 py-0.5 text-navy"
+      className="font-mono text-[0.95em] font-medium rounded-md bg-primary/10 px-1.5 py-0.5 text-navy"
       {...props}
     />
   ),
