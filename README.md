@@ -224,3 +224,11 @@ Start with the [Getting Started guide](docs/getting-started.md) to wire the orch
 - **Custom engines** — wire in additional generators by extending templates or invoking them from lifecycle hooks.
 
 Templates are versioned alongside the orchestrator so teams can upgrade the workflow without rewriting scripts.
+
+## Licence
+
+This project is licensed under the Apache License 2.0.
+
+See the [LICENSE](./LICENSE) file for details.
+
+Copyright 2025-2026 Eduardo Aparicio Cardenes.
