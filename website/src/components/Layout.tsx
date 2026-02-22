@@ -18,14 +18,14 @@ export function Layout({ children, title, showNav = true, showTitle = false }: P
     <div className="min-h-screen bg-white text-navy">
       <SiteHeader />
 
-      <div className="w-full px-4 py-10">
+      <div className="w-full py-10">
         <div className="container flex gap-6">
           {showNav ? (
             <>
               <aside className="hidden w-64 shrink-0 lg:block">
                 <NavList items={navItems} />
               </aside>
-              <main className="flex-1" suppressHydrationWarning>
+              <main className="flex-1 min-w-0" suppressHydrationWarning>
                 {showTitle && title ? (
                   <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight text-navy">{title}</h1>
                 ) : null}
@@ -33,7 +33,7 @@ export function Layout({ children, title, showNav = true, showTitle = false }: P
               </main>
             </>
           ) : (
-            <main className="w-full" suppressHydrationWarning>
+            <main className="w-full min-w-0" suppressHydrationWarning>
               {showTitle && title ? (
                 <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight text-navy">{title}</h1>
               ) : null}

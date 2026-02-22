@@ -9,7 +9,7 @@ export default function HomePage() {
       <main className="pb-16">
         <section className="relative overflow-hidden py-14 w-full">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/16 via-white to-accent/14 pointer-events-none" />
-          <div className="relative container grid gap-12 px-4 lg:grid-cols-2 lg:items-center">
+          <div className="relative container grid gap-12 lg:grid-cols-2 lg:items-center">
             <div className="space-y-6">
               <p className="text-base font-semibold uppercase tracking-[0.35em] text-primary">GenX API</p>
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
@@ -98,8 +98,8 @@ npx genxapi publish --dry-run`}
           </div>
         </section>
 
-        <section className="px-12 mt-16 w-full bg-gradient-to-br from-primary/10 via-surface to-accent/10 text-navy">
-          <div className="container grid gap-6 md:grid-cols-3 px-4 py-12">
+        <section className="mt-16 w-full bg-gradient-to-br from-primary/10 via-surface to-accent/10 text-navy">
+          <div className="container grid gap-6 py-12 md:grid-cols-3">
             <Card
               title="Single source of truth"
               body="Define clients, templates, and publish targets in genxapi.config.*—the same file drives CI."
