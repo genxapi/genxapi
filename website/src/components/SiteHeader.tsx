@@ -17,15 +17,15 @@ export function SiteHeader({ sticky = true }: Props) {
           <div className="h-11 w-11 flex items-center justify-center overflow-hidden">
             <Image
               src="/assets/genxapi-logo.png"
-              alt="GenxAPI logo"
+              alt="GenX API logo"
               width={44}
               height={44}
               priority
             />
           </div>
           <div>
-            <div className="text-sm font-semibold text-primary">GenxAPI</div>
-            <div className="text-sm text-muted">API client orchestration</div>
+            <div className="text-sm font-semibold text-primary">GenX API</div>
+            <div className="text-sm text-muted">Orchestration for API client generation</div>
           </div>
         </Link>
         <div className="flex flex-wrap items-center gap-3 justify-end">

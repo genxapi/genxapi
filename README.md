@@ -1,16 +1,36 @@
-# GenxAPI
+# GenX API
 
-> Automate, orchestrate, and publish SDKs — client api generation faster..
+> Orchestration for API client generation.
 
-`GenxAPI` is a meta-orchestrator that delivers the “client API generator” experience without locking you to a single engine. It discovers your OpenAPI-driven configuration, coordinates code generation for multiple clients, enforces semantic versioning, and pushes releases to GitHub and npm without bespoke scripts. First-party templates currently bundle Orval and Kubb adapters, and you can layer in custom engines through hooks or bespoke templates.
+GenX API is an orchestrator that aligns API client generation, packaging, and release automation across teams. It discovers your OpenAPI-driven configuration, coordinates multiple generators, enforces semantic versioning, and pushes releases to GitHub and npm without bespoke scripts. First-party templates bundle Orval and Kubb adapters, and you can layer in custom engines through hooks or bespoke templates.
 
 > 💡 Configuration lives in `genxapi.config.{json,ts}`. Commit it so local runs and CI pipelines stay aligned.
 
 ---
 
+## What GenX API is
+
+GenX API is orchestration for API client generation that keeps specs, generators, packaging, and releases aligned.
+
+### Capabilities
+
+- Orchestrates API client generation workflows from a unified config.
+- Supports generator-driven client creation via templates (Orval, Kubb, or custom).
+- Produces ready-to-consume client packages/projects with consistent scaffolding.
+- Automates GitHub and npm release workflows where configured.
+- Aligns releases with semantic diffing and versioning.
+
+### Benefits
+
+- Continuous alignment between APIs and clients.
+- Faster delivery cycles with fewer handoffs.
+- Reduced release coordination friction.
+- Better traceability and auditability of changes.
+- Developer autonomy with confidence for consumers.
+
 ## Why this orchestrator exists
 
-Maintaining a fleet of SDKs is labour-intensive. Specs drift faster than client code, release steps are repetitive, and CI pipelines are brittle. This project keeps the moving parts aligned so teams can ship client updates confidently and repeatedly:
+Manual duplication across specs, SDKs, and releases slows teams down. API client generation helps, packaging helps, but coordination still creates friction. GenX API adds orchestration to shift left on API client generation so generation, packaging, and releases stay aligned from one config file.
 
 - **Single source of truth** for generation, versioning, and publishing.
 - **Consistent automation** across repositories and CI providers.
@@ -20,7 +40,7 @@ Maintaining a fleet of SDKs is labour-intensive. Specs drift faster than client 
 
 ## What it does
 
-- Discovers multi-client configs and invokes the generators defined by your templates—shipped ones include Orval/Kubb adapters, but you can register alternatives—so the orchestrator still behaves like a full client API generator at the workflow level.
+- Discovers multi-client configs and invokes the generators defined by your templates (Orval/Kubb adapters ship in-repo, but you can register alternatives).
 - Applies reusable templates, hooks, and post-processing to keep scaffolded clients uniform.
 - Calculates semantic version bumps from OpenAPI diffs and writes changelog metadata.
 - Commits, pushes, and raises pull requests; creates GitHub releases; publishes to public or private npm registries.
@@ -39,7 +59,7 @@ Maintaining a fleet of SDKs is labour-intensive. Specs drift faster than client 
 
 ```
 ┌────────────┐    configure     ┌─────────────┐    orchestrate    ┌──────────────┐
-│ OpenAPI    │ ──► config file ─►   GenxAPI   │ ──► git/npm ▷ ci ─► Released SDK │
+│ OpenAPI    │ ──► config file ─►  GenX API  │ ──► git/npm ▷ ci ─► Released SDK │
 │ documents  │                   (CLI binary) │                    artefacts     │
 └────────────┘                                  └─────────────┬────┴──────────────┘
                                                               │

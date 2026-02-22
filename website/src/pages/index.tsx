@@ -11,17 +11,16 @@ export default function HomePage() {
           <div className="absolute inset-0 bg-gradient-to-br from-primary/16 via-white to-accent/14 pointer-events-none" />
           <div className="relative container grid gap-12 px-4 lg:grid-cols-2 lg:items-center">
             <div className="space-y-6">
-              <p className="text-base font-semibold uppercase tracking-[0.35em] text-primary">GenxAPI</p>
+              <p className="text-base font-semibold uppercase tracking-[0.35em] text-primary">GenX API</p>
               <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                Public launch · Available now
+                Public launch - Available now
               </div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.04] text-navy">
                 Generate, version, and ship SDKs without bespoke scripts.
               </h1>
               <p className="max-w-2xl text-xl md:text-2xl text-muted">
-                GenxAPI is public and available now. Orchestrate Orval, Kubb, or custom templates from
-                one config. Keep OpenAPI specs, semantic versioning, and publishing in lockstep—locally
-                and in CI.
+                GenX API is public and available now. Orchestration for API client generation that keeps
+                templates, packaging, and releases aligned across teams, locally and in CI.
               </p>
               <div className="flex flex-wrap items-center gap-3">
                 <Link
@@ -53,20 +52,23 @@ export default function HomePage() {
                   npm CLI
                 </a>
                 <span className="text-sm font-semibold text-muted">
-                  Public release · GitHub + npm ready
+                  Public release - GitHub + npm ready
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
-                {["Multi-client aware", "CLI-first (Node 20+)", "Templates: Orval · Kubb · custom"].map(
-                  (label) => (
-                    <span
-                      key={label}
-                      className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-sm font-semibold text-navy"
-                    >
-                      {label}
-                    </span>
-                  )
-                )}
+                {[
+                  "Shift left on API client generation",
+                  "Multi-client aware",
+                  "CLI-first (Node 20+)",
+                  "Templates: Orval, Kubb, custom"
+                ].map((label) => (
+                  <span
+                    key={label}
+                    className="rounded-full border border-primary/20 bg-primary/10 px-3 py-1.5 text-sm font-semibold text-navy"
+                  >
+                    {label}
+                  </span>
+                ))}
               </div>
             </div>
             <div className="grid gap-4">

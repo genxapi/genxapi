@@ -2,9 +2,9 @@ import type { AppProps } from "next/app";
 import Head from "next/head";
 import "../styles/globals.css";
 
-const META_TITLE = "GenxAPI — Public SDK orchestration for OpenAPI";
+const META_TITLE = "GenX API - Orchestration for API client generation";
 const META_DESCRIPTION =
-  "GenxAPI is public and available now. Generate, version, and publish SDKs from OpenAPI with a unified CLI and templates.";
+  "GenX API is public and available now. Orchestration for API client generation with unified configuration, templates, and release automation.";
 const SITE_URL = "https://genxapi.dev";
 const OG_IMAGE = `${SITE_URL}/assets/genxapi-logo.png`;
 

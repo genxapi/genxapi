@@ -4,7 +4,7 @@ title: "Versioning & Releases"
 
 # Versioning & Releases
 
-Consistent versioning keeps generated SDKs trustworthy. This guide covers semantic versioning, changelog automation, and release workflows using `GenxAPI`.
+Consistent versioning keeps generated SDKs trustworthy. This guide covers semantic versioning, changelog automation, and release workflows using GenX API.
 
 ## Semantic Versioning Principles
 

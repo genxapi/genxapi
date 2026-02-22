@@ -29,4 +29,4 @@ npm run typecheck
 5. Use semantic-release commit conventions (`feat`, `fix`, `chore`) guided by the swagger diff analyzer.
 6. Publish internal packages with `npm run npm-publish --workspace <package>` when ready; packages publish publicly by default — adjust scripts if you need private registries.
 
-Thank you for helping improve GenxAPI!
+Thank you for helping improve GenX API!

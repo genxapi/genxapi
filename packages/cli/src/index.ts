@@ -351,7 +351,7 @@ const rootRoutes = buildRouteMap<"generate" | "publish", CliContext>({
     publish: publishCommand
   },
   docs: {
-    brief: "GenxAPI automation CLI"
+    brief: "GenX API automation CLI"
   }
 });
 
