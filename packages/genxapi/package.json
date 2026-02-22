@@ -1,10 +1,29 @@
 {
   "name": "genxapi",
+  "description": "GenX API command-line tooling.",
   "version": "0.1.0",
   "type": "module",
   "bin": {
     "genxapi": "./bin/index.js"
   },
+  "homepage": "https://genxapi.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/genxapi/genxapi.git",
+    "directory": "packages/genxapi"
+  },
+  "bugs": {
+    "url": "https://github.com/genxapi/genxapi/issues"
+  },
+  "keywords": [
+    "genxapi",
+    "api",
+    "codegen",
+    "sdk",
+    "openapi",
+    "cli",
+    "proxy"
+  ],
   "engines": {
     "node": ">=18"
   },
