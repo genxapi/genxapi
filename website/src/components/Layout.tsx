@@ -1,7 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { getNav, type NavItem } from "../lib/nav";
-import { PREVIEW_QUERY } from "../lib/preview";
+import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
 
 type Props = {
@@ -42,6 +42,7 @@ export function Layout({ children, title, showNav = true, showTitle = false }: P
           )}
         </div>
       </div>
+      <SiteFooter />
     </div>
   );
 }
@@ -82,7 +83,7 @@ function NavLink({ item, secondary }: { item: NavItem; secondary?: boolean }) {
     );
   }
 
-  const href = item.href ? ensurePreview(item.href) : null;
+  const href = item.href ?? null;
 
   return href ? (
     <Link className={className} href={href}>
@@ -91,11 +92,4 @@ function NavLink({ item, secondary }: { item: NavItem; secondary?: boolean }) {
   ) : (
     <span className={className}>{item.title}</span>
   );
-}
-
-function ensurePreview(href: string) {
-  if (href.startsWith("http")) return href;
-  if (href.includes("preview=")) return href;
-  const hasQuery = href.includes("?");
-  return `${href}${hasQuery ? "&" : "?"}${PREVIEW_QUERY.replace("?", "")}`;
 }

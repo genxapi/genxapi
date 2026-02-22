@@ -1,15 +1,8 @@
 import Link from "next/link";
-import { ComingSoon } from "../components/ComingSoon";
+import { SiteFooter } from "../components/SiteFooter";
 import { SiteHeader } from "../components/SiteHeader";
-import { usePreviewGate } from "../lib/preview";
 
 export default function HomePage() {
-  const previewEnabled = usePreviewGate();
-
-  if (!previewEnabled) {
-    return <ComingSoon />;
-  }
-
   return (
     <div className="min-h-screen bg-white text-navy">
       <SiteHeader sticky={false} />
@@ -19,28 +12,48 @@ export default function HomePage() {
           <div className="relative container grid gap-12 px-4 lg:grid-cols-2 lg:items-center">
             <div className="space-y-6">
               <p className="text-base font-semibold uppercase tracking-[0.35em] text-primary">GenxAPI</p>
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                Public launch · Available now
+              </div>
               <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.04] text-navy">
                 Generate, version, and ship SDKs without bespoke scripts.
               </h1>
               <p className="max-w-2xl text-xl md:text-2xl text-muted">
-                Orchestrate Orval, Kubb, or custom templates from one config. Keep OpenAPI specs,
-                semantic versioning, and publishing in lockstep—locally and in CI.
+                GenxAPI is public and available now. Orchestrate Orval, Kubb, or custom templates from
+                one config. Keep OpenAPI specs, semantic versioning, and publishing in lockstep—locally
+                and in CI.
               </p>
               <div className="flex flex-wrap items-center gap-3">
                 <Link
                   className="rounded-2xl bg-primary px-6 py-3.5 text-lg font-semibold text-white shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition"
-                  href="/docs/getting-started?preview=genxapi"
+                  href="/docs/getting-started"
                 >
-                  Get started
+                  Quickstart
                 </Link>
                 <Link
                   className="rounded-2xl border border-border bg-surface px-6 py-3.5 text-lg font-semibold text-navy hover:border-primary/40 hover:text-primary transition"
-                  href="/docs/configuration?preview=genxapi"
+                  href="/overview"
                 >
-                  Configuration
+                  Documentation
                 </Link>
+                <a
+                  className="rounded-2xl border border-border bg-white px-5 py-3 text-sm font-semibold text-navy hover:border-primary/40 hover:text-primary transition"
+                  href="https://github.com/genxapi/genxapi"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  GitHub
+                </a>
+                <a
+                  className="rounded-2xl border border-border bg-white px-5 py-3 text-sm font-semibold text-navy hover:border-primary/40 hover:text-primary transition"
+                  href="https://www.npmjs.com/package/@genxapi/cli"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  npm CLI
+                </a>
                 <span className="text-sm font-semibold text-muted">
-                  SemVer aware · GitHub + npm ready
+                  Public release · GitHub + npm ready
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -67,17 +80,17 @@ npx genxapi publish --dry-run`}
               <FeatureRow
                 title="Unified configuration"
                 body="JSON or TypeScript with schema hints; per-client overrides without cloning files."
-                href="/docs/configuration?preview=genxapi"
+                href="/docs/configuration"
               />
               <FeatureRow
                 title="Template freedom"
                 body="Default adapters ship Orval and Kubb, plus hooks for custom engines."
-                href="/docs/templates?preview=genxapi"
+                href="/docs/templates"
               />
               <FeatureRow
                 title="CI friendly"
                 body="Cache-aware installs, dry-runs, and publish helpers for GitHub/npm."
-                href="/docs/ci-integration?preview=genxapi"
+                href="/docs/ci-integration"
               />
             </div>
           </div>
@@ -88,21 +101,22 @@ npx genxapi publish --dry-run`}
             <Card
               title="Single source of truth"
               body="Define clients, templates, and publish targets in genxapi.config.*—the same file drives CI."
-              href="/docs/configuration?preview=genxapi"
+              href="/docs/configuration"
             />
             <Card
               title="Swap engines fast"
               body="Use Orval, Kubb, or bespoke templates. Toggle with flags or config without rewriting pipelines."
-              href="/docs/templates?preview=genxapi"
+              href="/docs/templates"
             />
             <Card
               title="Release automation"
               body="OpenAPI diffs, SemVer hints, and publish helpers for GitHub + npm registries."
-              href="/docs/versioning?preview=genxapi"
+              href="/docs/versioning"
             />
           </div>
         </section>
       </main>
+      <SiteFooter />
     </div>
   );
 }
@@ -128,7 +142,7 @@ function StatCard({ title, body, code }: { title: string; body: string; code: st
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-lg font-semibold text-navy">{title}</h3>
         <span className="rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-navy">
-          Preview
+          Available now
         </span>
       </div>
       <p className="mt-1 text-sm text-muted">{body}</p>
