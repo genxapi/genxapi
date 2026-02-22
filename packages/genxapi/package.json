@@ -1,6 +1,6 @@
 {
   "name": "genxapi",
-  "description": "GenX API command-line tooling.",
+  "description": "GenX API. Run the GenX API client generator with `npx genxapi`. Fast OpenAPI SDK generation and API orchestration for modern TypeScript and REST workflows.",
   "version": "0.1.0",
   "type": "module",
   "bin": {
@@ -18,10 +18,19 @@
   "keywords": [
     "genxapi",
     "api",
-    "codegen",
-    "sdk",
+    "api-client",
+    "api-client-generator",
     "openapi",
+    "openapi-generator",
+    "sdk",
+    "sdk-generator",
+    "codegen",
+    "typescript",
+    "rest",
+    "api-orchestration",
+    "developer-tools",
     "cli",
+    "npx",
     "proxy"
   ],
   "engines": {
