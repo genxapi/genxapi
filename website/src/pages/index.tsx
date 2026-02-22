@@ -7,36 +7,40 @@ export default function HomePage() {
     <div className="min-h-screen bg-white text-navy">
       <SiteHeader sticky={false} />
       <main className="pb-16">
-        <section className="relative overflow-hidden py-14 w-full">
+        <section className="relative overflow-hidden py-12 sm:py-14 w-full">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/16 via-white to-accent/14 pointer-events-none" />
-          <div className="relative container grid gap-12 lg:grid-cols-2 lg:items-center">
-            <div className="space-y-6">
-              <p className="text-base font-semibold uppercase tracking-[0.35em] text-primary">GenX API</p>
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                Public launch - Available now
+          <div className="relative container grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
+            <div className="space-y-6 sm:space-y-7">
+              <div className="space-y-2">
+                <p className="text-xs sm:text-sm md:text-base font-semibold uppercase tracking-[0.3em] text-primary">
+                  GenX API
+                </p>
+                <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                  Public launch - Available now
+                </div>
               </div>
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold leading-[1.04] text-navy">
+              <h1 className="text-[clamp(2.25rem,4.5vw+1rem,4.75rem)] font-bold leading-[1.06] tracking-[-0.01em] text-navy max-w-[22ch]">
                 Generate, version, and ship SDKs without bespoke scripts.
               </h1>
-              <p className="max-w-2xl text-xl md:text-2xl text-muted">
+              <p className="max-w-xl sm:max-w-2xl text-lg sm:text-xl lg:text-2xl text-muted">
                 GenX API is public and available now. Orchestration for API client generation that keeps
                 templates, packaging, and releases aligned across teams, locally and in CI.
               </p>
               <div className="flex flex-wrap items-center gap-3">
                 <Link
-                  className="rounded-2xl bg-primary px-6 py-3.5 text-lg font-semibold text-white shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition"
+                  className="rounded-2xl bg-primary px-5 py-3 text-base font-semibold text-white shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition sm:px-6 sm:py-3.5 sm:text-lg"
                   href="/docs/getting-started"
                 >
                   Quickstart
                 </Link>
                 <Link
-                  className="rounded-2xl border border-border bg-surface px-6 py-3.5 text-lg font-semibold text-navy hover:border-primary/40 hover:text-primary transition"
+                  className="rounded-2xl border border-border bg-surface px-5 py-3 text-base font-semibold text-navy hover:border-primary/40 hover:text-primary transition sm:px-6 sm:py-3.5 sm:text-lg"
                   href="/overview"
                 >
                   Documentation
                 </Link>
                 <a
-                  className="rounded-2xl border border-border bg-white px-5 py-3 text-sm font-semibold text-navy hover:border-primary/40 hover:text-primary transition"
+                  className="rounded-2xl border border-border bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:border-primary/40 hover:text-primary transition"
                   href="https://github.com/genxapi/genxapi"
                   target="_blank"
                   rel="noreferrer"
@@ -44,7 +48,7 @@ export default function HomePage() {
                   GitHub
                 </a>
                 <a
-                  className="rounded-2xl border border-border bg-white px-5 py-3 text-sm font-semibold text-navy hover:border-primary/40 hover:text-primary transition"
+                  className="rounded-2xl border border-border bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:border-primary/40 hover:text-primary transition"
                   href="https://www.npmjs.com/package/@genxapi/cli"
                   target="_blank"
                   rel="noreferrer"
