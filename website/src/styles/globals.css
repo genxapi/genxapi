@@ -19,6 +19,22 @@
   .container {
     @apply mx-auto w-full;
     max-width: 100%;
+    padding-left: 1.25rem;
+    padding-right: 1.25rem;
+  }
+
+  @media (min-width: 640px) {
+    .container {
+      padding-left: 1.5rem;
+      padding-right: 1.5rem;
+    }
+  }
+
+  @media (min-width: 1024px) {
+    .container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
   }
 
   @media (min-width: 1400px) {
@@ -73,8 +89,9 @@ code {
   color: #e9edf8;
   border-radius: 1rem;
   border: 1px solid #0e1326;
-  padding: 1.1rem 1.25rem;
+  padding: 1rem 1rem;
   overflow-x: auto;
+  line-height: 1.6;
 }
 
 .prose pre code {
@@ -84,15 +101,25 @@ code {
 }
 
 .prose > .my-pre-block {
-  margin-top: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1.1rem;
 }
 
 .prose > .my-p-block {
-  margin: 0.5rem 0;
+  margin: 0.9rem 0;
 }
+
+@media (min-width: 768px) {
+  .prose > .my-p-block {
+    margin: 1.1rem 0;
+  }
+}
+
+.prose > .my-ul-block {
+  margin: 0.9rem 0 1.1rem;
+}
+
 .prose > .my-ul-block > li {
-  padding-left: 2rem;
-  text-decoration: dashed;
-  margin-bottom: 1rem;
+  padding-left: 0.25rem;
+  margin: 0.3rem 0;
 }

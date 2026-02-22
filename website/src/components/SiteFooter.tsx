@@ -1,18 +1,24 @@
 import Link from "next/link";
+import { focusRing } from "../lib/ui";
 
 export function SiteFooter() {
+  const footerLinkClass = `text-primary hover:text-navy transition rounded-md ${focusRing}`;
+
   return (
     <footer className="border-t border-border bg-white/90">
-      <div className="container flex flex-col gap-4 px-6 py-8 md:flex-row md:items-center md:justify-between">
+      <div className="container flex flex-col gap-4 py-8 md:flex-row md:items-center md:justify-between">
         <div className="space-y-2">
           <div className="text-sm font-semibold text-navy">GenX API</div>
           <div className="text-sm text-muted">Public and available now.</div>
           <div className="flex flex-wrap items-center gap-3 text-sm font-semibold">
-            <Link className="text-primary hover:text-navy transition" href="/docs/getting-started">
+            <Link
+              className={footerLinkClass}
+              href="/docs/getting-started"
+            >
               Quickstart
             </Link>
             <a
-              className="text-primary hover:text-navy transition"
+              className={footerLinkClass}
               href="https://github.com/genxapi/genxapi"
               target="_blank"
               rel="noreferrer"
@@ -20,7 +26,7 @@ export function SiteFooter() {
               GitHub
             </a>
             <a
-              className="text-primary hover:text-navy transition"
+              className={footerLinkClass}
               href="https://www.npmjs.com/package/@genxapi/cli"
               target="_blank"
               rel="noreferrer"
@@ -33,7 +39,7 @@ export function SiteFooter() {
           <div>
             Source code licensed under the{" "}
             <a
-              className="text-primary hover:text-navy transition"
+              className={footerLinkClass}
               href="https://github.com/genxapi/genxapi/blob/main/LICENSE"
               target="_blank"
               rel="noreferrer"

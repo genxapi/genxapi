@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { getNav, type NavItem } from "../lib/nav";
+import { focusRing, surfaceCard } from "../lib/ui";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
 
@@ -13,31 +14,67 @@ type Props = {
 
 export function Layout({ children, title, showNav = true, showTitle = false }: Props) {
   const navItems = getNav();
+  const panelClass = `${surfaceCard} p-4 sm:p-5`;
+  const summaryClass = `cursor-pointer text-sm font-semibold text-navy ${focusRing}`;
 
   return (
     <div className="min-h-screen bg-white text-navy">
       <SiteHeader />
 
-      <div className="w-full px-4 py-10">
-        <div className="container flex gap-6">
+      <div className="w-full py-10 sm:py-12 lg:py-14">
+        <div className="container flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-12">
           {showNav ? (
             <>
-              <aside className="hidden w-64 shrink-0 lg:block">
+              <aside className="hidden w-60 shrink-0 lg:block xl:w-64">
                 <NavList items={navItems} />
               </aside>
-              <main className="flex-1" suppressHydrationWarning>
-                {showTitle && title ? (
-                  <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight text-navy">{title}</h1>
-                ) : null}
-                <div className="prose prose-xl max-w-none">{children}</div>
+              <main
+                id="main-content"
+                className="flex-1 min-w-0"
+                tabIndex={-1}
+                suppressHydrationWarning
+              >
+                <div className="space-y-7 md:space-y-9">
+                  <div className="lg:hidden">
+                    <details
+                      className={panelClass}
+                      suppressHydrationWarning
+                    >
+                      <summary
+                        className={summaryClass}
+                        aria-controls="mobile-docs-nav"
+                      >
+                        Docs navigation
+                      </summary>
+                      <div id="mobile-docs-nav" className="mt-4 border-t border-border/60 pt-4">
+                        <NavList items={navItems} variant="mobile" />
+                      </div>
+                    </details>
+                  </div>
+                  {showTitle && title ? (
+                    <h1 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight text-navy">
+                      {title}
+                    </h1>
+                  ) : null}
+                  <div className="prose prose-xl max-w-[70ch]">{children}</div>
+                </div>
               </main>
             </>
           ) : (
-            <main className="w-full" suppressHydrationWarning>
-              {showTitle && title ? (
-                <h1 className="mb-6 text-5xl font-bold leading-tight tracking-tight text-navy">{title}</h1>
-              ) : null}
-              <div className="prose prose-xl max-w-none">{children}</div>
+            <main
+              id="main-content"
+              className="w-full min-w-0"
+              tabIndex={-1}
+              suppressHydrationWarning
+            >
+              <div className="space-y-7 md:space-y-9">
+                {showTitle && title ? (
+                  <h1 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight text-navy">
+                    {title}
+                  </h1>
+                ) : null}
+                <div className="prose prose-xl max-w-[70ch]">{children}</div>
+              </div>
             </main>
           )}
         </div>
@@ -47,15 +84,21 @@ export function Layout({ children, title, showNav = true, showTitle = false }: P
   );
 }
 
-function NavList({ items }: { items: NavItem[] }) {
+function NavList({ items, variant = "sidebar" }: { items: NavItem[]; variant?: "sidebar" | "mobile" }) {
+  const navClass =
+    variant === "mobile"
+      ? "p-0"
+      : `sticky top-24 ${surfaceCard} p-4 sm:p-5`;
+  const listClass = variant === "mobile" ? "space-y-3 text-sm" : "space-y-3 text-sm";
+
   return (
-    <nav className="sticky top-20 bg-white/90 p-3">
-      <ul className="space-y-2 text-md">
+    <nav className={navClass} aria-label="Docs">
+      <ul className={listClass}>
         {items.map((item) => (
           <li key={item.title}>
             <NavLink item={item} />
             {item.children ? (
-              <ul className="mt-1 space-y-1 border-l border-border pl-3">
+              <ul className="mt-2 space-y-2 border-l border-border pl-3">
                 {item.children.map((child) => (
                   <li key={child.title}>
                     <NavLink item={child} secondary />
@@ -71,9 +114,10 @@ function NavList({ items }: { items: NavItem[] }) {
 }
 
 function NavLink({ item, secondary }: { item: NavItem; secondary?: boolean }) {
+  const baseClass = `block rounded-md px-3 py-2 transition ${focusRing}`;
   const className = secondary
-    ? "text-muted hover:text-primary"
-    : "font-semibold text-navy hover:text-primary";
+    ? `${baseClass} text-muted hover:text-primary`
+    : `${baseClass} font-semibold text-navy hover:text-primary`;
 
   if (item.external && item.href) {
     return (
