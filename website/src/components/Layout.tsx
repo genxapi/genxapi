@@ -32,10 +32,13 @@ export function Layout({ children, title, showNav = true, showTitle = false }: P
                       className="rounded-2xl border border-border bg-white/90 p-4 shadow-sm"
                       suppressHydrationWarning
                     >
-                      <summary className="cursor-pointer text-sm font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white">
+                      <summary
+                        className="cursor-pointer text-sm font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                        aria-controls="mobile-docs-nav"
+                      >
                         Docs navigation
                       </summary>
-                      <div className="mt-4 border-t border-border/60 pt-4">
+                      <div id="mobile-docs-nav" className="mt-4 border-t border-border/60 pt-4">
                         <NavList items={navItems} variant="mobile" />
                       </div>
                     </details>
@@ -99,7 +102,7 @@ function NavList({ items, variant = "sidebar" }: { items: NavItem[]; variant?: "
 
 function NavLink({ item, secondary }: { item: NavItem; secondary?: boolean }) {
   const baseClass =
-    "block rounded-md px-2 py-1 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
+    "block rounded-md px-2.5 py-1.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
   const className = secondary
     ? `${baseClass} text-muted hover:text-primary`
     : `${baseClass} font-semibold text-navy hover:text-primary`;

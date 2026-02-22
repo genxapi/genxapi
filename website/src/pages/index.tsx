@@ -28,19 +28,19 @@ export default function HomePage() {
               </p>
               <div className="flex flex-wrap items-center gap-3">
                 <Link
-                  className="rounded-2xl bg-primary px-5 py-3 text-base font-semibold text-white shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition sm:px-6 sm:py-3.5 sm:text-lg"
+                  className="rounded-2xl bg-primary px-5 py-3 text-base font-semibold text-white shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition sm:px-6 sm:py-3.5 sm:text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
                   href="/docs/getting-started"
                 >
                   Quickstart
                 </Link>
                 <Link
-                  className="rounded-2xl border border-border bg-surface px-5 py-3 text-base font-semibold text-navy hover:border-primary/40 hover:text-primary transition sm:px-6 sm:py-3.5 sm:text-lg"
+                  className="rounded-2xl border border-border bg-surface px-5 py-3 text-base font-semibold text-navy hover:border-primary/40 hover:text-primary transition sm:px-6 sm:py-3.5 sm:text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
                   href="/overview"
                 >
                   Documentation
                 </Link>
                 <a
-                  className="rounded-2xl border border-border bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:border-primary/40 hover:text-primary transition"
+                  className="rounded-2xl border border-border bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:border-primary/40 hover:text-primary transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
                   href="https://github.com/genxapi/genxapi"
                   target="_blank"
                   rel="noreferrer"
@@ -48,7 +48,7 @@ export default function HomePage() {
                   GitHub
                 </a>
                 <a
-                  className="rounded-2xl border border-border bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:border-primary/40 hover:text-primary transition"
+                  className="rounded-2xl border border-border bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:border-primary/40 hover:text-primary transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
                   href="https://www.npmjs.com/package/@genxapi/cli"
                   target="_blank"
                   rel="noreferrer"
@@ -130,7 +130,7 @@ npx genxapi publish --dry-run`}
 function Card({ title, body, href }: { title: string; body: string; href: string }) {
   return (
     <Link
-      className="block h-full rounded-2xl border border-border bg-white/90 p-5 shadow-sm transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-md"
+      className="block h-full rounded-2xl border border-border bg-white/90 p-5 shadow-sm transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
       href={href}
     >
       <h3 className="text-xl font-semibold text-navy">{title}</h3>
@@ -162,7 +162,7 @@ function StatCard({ title, body, code }: { title: string; body: string; code: st
 function FeatureRow({ title, body, href }: { title: string; body: string; href: string }) {
   return (
     <Link
-      className="flex items-start justify-between gap-3 rounded-xl border border-border bg-surface/70 px-4 py-3 text-left transition hover:-translate-y-0.5 hover:border-primary/40"
+      className="flex items-start justify-between gap-3 rounded-xl border border-border bg-surface/70 px-4 py-3 text-left transition hover:-translate-y-0.5 hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
       href={href}
     >
       <div>

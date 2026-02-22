@@ -8,11 +8,14 @@ export function SiteFooter() {
           <div className="text-sm font-semibold text-navy">GenX API</div>
           <div className="text-sm text-muted">Public and available now.</div>
           <div className="flex flex-wrap items-center gap-3 text-sm font-semibold">
-            <Link className="text-primary hover:text-navy transition" href="/docs/getting-started">
+            <Link
+              className="text-primary hover:text-navy transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white rounded-md"
+              href="/docs/getting-started"
+            >
               Quickstart
             </Link>
             <a
-              className="text-primary hover:text-navy transition"
+              className="text-primary hover:text-navy transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white rounded-md"
               href="https://github.com/genxapi/genxapi"
               target="_blank"
               rel="noreferrer"
@@ -20,7 +23,7 @@ export function SiteFooter() {
               GitHub
             </a>
             <a
-              className="text-primary hover:text-navy transition"
+              className="text-primary hover:text-navy transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white rounded-md"
               href="https://www.npmjs.com/package/@genxapi/cli"
               target="_blank"
               rel="noreferrer"
@@ -33,7 +36,7 @@ export function SiteFooter() {
           <div>
             Source code licensed under the{" "}
             <a
-              className="text-primary hover:text-navy transition"
+              className="text-primary hover:text-navy transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white rounded-md"
               href="https://github.com/genxapi/genxapi/blob/main/LICENSE"
               target="_blank"
               rel="noreferrer"
