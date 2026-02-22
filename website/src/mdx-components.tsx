@@ -1,6 +1,5 @@
 import Link from "next/link";
-
-const cx = (...classes: (string | undefined | false)[]) => classes.filter(Boolean).join(" ");
+import { cx, focusRing, focusRingOnDark } from "./lib/ui";
 
 export const mdxComponents = {
   h1: (props: any) => {
@@ -66,7 +65,8 @@ export const mdxComponents = {
       href.startsWith("http") || href.startsWith("mailto:") || href.startsWith("tel:");
     const normalizedHref = isExternal ? href : normalizeDocHref(href);
     const linkClass = cx(
-      "text-primary underline underline-offset-4 decoration-primary/40 transition hover:text-navy hover:decoration-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white",
+      "text-primary underline underline-offset-4 decoration-primary/40 transition hover:text-navy hover:decoration-primary",
+      focusRing,
       className
     );
     return isExternal ? (
@@ -88,7 +88,10 @@ export const mdxComponents = {
   pre: (props: any) => (
     <div className="my-pre-block">
       <pre
-        className="overflow-x-auto overscroll-x-contain rounded-2xl border border-border bg-[#0E1326] px-3 py-3 sm:px-4 sm:py-3.5 text-xs sm:text-sm leading-relaxed text-white shadow-inner my-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0E1326]"
+        className={cx(
+          "overflow-x-auto overscroll-x-contain rounded-2xl border border-border bg-[#0E1326] px-3 py-3 sm:px-4 sm:py-3.5 text-xs sm:text-sm leading-relaxed text-white shadow-inner my-0",
+          focusRingOnDark
+        )}
         tabIndex={0}
         {...props}
       />

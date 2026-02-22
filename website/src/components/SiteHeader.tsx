@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { focusRing } from "../lib/ui";
 
 type Props = {
   sticky?: boolean;
@@ -9,6 +10,11 @@ export function SiteHeader({ sticky = true }: Props) {
   const headerClass = sticky
     ? "w-full sticky top-0 z-30 border-b border-border bg-white/90 backdrop-blur"
     : "w-full border-b border-border bg-white/90";
+  const brandClass = `flex items-center gap-3 rounded-lg ${focusRing}`;
+  const navButtonBase = `shrink-0 rounded-xl text-sm font-semibold transition ${focusRing}`;
+  const navButtonOutline = `${navButtonBase} border border-border bg-white/90 px-4 py-2.5 text-navy hover:border-primary/40 hover:text-primary`;
+  const navButtonPrimary = `${navButtonBase} bg-primary px-4 py-2.5 text-white shadow hover:shadow-lg`;
+  const navButtonGhost = `${navButtonBase} px-3 py-2.5 text-muted hover:text-primary`;
 
   return (
     <header className={headerClass}>
@@ -21,7 +27,7 @@ export function SiteHeader({ sticky = true }: Props) {
       <div className="container">
         <div className="flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between">
           <Link
-            className="flex items-center gap-3 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white rounded-lg"
+            className={brandClass}
             href="/"
           >
             <div className="h-11 w-11 flex items-center justify-center overflow-hidden shrink-0">
@@ -45,19 +51,19 @@ export function SiteHeader({ sticky = true }: Props) {
             aria-label="Primary"
           >
             <Link
-              className="shrink-0 rounded-xl border border-border bg-white/90 px-4 py-2.5 text-sm font-semibold text-navy hover:border-primary/40 hover:text-primary transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              className={navButtonOutline}
               href="/overview"
             >
               Overview
             </Link>
             <Link
-              className="shrink-0 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow hover:shadow-lg transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              className={navButtonPrimary}
               href="/docs/getting-started"
             >
               Docs
             </Link>
             <a
-              className="shrink-0 rounded-xl px-3 py-2.5 text-sm font-semibold text-muted hover:text-primary transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              className={navButtonGhost}
               href="https://github.com/genxapi/genxapi"
               target="_blank"
               rel="noreferrer"
@@ -65,7 +71,7 @@ export function SiteHeader({ sticky = true }: Props) {
               GitHub
             </a>
             <a
-              className="shrink-0 rounded-xl px-3 py-2.5 text-sm font-semibold text-muted hover:text-primary transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+              className={navButtonGhost}
               href="https://www.npmjs.com/package/@genxapi/cli"
               target="_blank"
               rel="noreferrer"

@@ -1,6 +1,16 @@
 import Link from "next/link";
 import { SiteFooter } from "../components/SiteFooter";
 import { SiteHeader } from "../components/SiteHeader";
+import { focusRing, focusRingSoft, focusRingStrong, surfaceCard, surfaceSoft } from "../lib/ui";
+
+const ctaBase =
+  "rounded-2xl px-5 py-3 text-base font-semibold transition sm:px-6 sm:py-3.5 sm:text-lg";
+const ctaPrimary = `${ctaBase} bg-primary text-white shadow-lg hover:-translate-y-0.5 hover:shadow-xl ${focusRingStrong}`;
+const ctaSecondary = `${ctaBase} border border-border bg-surface text-navy hover:border-primary/40 hover:text-primary ${focusRing}`;
+const ctaMeta = `rounded-2xl border border-border bg-white px-4 py-2.5 text-sm font-semibold text-navy transition hover:border-primary/40 hover:text-primary ${focusRing}`;
+const cardLinkClass = `block h-full ${surfaceCard} p-5 sm:p-6 transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-md ${focusRingSoft}`;
+const statCardClass = `${surfaceCard} p-5 sm:p-6`;
+const featureRowClass = `flex items-start justify-between gap-4 ${surfaceSoft} px-4 py-3.5 sm:px-5 sm:py-4 text-left transition hover:-translate-y-0.5 hover:border-primary/40 ${focusRingSoft}`;
 
 export default function HomePage() {
   return (
@@ -28,19 +38,19 @@ export default function HomePage() {
               </p>
               <div className="flex flex-wrap items-center gap-3">
                 <Link
-                  className="rounded-2xl bg-primary px-5 py-3 text-base font-semibold text-white shadow-lg hover:-translate-y-0.5 hover:shadow-xl transition sm:px-6 sm:py-3.5 sm:text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                  className={ctaPrimary}
                   href="/docs/getting-started"
                 >
                   Quickstart
                 </Link>
                 <Link
-                  className="rounded-2xl border border-border bg-surface px-5 py-3 text-base font-semibold text-navy hover:border-primary/40 hover:text-primary transition sm:px-6 sm:py-3.5 sm:text-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                  className={ctaSecondary}
                   href="/overview"
                 >
                   Documentation
                 </Link>
                 <a
-                  className="rounded-2xl border border-border bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:border-primary/40 hover:text-primary transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                  className={ctaMeta}
                   href="https://github.com/genxapi/genxapi"
                   target="_blank"
                   rel="noreferrer"
@@ -48,7 +58,7 @@ export default function HomePage() {
                   GitHub
                 </a>
                 <a
-                  className="rounded-2xl border border-border bg-white px-4 py-2.5 text-sm font-semibold text-navy hover:border-primary/40 hover:text-primary transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                  className={ctaMeta}
                   href="https://www.npmjs.com/package/@genxapi/cli"
                   target="_blank"
                   rel="noreferrer"
@@ -130,7 +140,7 @@ npx genxapi publish --dry-run`}
 function Card({ title, body, href }: { title: string; body: string; href: string }) {
   return (
     <Link
-      className="block h-full rounded-2xl border border-border bg-white/90 p-5 sm:p-6 shadow-sm transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+      className={cardLinkClass}
       href={href}
     >
       <h3 className="text-lg sm:text-xl font-semibold text-navy">{title}</h3>
@@ -144,7 +154,7 @@ function Card({ title, body, href }: { title: string; body: string; href: string
 
 function StatCard({ title, body, code }: { title: string; body: string; code: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-white/90 p-5 sm:p-6 shadow-sm">
+    <div className={statCardClass}>
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-base sm:text-lg font-semibold text-navy">{title}</h3>
         <span className="rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-navy">
@@ -162,7 +172,7 @@ function StatCard({ title, body, code }: { title: string; body: string; code: st
 function FeatureRow({ title, body, href }: { title: string; body: string; href: string }) {
   return (
     <Link
-      className="flex items-start justify-between gap-4 rounded-2xl border border-border bg-surface/80 px-4 py-3.5 sm:px-5 sm:py-4 text-left transition hover:-translate-y-0.5 hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+      className={featureRowClass}
       href={href}
     >
       <div>

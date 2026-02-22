@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { getNav, type NavItem } from "../lib/nav";
+import { focusRing, surfaceCard } from "../lib/ui";
 import { SiteFooter } from "./SiteFooter";
 import { SiteHeader } from "./SiteHeader";
 
@@ -13,6 +14,8 @@ type Props = {
 
 export function Layout({ children, title, showNav = true, showTitle = false }: Props) {
   const navItems = getNav();
+  const panelClass = `${surfaceCard} p-4 sm:p-5`;
+  const summaryClass = `cursor-pointer text-sm font-semibold text-navy ${focusRing}`;
 
   return (
     <div className="min-h-screen bg-white text-navy">
@@ -34,11 +37,11 @@ export function Layout({ children, title, showNav = true, showTitle = false }: P
                 <div className="space-y-7 md:space-y-9">
                   <div className="lg:hidden">
                     <details
-                      className="rounded-2xl border border-border bg-white/90 p-4 sm:p-5 shadow-sm"
+                      className={panelClass}
                       suppressHydrationWarning
                     >
                       <summary
-                        className="cursor-pointer text-sm font-semibold text-navy focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+                        className={summaryClass}
                         aria-controls="mobile-docs-nav"
                       >
                         Docs navigation
@@ -85,7 +88,7 @@ function NavList({ items, variant = "sidebar" }: { items: NavItem[]; variant?: "
   const navClass =
     variant === "mobile"
       ? "p-0"
-      : "sticky top-24 rounded-2xl border border-border bg-white/90 p-4 sm:p-5 shadow-sm";
+      : `sticky top-24 ${surfaceCard} p-4 sm:p-5`;
   const listClass = variant === "mobile" ? "space-y-3 text-sm" : "space-y-3 text-sm";
 
   return (
@@ -111,8 +114,7 @@ function NavList({ items, variant = "sidebar" }: { items: NavItem[]; variant?: "
 }
 
 function NavLink({ item, secondary }: { item: NavItem; secondary?: boolean }) {
-  const baseClass =
-    "block rounded-md px-3 py-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
+  const baseClass = `block rounded-md px-3 py-2 transition ${focusRing}`;
   const className = secondary
     ? `${baseClass} text-muted hover:text-primary`
     : `${baseClass} font-semibold text-navy hover:text-primary`;
