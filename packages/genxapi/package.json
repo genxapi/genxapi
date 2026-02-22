@@ -1,0 +1,43 @@
+{
+  "name": "genxapi",
+  "description": "GenX API. Run the GenX API client generator with `npx genxapi`. Fast OpenAPI SDK generation and API orchestration for modern TypeScript and REST workflows.",
+  "version": "0.1.0",
+  "type": "module",
+  "license": "Apache-2.0",
+  "bin": {
+    "genxapi": "./bin/index.js"
+  },
+  "homepage": "https://genxapi.dev",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/genxapi/genxapi.git",
+    "directory": "packages/genxapi"
+  },
+  "bugs": {
+    "url": "https://github.com/genxapi/genxapi/issues"
+  },
+  "keywords": [
+    "genxapi",
+    "api",
+    "api-client",
+    "api-client-generator",
+    "openapi",
+    "openapi-generator",
+    "sdk",
+    "sdk-generator",
+    "codegen",
+    "typescript",
+    "rest",
+    "api-orchestration",
+    "developer-tools",
+    "cli",
+    "npx",
+    "proxy"
+  ],
+  "engines": {
+    "node": ">=18"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
