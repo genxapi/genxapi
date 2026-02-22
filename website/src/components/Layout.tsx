@@ -25,7 +25,12 @@ export function Layout({ children, title, showNav = true, showTitle = false }: P
               <aside className="hidden w-60 shrink-0 lg:block xl:w-64">
                 <NavList items={navItems} />
               </aside>
-              <main className="flex-1 min-w-0" suppressHydrationWarning>
+              <main
+                id="main-content"
+                className="flex-1 min-w-0"
+                tabIndex={-1}
+                suppressHydrationWarning
+              >
                 <div className="space-y-6 md:space-y-8">
                   <div className="lg:hidden">
                     <details
@@ -53,7 +58,12 @@ export function Layout({ children, title, showNav = true, showTitle = false }: P
               </main>
             </>
           ) : (
-            <main className="w-full min-w-0" suppressHydrationWarning>
+            <main
+              id="main-content"
+              className="w-full min-w-0"
+              tabIndex={-1}
+              suppressHydrationWarning
+            >
               <div className="space-y-6 md:space-y-8">
                 {showTitle && title ? (
                   <h1 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight text-navy">

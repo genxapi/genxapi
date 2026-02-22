@@ -12,6 +12,12 @@ export function SiteHeader({ sticky = true }: Props) {
 
   return (
     <header className={headerClass}>
+      <a
+        className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:rounded-lg focus:bg-white focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-navy focus:shadow-md focus:ring-2 focus:ring-primary/60 focus:ring-offset-2 focus:ring-offset-white"
+        href="#main-content"
+      >
+        Skip to content
+      </a>
       <div className="container">
         <div className="flex flex-col gap-4 py-4 md:flex-row md:items-center md:justify-between">
           <Link

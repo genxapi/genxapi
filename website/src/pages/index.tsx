@@ -6,7 +6,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen bg-white text-navy">
       <SiteHeader sticky={false} />
-      <main className="pb-16">
+      <main id="main-content" className="pb-16" tabIndex={-1}>
         <section className="relative overflow-hidden py-12 sm:py-14 w-full">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/16 via-white to-accent/14 pointer-events-none" />
           <div className="relative container grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
