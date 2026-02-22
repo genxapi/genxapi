@@ -7,10 +7,10 @@ export default function HomePage() {
     <div className="min-h-screen bg-white text-navy">
       <SiteHeader sticky={false} />
       <main id="main-content" className="pb-16" tabIndex={-1}>
-        <section className="relative overflow-hidden py-12 sm:py-14 w-full">
+        <section className="relative overflow-hidden py-12 sm:py-14 lg:py-16 w-full">
           <div className="absolute inset-0 bg-gradient-to-br from-primary/16 via-white to-accent/14 pointer-events-none" />
           <div className="relative container grid gap-10 lg:grid-cols-2 lg:items-center lg:gap-14">
-            <div className="space-y-6 sm:space-y-7">
+            <div className="space-y-6 sm:space-y-8">
               <div className="space-y-2">
                 <p className="text-xs sm:text-sm md:text-base font-semibold uppercase tracking-[0.3em] text-primary">
                   GenX API
@@ -75,7 +75,7 @@ export default function HomePage() {
                 ))}
               </div>
             </div>
-            <div className="grid gap-4">
+            <div className="grid gap-4 sm:gap-6">
               <StatCard
                 title="Spec → Generate → Publish"
                 body="Run once locally or in CI with the same config."
@@ -102,8 +102,8 @@ npx genxapi publish --dry-run`}
           </div>
         </section>
 
-        <section className="mt-16 w-full bg-gradient-to-br from-primary/10 via-surface to-accent/10 text-navy">
-          <div className="container grid gap-6 py-12 md:grid-cols-3">
+        <section className="mt-14 sm:mt-16 lg:mt-20 w-full bg-gradient-to-br from-primary/10 via-surface to-accent/10 text-navy">
+          <div className="container grid gap-6 sm:gap-7 py-10 sm:py-12 lg:py-14 md:grid-cols-3">
             <Card
               title="Single source of truth"
               body="Define clients, templates, and publish targets in genxapi.config.*—the same file drives CI."
@@ -130,11 +130,11 @@ npx genxapi publish --dry-run`}
 function Card({ title, body, href }: { title: string; body: string; href: string }) {
   return (
     <Link
-      className="block h-full rounded-2xl border border-border bg-white/90 p-5 shadow-sm transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+      className="block h-full rounded-2xl border border-border bg-white/90 p-5 sm:p-6 shadow-sm transition hover:-translate-y-1 hover:border-primary/40 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
       href={href}
     >
-      <h3 className="text-xl font-semibold text-navy">{title}</h3>
-      <p className="mt-2 text-sm text-muted">{body}</p>
+      <h3 className="text-lg sm:text-xl font-semibold text-navy">{title}</h3>
+      <p className="mt-2 text-sm sm:text-base text-muted">{body}</p>
       <span className="mt-3 inline-flex items-center text-sm font-semibold text-primary">
         Learn more →
       </span>
@@ -144,15 +144,15 @@ function Card({ title, body, href }: { title: string; body: string; href: string
 
 function StatCard({ title, body, code }: { title: string; body: string; code: string }) {
   return (
-    <div className="rounded-2xl border border-border bg-white/80 p-4 shadow-sm">
+    <div className="rounded-2xl border border-border bg-white/90 p-5 sm:p-6 shadow-sm">
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-lg font-semibold text-navy">{title}</h3>
+        <h3 className="text-base sm:text-lg font-semibold text-navy">{title}</h3>
         <span className="rounded-full bg-accent/15 px-3 py-1 text-xs font-semibold text-navy">
           Available now
         </span>
       </div>
       <p className="mt-1 text-sm text-muted">{body}</p>
-      <pre className="mt-3 whitespace-pre-wrap rounded-xl border border-border bg-[#0E1326] px-3 py-3 text-sm text-white shadow-inner">
+      <pre className="mt-3 whitespace-pre-wrap rounded-xl border border-border bg-[#0E1326] px-3 py-3 sm:px-4 sm:py-3.5 text-xs sm:text-sm text-white shadow-inner">
         {code}
       </pre>
     </div>
@@ -162,7 +162,7 @@ function StatCard({ title, body, code }: { title: string; body: string; code: st
 function FeatureRow({ title, body, href }: { title: string; body: string; href: string }) {
   return (
     <Link
-      className="flex items-start justify-between gap-3 rounded-xl border border-border bg-surface/70 px-4 py-3 text-left transition hover:-translate-y-0.5 hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
+      className="flex items-start justify-between gap-4 rounded-2xl border border-border bg-surface/80 px-4 py-3.5 sm:px-5 sm:py-4 text-left transition hover:-translate-y-0.5 hover:border-primary/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 focus-visible:ring-offset-2 focus-visible:ring-offset-white"
       href={href}
     >
       <div>

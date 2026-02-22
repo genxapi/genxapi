@@ -18,8 +18,8 @@ export function Layout({ children, title, showNav = true, showTitle = false }: P
     <div className="min-h-screen bg-white text-navy">
       <SiteHeader />
 
-      <div className="w-full py-10 md:py-12">
-        <div className="container flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-10">
+      <div className="w-full py-10 sm:py-12 lg:py-14">
+        <div className="container flex flex-col gap-8 lg:flex-row lg:items-start lg:gap-12">
           {showNav ? (
             <>
               <aside className="hidden w-60 shrink-0 lg:block xl:w-64">
@@ -31,10 +31,10 @@ export function Layout({ children, title, showNav = true, showTitle = false }: P
                 tabIndex={-1}
                 suppressHydrationWarning
               >
-                <div className="space-y-6 md:space-y-8">
+                <div className="space-y-7 md:space-y-9">
                   <div className="lg:hidden">
                     <details
-                      className="rounded-2xl border border-border bg-white/90 p-4 shadow-sm"
+                      className="rounded-2xl border border-border bg-white/90 p-4 sm:p-5 shadow-sm"
                       suppressHydrationWarning
                     >
                       <summary
@@ -53,7 +53,7 @@ export function Layout({ children, title, showNav = true, showTitle = false }: P
                       {title}
                     </h1>
                   ) : null}
-                  <div className="prose prose-xl max-w-[72ch]">{children}</div>
+                  <div className="prose prose-xl max-w-[70ch]">{children}</div>
                 </div>
               </main>
             </>
@@ -64,13 +64,13 @@ export function Layout({ children, title, showNav = true, showTitle = false }: P
               tabIndex={-1}
               suppressHydrationWarning
             >
-              <div className="space-y-6 md:space-y-8">
+              <div className="space-y-7 md:space-y-9">
                 {showTitle && title ? (
                   <h1 className="text-4xl md:text-5xl font-bold leading-tight tracking-tight text-navy">
                     {title}
                   </h1>
                 ) : null}
-                <div className="prose prose-xl max-w-[72ch]">{children}</div>
+                <div className="prose prose-xl max-w-[70ch]">{children}</div>
               </div>
             </main>
           )}
@@ -85,7 +85,7 @@ function NavList({ items, variant = "sidebar" }: { items: NavItem[]; variant?: "
   const navClass =
     variant === "mobile"
       ? "p-0"
-      : "sticky top-24 rounded-2xl border border-border bg-white/90 p-4 shadow-sm";
+      : "sticky top-24 rounded-2xl border border-border bg-white/90 p-4 sm:p-5 shadow-sm";
   const listClass = variant === "mobile" ? "space-y-3 text-sm" : "space-y-3 text-sm";
 
   return (
@@ -112,7 +112,7 @@ function NavList({ items, variant = "sidebar" }: { items: NavItem[]; variant?: "
 
 function NavLink({ item, secondary }: { item: NavItem; secondary?: boolean }) {
   const baseClass =
-    "block rounded-md px-2.5 py-1.5 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
+    "block rounded-md px-3 py-2 transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white";
   const className = secondary
     ? `${baseClass} text-muted hover:text-primary`
     : `${baseClass} font-semibold text-navy hover:text-primary`;
