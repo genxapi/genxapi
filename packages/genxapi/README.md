@@ -30,3 +30,11 @@ OpenAPI, API client generator, SDK generator, TypeScript codegen, REST API tooli
 ## 📦 Node Support
 
 Node.js 18 or higher required.
+
+## Licence
+
+This project is licensed under the Apache License 2.0.
+
+See the [LICENSE](./LICENSE) file for details.
+
+Copyright 2025-2026 Eduardo Aparicio Cardenes.

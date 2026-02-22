@@ -3,6 +3,7 @@
   "description": "GenX API. Run the GenX API client generator with `npx genxapi`. Fast OpenAPI SDK generation and API orchestration for modern TypeScript and REST workflows.",
   "version": "0.1.0",
   "type": "module",
+  "license": "Apache-2.0",
   "bin": {
     "genxapi": "./bin/index.js"
   },
@@ -38,6 +39,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "license": "MIT"
+  }
 }
