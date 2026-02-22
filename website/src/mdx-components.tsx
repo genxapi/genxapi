@@ -4,10 +4,14 @@ const cx = (...classes: (string | undefined | false)[]) => classes.filter(Boolea
 
 export const mdxComponents = {
   h1: (props: any) => {
+    const { className, ...rest } = props;
     return (
       <h1
-        {...props}
-        className="mb-6 text-[3rem] font-bold leading-[1.15] tracking-[-0.01em] text-navy"
+        {...rest}
+        className={cx(
+          "mb-6 sm:mb-7 text-[clamp(2rem,4vw+1rem,3.75rem)] font-bold leading-[1.1] tracking-[-0.015em] text-navy",
+          className
+        )}
       >
         {props.children}
       </h1>
@@ -19,7 +23,7 @@ export const mdxComponents = {
       <h2
         {...rest}
         className={cx(
-          "my-4 text-4xl font-semibold leading-tight tracking-[-0.01em] text-navy",
+          "mt-10 mb-4 text-[clamp(1.5rem,2.5vw+1rem,2.5rem)] font-semibold leading-[1.2] tracking-[-0.01em] text-navy",
           className
         )}
       >
@@ -32,7 +36,10 @@ export const mdxComponents = {
     return (
       <h3
         {...rest}
-        className={cx("my-3 text-2xl font-semibold leading-snug text-navy", className)}
+        className={cx(
+          "mt-8 mb-3 text-[clamp(1.25rem,1.6vw+1rem,1.75rem)] font-semibold leading-[1.3] text-navy",
+          className
+        )}
       >
         {props.children}
       </h3>
@@ -41,20 +48,41 @@ export const mdxComponents = {
   h4: (props: any) => {
     const { className, ...rest } = props;
     return (
-      <h4 {...rest} className={cx("my-2 text-xl font-semibold text-navy", className)}>
+      <h4
+        {...rest}
+        className={cx(
+          "mt-6 mb-2 text-base sm:text-lg font-semibold leading-[1.4] text-navy",
+          className
+        )}
+      >
         {props.children}
       </h4>
     );
   },
   a: (props: any) => {
+    const { className, children, ...rest } = props;
     const href = props.href ?? "#";
     const isExternal =
       href.startsWith("http") || href.startsWith("mailto:") || href.startsWith("tel:");
     const normalizedHref = isExternal ? href : normalizeDocHref(href);
+    const linkClass = cx(
+      "text-primary underline underline-offset-4 decoration-primary/40 transition hover:text-navy hover:decoration-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 focus-visible:ring-offset-2 focus-visible:ring-offset-white",
+      className
+    );
     return isExternal ? (
-      <a {...props} href={normalizedHref} target="_blank" rel="noreferrer" />
+      <a
+        {...rest}
+        className={linkClass}
+        href={normalizedHref}
+        target="_blank"
+        rel="noreferrer"
+      >
+        {children}
+      </a>
     ) : (
-      <Link href={normalizedHref}>{props.children}</Link>
+      <Link className={linkClass} href={normalizedHref}>
+        {children}
+      </Link>
     );
   },
   pre: (props: any) => (
@@ -71,12 +99,31 @@ export const mdxComponents = {
       {...props}
     />
   ),
-  p: (props: any) => (
-    <p className="my-p-block">{props.children}</p>
-  ),
-  ul: (props: any) => (
-    <ul className="my-ul-block">{props.children}</ul>
-  ),
+  p: (props: any) => {
+    const { className, ...rest } = props;
+    return (
+      <p
+        {...rest}
+        className={cx("my-p-block text-base sm:text-lg leading-relaxed text-navy/90", className)}
+      >
+        {props.children}
+      </p>
+    );
+  },
+  ul: (props: any) => {
+    const { className, ...rest } = props;
+    return (
+      <ul
+        {...rest}
+        className={cx(
+          "my-ul-block list-disc pl-5 text-base sm:text-lg space-y-2 sm:space-y-3",
+          className
+        )}
+      >
+        {props.children}
+      </ul>
+    );
+  },
   ol: (props: any) => (
     <ul className="my-ul-block">{props.children}</ul>
   )

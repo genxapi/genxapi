@@ -105,10 +105,20 @@ code {
 }
 
 .prose > .my-p-block {
-  margin: 0.5rem 0;
+  margin: 0.75rem 0;
 }
+
+@media (min-width: 768px) {
+  .prose > .my-p-block {
+    margin: 1rem 0;
+  }
+}
+
+.prose > .my-ul-block {
+  margin: 0.75rem 0 1rem;
+}
+
 .prose > .my-ul-block > li {
-  padding-left: 2rem;
-  text-decoration: dashed;
-  margin-bottom: 1rem;
+  padding-left: 0.25rem;
+  margin: 0.35rem 0;
 }
