@@ -42,7 +42,7 @@ export async function synchronizeExistingRepository({
   await configureGitRemote(projectDir, owner, repo, logger);
   await ensureGitUser(projectDir);
 
-  await fetchBranch(projectDir, token, owner, repo, defaultBranch);
+  await fetchBranch(projectDir, token, defaultBranch);
 
   const hasAnyCommits = await repositoryHasCommits(projectDir);
   const workingTreeStatus = await getStatus(projectDir);

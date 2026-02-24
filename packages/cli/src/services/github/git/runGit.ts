@@ -1,35 +1,61 @@
 import { execa } from "execa";
 import type { ExecaError } from "execa";
+import { redactSecrets } from "../../../utils/redactSecrets";
+
+export interface RunGitOptions {
+  readonly ignoreFailure?: boolean;
+  readonly redactValues?: Array<string | undefined>;
+}
 
 /**
  * Runs a git command in the provided working directory.
  *
  * @param args - Git arguments (e.g. ["status"]).
  * @param cwd - Working directory to run git in.
- * @param ignoreFailure - When true, swallows failures and returns an empty string.
+ * @param optionsOrIgnoreFailure - When true, swallows failures and returns an empty string.
+ *   When an options object, controls failure handling and secret redaction.
  * @returns The stdout produced by git.
  * @throws Error with enriched context when git exits non-zero and ignoreFailure is false.
  */
-export async function runGit(args: string[], cwd: string, ignoreFailure = false): Promise<string> {
+export async function runGit(args: string[], cwd: string, ignoreFailure?: boolean): Promise<string>;
+export async function runGit(args: string[], cwd: string, options?: RunGitOptions): Promise<string>;
+export async function runGit(
+  args: string[],
+  cwd: string,
+  optionsOrIgnoreFailure: RunGitOptions | boolean = {}
+): Promise<string> {
+  const { ignoreFailure = false, redactValues = [] } =
+    typeof optionsOrIgnoreFailure === "boolean"
+      ? { ignoreFailure: optionsOrIgnoreFailure }
+      : optionsOrIgnoreFailure;
   try {
     const result = await execa("git", args, {
       cwd,
-      stdio: "pipe"
+      stdio: "pipe",
+      env: {
+        ...process.env,
+        GIT_TERMINAL_PROMPT: "0"
+      }
     });
     return result.stdout;
   } catch (error) {
     if (ignoreFailure) {
       return "";
     }
-    throw new Error(buildGitErrorMessage(args, cwd, error));
+    throw new Error(buildGitErrorMessage(args, cwd, error, redactValues));
   }
 }
 
 /**
  * Builds a helpful git error message including exit info and captured output.
  */
-function buildGitErrorMessage(args: string[], cwd: string, error: unknown): string {
-  const command = `git ${args.join(" ")}`;
+function buildGitErrorMessage(
+  args: string[],
+  cwd: string,
+  error: unknown,
+  redactValues: Array<string | undefined>
+): string {
+  const command = redactSecrets(`git ${args.join(" ")}`, { secrets: redactValues });
   const base = `Failed to run "${command}" in ${cwd}.`;
   if (isExecaError(error)) {
     const segments: string[] = [];
@@ -52,14 +78,18 @@ function buildGitErrorMessage(args: string[], cwd: string, error: unknown): stri
           ? error.stdout.toString().trim()
           : undefined;
     const detail = segments.length > 0 ? ` (${segments.join(", ")})` : "";
-    const stderrBlock = stderr ? `\nGit stderr:\n${stderr}` : "";
-    const stdoutBlock = stdout ? `\nGit stdout:\n${stdout}` : "";
+    const stderrBlock = stderr
+      ? `\nGit stderr:\n${redactSecrets(stderr, { secrets: redactValues })}`
+      : "";
+    const stdoutBlock = stdout
+      ? `\nGit stdout:\n${redactSecrets(stdout, { secrets: redactValues })}`
+      : "";
     return `${base}${detail}${stderrBlock}${stdoutBlock}\nRefer to the troubleshooting guide for common fixes.`;
   }
   if (error instanceof Error) {
-    return `${base}\n${error.message}\nRefer to the troubleshooting guide for common fixes.`;
+    return `${base}\n${redactSecrets(error.message, { secrets: redactValues })}\nRefer to the troubleshooting guide for common fixes.`;
   }
-  return `${base}\n${String(error)}\nRefer to the troubleshooting guide for common fixes.`;
+  return `${base}\n${redactSecrets(String(error), { secrets: redactValues })}\nRefer to the troubleshooting guide for common fixes.`;
 }
 
 /**

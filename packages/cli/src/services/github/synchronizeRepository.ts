@@ -17,11 +17,19 @@ import { pushInitialCommit } from "./pushInitialCommit";
  */
 export async function synchronizeRepository(options: SyncOptions): Promise<void> {
   const { repository, projectDir, logger } = options;
-  const tokenEnv = repository.tokenEnv ?? "GITHUB_TOKEN";
-  const token = process.env[tokenEnv];
+  const tokenSources = new Set<string>();
+  if (repository.tokenEnv) {
+    tokenSources.add(repository.tokenEnv);
+  }
+  tokenSources.add("GITHUB_TOKEN");
+  tokenSources.add("GH_TOKEN");
+  const token = Array.from(tokenSources)
+    .map((name) => process.env[name])
+    .find((value) => typeof value === "string" && value.length > 0);
 
   if (!token) {
-    logger.warn(`Skipping GitHub sync: environment variable ${tokenEnv} is not set.`);
+    const expected = Array.from(tokenSources).join(" or ");
+    logger.warn(`Missing ${expected} for automated GitHub HTTPS auth. Skipping GitHub sync.`);
     return;
   }
 
