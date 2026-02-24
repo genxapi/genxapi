@@ -1,4 +1,5 @@
 import type { Logger } from "../../../utils/logger";
+import { buildGitAuthContext } from "./buildGitAuth";
 import { runGit } from "./runGit";
 
 /**
@@ -20,11 +21,11 @@ export async function pushBranch(
   logger: Logger
 ): Promise<void> {
   const remoteName = "origin";
-  const authHeader = `http.extraheader=Authorization: Bearer ${token}`;
+  const auth = buildGitAuthContext(token);
   await runGit(
-    ["-c", authHeader, "push", "--set-upstream", remoteName, branch],
+    ["-c", auth.extraHeader, "push", "--set-upstream", remoteName, branch],
     projectDir,
-    { redactValues: [token] }
+    { redactValues: auth.redactValues }
   );
 
   logger.info(`Pushed branch ${branch} to ${owner}/${repo}.`);

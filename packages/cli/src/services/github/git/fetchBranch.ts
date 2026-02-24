@@ -1,3 +1,4 @@
+import { buildGitAuthContext } from "./buildGitAuth";
 import { runGit } from "./runGit";
 
 /**
@@ -13,8 +14,8 @@ export async function fetchBranch(
   branch: string
 ): Promise<void> {
   const remoteName = "origin";
-  const authHeader = `http.extraheader=Authorization: Bearer ${token}`;
-  await runGit(["-c", authHeader, "fetch", remoteName, branch], projectDir, {
-    redactValues: [token]
+  const auth = buildGitAuthContext(token);
+  await runGit(["-c", auth.extraHeader, "fetch", remoteName, branch], projectDir, {
+    redactValues: auth.redactValues
   });
 }

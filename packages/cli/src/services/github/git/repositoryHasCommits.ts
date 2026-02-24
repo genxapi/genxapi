@@ -1,4 +1,4 @@
-import { execa } from "execa";
+import { runGit } from "./runGit";
 
 /**
  * Checks whether the repository already has a commit on HEAD.
@@ -7,13 +7,6 @@ import { execa } from "execa";
  * @returns True when HEAD resolves successfully.
  */
 export async function repositoryHasCommits(projectDir: string): Promise<boolean> {
-  try {
-    await execa("git", ["rev-parse", "--verify", "HEAD"], {
-      cwd: projectDir,
-      stdio: "pipe"
-    });
-    return true;
-  } catch {
-    return false;
-  }
+  const result = await runGit(["rev-parse", "--verify", "HEAD"], projectDir, true);
+  return result.trim().length > 0;
 }

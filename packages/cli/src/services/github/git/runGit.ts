@@ -31,7 +31,11 @@ export async function runGit(
   try {
     const result = await execa("git", args, {
       cwd,
-      stdio: "pipe"
+      stdio: "pipe",
+      env: {
+        ...process.env,
+        GIT_TERMINAL_PROMPT: "0"
+      }
     });
     return result.stdout;
   } catch (error) {
