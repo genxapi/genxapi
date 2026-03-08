@@ -123,9 +123,15 @@ samples/                         # Reference configuration files
 1. Bump versions with `npm version <major|minor|patch> --workspace <package>`.
 2. Commit the version bump and changelog updates.
 3. Publish packages with the repository helper script. Examples:
-   - `npm run publish -- --workspace @genxapi/template-orval --pkg-manager github`
+   - `npm run publish -- --workspace @genxapi/template-orval --pkg-manager npm --access public`
+   - `npm run publish -- --workspace @genxapi/template-kubb --pkg-manager npm --access public`
    - `npm run publish -- --workspace @genxapi/cli --pkg-manager npm --access public`
-4. Tag the release (`git tag vX.Y.Z`) and push tags.
+   - `npm run publish -- --workspace genxapi --pkg-manager npm --access public` when the proxy package itself changes
+4. Use package-specific release tags for CI publishes:
+   - `cli-vX.Y.Z`
+   - `template-orval-vX.Y.Z`
+   - `template-kubb-vX.Y.Z`
+   Keep `genxapi` manual unless the proxy package itself changes.
 5. Optionally run `npx genxapi publish --token <token> --owner <owner> --repo <repo> --tag vX.Y.Z` to create a GitHub release.
 
 > ⚠️ Warning: npm disallows publishing over an existing version. Always increment versions before publishing from CI or locally.

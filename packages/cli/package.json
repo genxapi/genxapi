@@ -1,6 +1,6 @@
 {
   "name": "@genxapi/cli",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "GenX API CLI - Orchestration for API client generation workflows.",
   "license": "MIT",
   "engines": {
@@ -45,7 +45,7 @@
   },
   "dependencies": {
     "@genxapi/template-kubb": "0.1.0",
-    "@genxapi/template-orval": "0.1.0",
+    "@genxapi/template-orval": "0.1.1",
     "@stricli/core": "^1.2.4",
     "chalk": "^5.3.0",
     "cosmiconfig": "^9.0.0",

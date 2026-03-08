@@ -47,6 +47,7 @@
       }
     },
     "aliases": {
+      "genxapi": "genxapi",
       "template-orval": "@genxapi/template-orval",
       "template-kubb": "@genxapi/template-kubb",
       "kubb": "@genxapi/template-kubb",
@@ -54,13 +55,17 @@
       "cli": "@genxapi/cli"
     },
     "workspaces": {
+      "genxapi": {
+        "registry": "https://registry.npmjs.org/",
+        "access": "public"
+      },
       "@genxapi/template-orval": {
-        "registry": "https://npm.pkg.github.com",
-        "access": "restricted"
+        "registry": "https://registry.npmjs.org/",
+        "access": "public"
       },
       "@genxapi/template-kubb": {
-        "registry": "https://npm.pkg.github.com",
-        "access": "restricted"
+        "registry": "https://registry.npmjs.org/",
+        "access": "public"
       },
       "@genxapi/cli": {
         "registry": "https://registry.npmjs.org/",

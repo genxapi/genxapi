@@ -1,0 +1,33 @@
+name: Publish Template Kubb
+
+on:
+  push:
+    tags:
+      - "template-kubb-v*"
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  publish-template-kubb:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ".nvmrc"
+      - name: Install dependencies
+        run: npm install
+      - name: Verify tag matches package version
+        run: node scripts/verify-release-tag.mjs --workspace template-kubb --tag-prefix template-kubb-v
+      - name: Build template
+        run: npm run build --workspace "@genxapi/template-kubb"
+      - name: Run template tests
+        run: npm run test --workspace "@genxapi/template-kubb"
+      - name: Pack dry-run
+        run: npm pack --workspace "@genxapi/template-kubb" --dry-run
+      - name: Publish template
+        run: npm publish --workspace "@genxapi/template-kubb" --access public --provenance

@@ -19,6 +19,7 @@ const BUILT_IN_PRESETS = {
 };
 
 const WORKSPACE_ALIASES = new Map([
+  ["genxapi", "genxapi"],
   ["template-orval", "@genxapi/template-orval"],
   ["orval", "@genxapi/template-orval"],
   ["template-kubb", "@genxapi/template-kubb"],
