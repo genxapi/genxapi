@@ -9,6 +9,7 @@
   - `@genxapi/template-kubb` trusts `.github/workflows/publish-template-kubb.yml`
 - Protect `main` if you want releases to happen only through merged PRs and not direct pushes.
 - Use Conventional Commits in merged PRs so `semantic-release` can infer the correct version bump.
+- Release automation depends on the repo toolchain in `.nvmrc`, because trusted publishing support comes from the installed `semantic-release` npm plugin version. The current release toolchain target is Node `22.14.0` or `24.10.0+`.
 
 ## Local dry run
 
