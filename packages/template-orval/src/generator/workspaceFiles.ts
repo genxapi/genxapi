@@ -3,6 +3,8 @@ import fs from "fs-extra";
 import { writeFile } from "node:fs/promises";
 import type { ClientConfig } from "../types.js";
 
+const LEGACY_DECLARATION_ARTIFACTS = ["src/index.d.ts", "src/runtime/create-client.d.ts"];
+
 export async function ensureClientWorkspaces(projectDir: string, clients: ClientConfig[]) {
   for (const client of clients) {
     const workspaceDir = resolve(projectDir, client.output.workspace);
@@ -11,6 +13,12 @@ export async function ensureClientWorkspaces(projectDir: string, clients: Client
     const schemasDir = resolveOutputPath(projectDir, client, client.output.schemas);
     await fs.ensureDir(targetDir);
     await fs.ensureDir(schemasDir);
+  }
+}
+
+export async function cleanupLegacyDeclarationArtifacts(projectDir: string) {
+  for (const relativePath of LEGACY_DECLARATION_ARTIFACTS) {
+    await fs.remove(join(projectDir, relativePath));
   }
 }
 
@@ -51,7 +59,11 @@ function toIdentifier(name: string): string {
   return `_${sanitized}`;
 }
 
-export async function writeClientIndex(projectDir: string, client: ClientConfig, hooksTarget: string) {
+export async function writeClientIndex(
+  projectDir: string,
+  client: ClientConfig,
+  hooksTarget: string,
+) {
   const workspaceDir = resolve(projectDir, client.output.workspace);
   await fs.ensureDir(workspaceDir);
 
@@ -66,14 +78,14 @@ export async function writeClientIndex(projectDir: string, client: ClientConfig,
     const mswTarget = resolveOutputPath(
       projectDir,
       client,
-      client.output.target.replace(/\.ts$/, ".msw")
+      client.output.target.replace(/\.ts$/, ".msw"),
     );
     paths.push(normalizeExportPath(workspaceDir, mswTarget, "./client.msw"));
   }
 
-  const lines: string[] = Array.from(
-    new Set(paths.filter((path) => path && path !== "."))
-  ).map((path) => `export * from "${path}";`);
+  const lines: string[] = Array.from(new Set(paths.filter((path) => path && path !== "."))).map(
+    (path) => `export * from "${path}";`,
+  );
   lines.push("");
 
   await writeFile(join(workspaceDir, "index.ts"), lines.join("\n"));
@@ -90,7 +102,11 @@ function ensureDotRelative(path: string): string {
   return `./${normalized}`;
 }
 
-export function resolveGeneratedPath(projectDir: string, client: ClientConfig, target: string): string {
+export function resolveGeneratedPath(
+  projectDir: string,
+  client: ClientConfig,
+  target: string,
+): string {
   const direct = resolve(projectDir, client.output.workspace, target);
   if (fs.existsSync(direct)) {
     return direct;

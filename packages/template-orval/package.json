@@ -1,6 +1,6 @@
 {
   "name": "@genxapi/template-orval",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "GenX API Orval template - Adapter for API client generation workflows.",
   "license": "MIT",
   "type": "module",

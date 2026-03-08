@@ -4,7 +4,12 @@ import type { MultiClientConfig, GenerateClientsOptions } from "./types.js";
 import { TEMPLATE_ROOT } from "./generator/constants.js";
 import { applyPackageJson } from "./generator/applyPackageJson.js";
 import { applyTemplateVariables } from "./generator/applyTemplateVariables.js";
-import { ensureClientWorkspaces, writeRootIndex, writeClientIndex } from "./generator/workspaceFiles.js";
+import {
+  cleanupLegacyDeclarationArtifacts,
+  ensureClientWorkspaces,
+  writeRootIndex,
+  writeClientIndex,
+} from "./generator/workspaceFiles.js";
 import { handleSwaggerDocuments } from "./generator/handleSwaggerDocuments.js";
 import { writeOrvalConfig } from "./generator/writeOrvalConfig.js";
 import { generateReadme } from "./generator/writeReadme.js";
@@ -12,7 +17,7 @@ import { installDependencies, runHooks, runOrval } from "./generator/runTasks.js
 
 export async function generateClients(
   config: MultiClientConfig,
-  options: GenerateClientsOptions = {}
+  options: GenerateClientsOptions = {},
 ): Promise<void> {
   const logger = options.logger ?? console;
   const projectDir = resolve(options.configDir ?? process.cwd(), config.project.directory);
@@ -24,7 +29,7 @@ export async function generateClients(
   await fs.ensureDir(projectDir);
   await fs.copy(templateDir, projectDir, {
     overwrite: true,
-    dereference: true
+    dereference: true,
   });
 
   await applyPackageJson(projectDir, config);
@@ -34,7 +39,7 @@ export async function generateClients(
     projectDir,
     config,
     options,
-    logger
+    logger,
   );
   await writeOrvalConfig(projectDir, config, swaggerTargets);
   await generateReadme(projectDir, config, swaggerInfos);
@@ -50,6 +55,7 @@ export async function generateClients(
   if (options.runOrval ?? config.project.runGenerate) {
     await runOrval(projectDir, config.project.packageManager, logger);
   }
+  await cleanupLegacyDeclarationArtifacts(projectDir);
   for (const client of config.clients) {
     await writeClientIndex(projectDir, client, client.output.target);
   }
