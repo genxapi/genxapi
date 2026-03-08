@@ -120,21 +120,15 @@ samples/                         # Reference configuration files
 
 ## Releasing
 
-1. Bump versions with `npm version <major|minor|patch> --workspace <package>`.
-2. Commit the version bump and changelog updates.
-3. Publish packages with the repository helper script. Examples:
-   - `npm run publish -- --workspace @genxapi/template-orval --pkg-manager npm --access public`
-   - `npm run publish -- --workspace @genxapi/template-kubb --pkg-manager npm --access public`
-   - `npm run publish -- --workspace @genxapi/cli --pkg-manager npm --access public`
-   - `npm run publish -- --workspace genxapi --pkg-manager npm --access public` when the proxy package itself changes
-4. Use package-specific release tags for CI publishes:
-   - `cli-vX.Y.Z`
-   - `template-orval-vX.Y.Z`
-   - `template-kubb-vX.Y.Z`
-   Keep `genxapi` manual unless the proxy package itself changes.
-5. Optionally run `npx genxapi publish --token <token> --owner <owner> --repo <repo> --tag vX.Y.Z` to create a GitHub release.
+1. Use Conventional Commits in the PR you plan to merge (`fix`, `feat`, and `BREAKING CHANGE` drive release types).
+2. Merge the PR into `main`.
+3. `.github/workflows/publish-template-orval.yml`, `.github/workflows/publish-template-kubb.yml`, and `.github/workflows/publish-cli.yml` run `semantic-release` for their matching package only.
+4. `semantic-release-monorepo` filters commits per package, applies the correct SemVer bump, publishes to npm, and creates package-specific git tags plus GitHub releases.
+5. Keep `genxapi` manual unless the proxy package itself changes:
+   - `npm run publish -- --workspace genxapi --pkg-manager npm --access public`
+6. Optionally run `npx genxapi publish --token <token> --owner <owner> --repo <repo> --tag vX.Y.Z` to create an additional GitHub release from the CLI itself.
 
-> ⚠️ Warning: npm disallows publishing over an existing version. Always increment versions before publishing from CI or locally.
+> ⚠️ Warning: npm disallows publishing over an existing version. `semantic-release` now handles version selection for the scoped packages, but manual releases such as `genxapi` still require you to choose a new version yourself.
 
 ## Getting Help
 

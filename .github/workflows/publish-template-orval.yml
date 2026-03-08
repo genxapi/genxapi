@@ -2,32 +2,38 @@ name: Publish Template Orval
 
 on:
   push:
-    tags:
-      - "template-orval-v*"
+    branches:
+      - main
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
+concurrency:
+  group: publish-template-orval
+  cancel-in-progress: false
+
 jobs:
-  publish-template-orval:
+  release-template-orval:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
+
       - name: Install dependencies
         run: npm install
-      - name: Verify tag matches package version
-        run: node scripts/verify-release-tag.mjs --workspace template-orval --tag-prefix template-orval-v
-      - name: Build template
-        run: npm run build --workspace "@genxapi/template-orval"
-      - name: Run template tests
+
+      - name: Test Orval template
         run: npm run test --workspace "@genxapi/template-orval"
-      - name: Pack dry-run
-        run: npm pack --workspace "@genxapi/template-orval" --dry-run
-      - name: Publish template
-        run: npm publish --workspace "@genxapi/template-orval" --access public --provenance
+
+      - name: Release Orval template
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run release --workspace "@genxapi/template-orval"

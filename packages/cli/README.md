@@ -74,10 +74,11 @@ Run `npm run typecheck` at the repository root to validate both packages before 
 
 ### Publishing the CLI
 
+From the repository root:
+
 ```bash
-# Build + publish to npmjs.org (public)
-npm run build --workspace @genxapi/cli
-npm publish --workspace @genxapi/cli --access public
+# Dry-run the repository release configuration locally
+npm run release:dry:cli
 ```
 
-Publishing to GitHub Packages is optional; include `--registry https://npm.pkg.github.com` and use a PAT with `read:packages` and `write:packages` scopes.
+The published npm release for `@genxapi/cli` is handled by `semantic-release` from `.github/workflows/publish-cli.yml` after merge to `main`. The `genxapi` proxy package remains a separate manual release.

@@ -2,30 +2,41 @@ name: Publish CLI
 
 on:
   push:
-    tags:
-      - "cli-v*"
+    branches:
+      - main
 
 permissions:
-  contents: read
+  contents: write
   id-token: write
 
+concurrency:
+  group: publish-cli
+  cancel-in-progress: false
+
 jobs:
-  publish-cli:
+  release-cli:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version-file: ".nvmrc"
+
       - name: Install dependencies
         run: npm install
-      - name: Verify tag matches package versions
-        run: node scripts/verify-release-tag.mjs --workspace cli --tag-prefix cli-v
-      - name: Build CLI
-        run: npm run build --workspace "@genxapi/cli"
-      - name: Pack smoke test
+
+      - name: Test CLI
+        run: npm run test --workspace "@genxapi/cli"
+
+      - name: CLI pack smoke test
         run: npm run pack:cli:smoke
-      - name: Publish CLI
-        run: npm publish --workspace "@genxapi/cli" --access public --provenance
+
+      - name: Release CLI
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npm run release --workspace "@genxapi/cli"

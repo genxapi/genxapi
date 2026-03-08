@@ -15,9 +15,11 @@ Current shipped behaviour:
 - Generated packages keep their own version in `package.json`.
 - `generate` can publish to npm or GitHub Packages when `project.publish` enables those post-generation steps.
 - `publish` creates a GitHub release when you pass explicit release metadata.
-- Version choice remains your responsibility or the responsibility of your surrounding release tooling.
+- Version choice for generated SDKs remains your responsibility or the responsibility of your surrounding release tooling.
 
-## What You Can Do Today
+For this monorepo's own scoped packages, releases are now managed in CI with `semantic-release` plus `semantic-release-monorepo`.
+
+## Generated Packages Today
 
 Increment the package version before publishing:
 
@@ -64,6 +66,21 @@ You can wrap that in a project script if you want a shorter release command. Thi
 
 This command does not choose the version number for you and does not compute changelog entries from the contract.
 
+## This Monorepo Today
+
+The scoped packages published from this repository use merge-to-main automation:
+
+- `@genxapi/cli`
+- `@genxapi/template-orval`
+- `@genxapi/template-kubb`
+
+Current release behaviour:
+
+- Conventional commits determine patch, minor, and major bumps.
+- `semantic-release-monorepo` filters commits per package root so only relevant packages release.
+- Releases create package-specific tags (`cli-vX.Y.Z`, `template-orval-vX.Y.Z`, `template-kubb-vX.Y.Z`) and GitHub releases.
+- `genxapi` remains a manual proxy-package release from the maintainer laptop.
+
 ## External Tooling You Can Pair With Today
 
 If you want automated versioning today, pair the generated package with your own release tooling, for example:
@@ -96,7 +113,7 @@ Example `semantic-release` configuration for a generated package:
 }
 ```
 
-With that setup, your CI can run `semantic-release` after generation and review. GenX API does not manage that pipeline directly today.
+With that setup, your generated package CI can run `semantic-release` after generation and review. GenX API does not manage that generated-package pipeline directly today.
 
 ## Planned Contract-Aware Release Flow
 

@@ -26,6 +26,8 @@
     "build": "rollup -c",
     "clean": "rimraf dist",
     "prebuild": "npm run clean",
+    "prepack": "npm run build",
+    "release": "semantic-release",
     "test": "vitest run"
   },
   "keywords": [
