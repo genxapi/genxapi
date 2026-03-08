@@ -1,5 +1,11 @@
 const path = require("node:path");
 
+const npmPlugin = require.resolve("@semantic-release/npm");
+const packageScopedPlugin = path.join(
+  __dirname,
+  "scripts",
+  "semantic-release-package-scoped.mjs"
+);
 const githubPlugin = path.join(
   __dirname,
   "scripts",
@@ -9,10 +15,9 @@ const githubPlugin = path.join(
 module.exports = {
   branches: ["main"],
   plugins: [
-    "@semantic-release/commit-analyzer",
-    "@semantic-release/release-notes-generator",
+    packageScopedPlugin,
     [
-      "@semantic-release/npm",
+      npmPlugin,
       {
         npmPublish: true
       }
