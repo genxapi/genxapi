@@ -4,7 +4,8 @@
 
 ```bash
 npm install
-npm run build
+npm run build:cli
+npm run genxapi:cli -- --help
 npm run test
 npm run typecheck
 ```
@@ -19,6 +20,42 @@ npm run typecheck
    next.paths['/pets/{id}'] = { get: { operationId: 'getPet', responses: { '200': { description: 'single pet' } } } };
    console.log(analyzeSwaggerDiff(base, next));"
    ```
+
+## Local Examples (Orval + Kubb)
+
+Use the root `genxapi:*` scripts to exercise the locally built CLI and both bundled templates:
+
+```bash
+# Fast local CLI entrypoint
+npm run genxapi:cli -- --help
+
+# Non-mutating validation
+npm run genxapi:cli -- generate --config samples/orval-multi-client.config.json --template orval --dry-run
+npm run genxapi:cli -- generate --config samples/kubb-multi-client.config.json --template kubb --dry-run
+
+# Full example refreshers
+npm run genxapi:example:orval
+npm run genxapi:example:kubb
+```
+
+The full example scripts generate into `examples/multi-client-demo` (Orval) and `examples/multi-client-kubb` (Kubb), and install each example package's dependencies automatically.
+
+To rerun the native generator inside those packages:
+
+```bash
+cd examples/multi-client-demo
+npm run generate-clients
+
+cd ../multi-client-kubb
+npm run generate-clients
+```
+
+Notes:
+
+- The generated example packages do not currently contain useful `npm test` coverage.
+- Real generation requires network access because the sample configs fetch the live Petstore spec.
+- The full example refreshers rewrite tracked example directories, so review your diff after running them.
+- See [the docs contributing guide](./docs/contributing.md) for the full local CLI and example workflow.
 
 ## Contribution Workflow
 

@@ -35,11 +35,12 @@
   "scripts": {
     "build": "rollup -c",
     "clean": "rimraf dist",
+    "genxapi:cli": "node dist/cli.js",
     "lint": "eslint 'src/**/*.ts'",
     "prebuild": "npm run clean",
     "postbuild": "node -e \"const fs=require('node:fs'); const targets=['dist/cli.js','dist/index.js']; for (const target of targets) { if (fs.existsSync(target)) fs.chmodSync(target, 0o755); }\"",
     "prepack": "npm run build && npm run smoke:cli",
-    "smoke:cli": "node dist/cli.js --help",
+    "smoke:cli": "npm run genxapi:cli -- --help",
     "test": "vitest run"
   },
   "dependencies": {

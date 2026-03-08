@@ -16,20 +16,69 @@ Participation is governed by the [Contributor Covenant](../CONTRIBUTING.md). Be 
 git clone https://github.com/genxapi/genxapi.git
 cd genxapi
 npm install
-npm run build
+npm run build:cli
+npm run genxapi:cli -- --help
 ```
 
-> 💡 Tip: Run `npm run build --workspaces` after pulling main to keep template and CLI outputs in sync.
+> 💡 Tip: Use `npm run build:cli` while iterating on CLI or template changes. Run `npm run build` when you want the full workspace build.
 
 ### Useful Scripts
 
 | Script | Description |
 | ------ | ----------- |
 | `npm run build` | Builds the template and CLI. |
+| `npm run build:cli` | Rebuilds the local CLI plus the in-repo templates it depends on. |
+| `npm run genxapi:cli -- --help` | Runs the locally built CLI from the monorepo root. |
+| `npm run genxapi:example:orval` | Regenerates the Orval sample into `examples/multi-client-demo`. |
+| `npm run genxapi:example:kubb` | Regenerates the Kubb sample into `examples/multi-client-kubb`. |
 | `npm run test` | Runs Vitest suites for each workspace. |
 | `npm run lint` | Lints all TypeScript sources. |
 | `npm run typecheck` | Type-checks without emitting files. |
 | `npm run clean` | Removes `dist/` folders across workspaces. |
+| `npm run pack:cli:smoke` | Verifies the packaged CLI tarball and bin entrypoints separately from the local dev flow. |
+
+## Local CLI & Examples
+
+Use the root `genxapi:*` scripts when validating CLI and template changes locally:
+
+```bash
+npm run build:cli
+npm run genxapi:cli -- --help
+```
+
+`npm run genxapi:cli -- ...` is intentionally fast and assumes you have already run `npm run build:cli` after changing CLI or template code.
+
+Dry-run both bundled configs before doing a real generation:
+
+```bash
+npm run genxapi:cli -- generate --config samples/orval-multi-client.config.json --template orval --dry-run
+npm run genxapi:cli -- generate --config samples/kubb-multi-client.config.json --template kubb --dry-run
+```
+
+When you need the tracked examples refreshed, use the shortcut scripts:
+
+```bash
+npm run genxapi:example:orval
+npm run genxapi:example:kubb
+```
+
+Those commands generate into `examples/multi-client-demo` and `examples/multi-client-kubb`. They also install dependencies inside each generated package because template `installDependencies` defaults to `true`.
+
+To rerun the native generator from inside either example package:
+
+```bash
+cd examples/multi-client-demo
+npm run generate-clients
+
+cd ../multi-client-kubb
+npm run generate-clients
+```
+
+Current caveats:
+
+- The generated example packages do not currently ship `src/**/*.test.ts`, so `npm test` is not a useful validation step there yet.
+- Real example generation and regeneration require network access because the sample configs fetch the live Swagger Petstore spec.
+- `npm run genxapi:example:orval` and `npm run genxapi:example:kubb` rewrite tracked example directories, so review your diff after running them.
 
 ## Project Structure
 
