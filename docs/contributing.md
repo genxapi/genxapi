@@ -4,7 +4,7 @@ title: "Contributing"
 
 # Contributing
 
-Thanks for helping improve the API client generator! This guide explains the contribution process, coding standards, and release workflow.
+Thanks for helping improve GenX API. This guide explains the contribution process, coding standards, and release workflow.
 
 ## Code of Conduct
 
@@ -47,6 +47,8 @@ npm run genxapi:cli -- --help
 ```
 
 `npm run genxapi:cli -- ...` is intentionally fast and assumes you have already run `npm run build:cli` after changing CLI or template code.
+
+That repo-local shortcut is for monorepo development only. The public command surface remains `npx genxapi generate ...` and `npx genxapi publish ...`.
 
 Dry-run both bundled configs before doing a real generation:
 
@@ -120,9 +122,11 @@ samples/                         # Reference configuration files
 
 1. Bump versions with `npm version <major|minor|patch> --workspace <package>`.
 2. Commit the version bump and changelog updates.
-3. Publish packages (`npm run publish:template:npm`, `npm run publish:cli:npm`).
+3. Publish packages with the repository helper script. Examples:
+   - `npm run publish -- --workspace @genxapi/template-orval --pkg-manager github`
+   - `npm run publish -- --workspace @genxapi/cli --pkg-manager npm --access public`
 4. Tag the release (`git tag vX.Y.Z`) and push tags.
-5. Optionally run `npx genxapi publish` to create a GitHub release.
+5. Optionally run `npx genxapi publish --token <token> --owner <owner> --repo <repo> --tag vX.Y.Z` to create a GitHub release.
 
 > ⚠️ Warning: npm disallows publishing over an existing version. Always increment versions before publishing from CI or locally.
 

@@ -1,21 +1,30 @@
 # GenX API
 
-GenX API is orchestration for API client generation. Run `npx genxapi` to launch the GenX API CLI without a local install.
+This package is the primary public alias for the GenX API command.
 
-## 🚀 Quick Start
+## Primary Usage
+
+Use `genxapi` when you want the easiest command to type and remember:
 
 ```bash
-npx genxapi
+npx genxapi --help
 ```
 
-This runs the latest `@genxapi/cli` without requiring a local install.
+Examples:
 
-## 🧠 What is this package?
+```bash
+npx genxapi generate --config ./genxapi.config.json --log-level info
+npx genxapi publish --token ${GITHUB_TOKEN} --owner acme --repo petstore-sdk --tag v1.0.0
+```
 
-- Thin proxy wrapper around the GenX API CLI
-- Improves developer experience with a single entry point
-- Always resolves the latest CLI version
-- No local install required
+This package delegates to the latest `@genxapi/cli`.
+
+## Relationship to `@genxapi/cli`
+
+- `genxapi` is the primary alias and public-facing command package.
+- `@genxapi/cli` remains the direct installable package.
+- Both expose the same CLI surface.
+- `genxapi` does not add extra commands; it forwards to `@genxapi/cli`.
 
 ## 🔗 Links
 
@@ -29,7 +38,7 @@ API client generation, API orchestration, client release automation, OpenAPI too
 
 ## 📦 Node Support
 
-Node.js 18 or higher required.
+Node.js 20 or higher required.
 
 ## Licence
 

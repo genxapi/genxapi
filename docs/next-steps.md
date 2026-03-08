@@ -4,17 +4,17 @@ title: "Next Steps"
 
 # Next Steps
 
-Ready to go beyond the basics? This page outlines the roadmap, ecosystem, and ways to extend the generator in your organisation.
+Ready to go beyond the basics? This page outlines the roadmap and clearly labels the items that are still planned.
 
 ## Roadmap Highlights
 
-1. **Diff command enhancements** – expand `genxapi diff` with custom reporters and automated PR annotations.
-2. **Python adapter** – ship an official adapter that builds wheels, publishes to PyPI, and mirrors README updates.
-3. **Multi-language hooks** – standardise post-generate scripts for Go, .NET, and Java SDKs.
-4. **Plugin API** – allow external packages to provide custom generators (e.g., GraphQL codegen) that run alongside Orval.
+1. **Contract diffing** - add a first-class `genxapi diff` command with custom reporters and automated PR annotations.
+2. **Release intelligence** – add contract-aware SemVer guidance and richer release metadata.
+3. **Additional language workflows** – standardise post-generate scripts for Python, Go, .NET, and Java SDKs.
+4. **Plugin API** – allow external packages to provide custom generators that run alongside Orval or Kubb.
 5. **Insight dashboards** – aggregate run metadata (generation time, diff summaries) for platform teams.
 
-> 💡 Tip: Track progress via GitHub Projects in the repository. We triage issues weekly and tag them with `roadmap` when prioritised.
+None of the items above should be read as shipped functionality in the current release.
 
 ## Ecosystem Extensions
 
@@ -25,25 +25,25 @@ Ready to go beyond the basics? This page outlines the roadmap, ecosystem, and wa
 
 ## Adapting to Other Languages
 
-Although TypeScript is the default, the architecture supports adapters:
+Although the current first-party templates are TypeScript-focused, the architecture supports adapters:
 
 - Use `template.path` to point at a Python, Go, or .NET project skeleton.
 - Inject language-specific instructions via `templateVariables`.
 - Add hook scripts to run language-specific package managers (`pip`, `poetry`, `dotnet`, `mvn`).
 
-> 🧪 Note: We welcome contributions that add official adapters. Start by reading the [Templates guide](./templates.md) and propose your design in an issue.
+## Current vs Planned Reminder
 
-## Community & Support
+Current release:
 
-- **Discussions** – share use cases, ask questions, and vote on features.
-- **Office hours** – monthly community calls (announced via GitHub Discussions) covering new releases and demos.
-- **Slack/Discord** – join the community chat (invite link in repository README) for real-time support.
+- Orchestration via `generate`
+- GitHub release creation via `publish`
+- First-party Orval and Kubb templates
 
-## Stay Involved
+Planned later:
 
-- Subscribe to repository releases to receive notifications when new versions of the template or CLI land.
-- Help triage issues by reproducing bugs or verifying fixes.
-- Contribute documentation improvements as you integrate the tooling.
+- First-class `diff`
+- Contract-aware versioning guidance
+- Additional template and ecosystem surfaces
 
 ## Next Steps
 

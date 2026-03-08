@@ -4,8 +4,9 @@ title: "Configuration Overview"
 
 # Configuration Overview
 
-GenX API reads a single configuration file (`genxapi.config.json`, `.yaml`, or `.ts`) that uses a **unified interface** regardless of whether you run Orval, Kubb, or future adapters. This page provides a narrative overview and links to the full schema reference.
+GenX API reads a single JSON, YAML, or TypeScript configuration file and maps that **unified interface** onto the selected template. This page provides a narrative overview and links to the full schema reference.
 
+- **Supported files today**: `genxapi.config.json`, `genxapi.config.yaml`, `genxapi.config.yml`, `genxapi.config.ts`, plus `genxapirc*` JSON/YAML/TS variants.
 - **Unified schema**: One set of fields expresses generator intent (`httpClient`, `client`, `mode`, `mock`, plugin overrides). The CLI maps these options onto the selected template.
 - **Template selection**: `project.template` accepts the aliases `"orval"` and `"kubb"` (or a full package name such as `@genxapi/template-orval`).
 - **Per-client overrides**: `clients[].config` can override any project-level option.
@@ -19,7 +20,7 @@ Below is a trimmed example highlighting the most common fields:
 
 ```jsonc
 {
-  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/schemas/genxapi.schema.json",
+  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/packages/cli/schemas/genxapi.schema.json",
   "logLevel": "info",
   "project": {
     "name": "multi-client-demo",
@@ -32,8 +33,8 @@ Below is a trimmed example highlighting the most common fields:
       "mode": "split",
       "mock": { "type": "msw", "delay": 250 }
     },
-    "repository": { /* GitHub automation */ },
-    "publish": { /* npm automation */ }
+    "repository": { /* optional GitHub sync after generation */ },
+    "publish": { /* optional registry publish after generation */ }
   },
   "clients": [
     {

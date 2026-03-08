@@ -27,11 +27,19 @@ export function SiteFooter() {
             </a>
             <a
               className={footerLinkClass}
+              href="https://www.npmjs.com/package/genxapi"
+              target="_blank"
+              rel="noreferrer"
+            >
+              npm genxapi
+            </a>
+            <a
+              className={footerLinkClass}
               href="https://www.npmjs.com/package/@genxapi/cli"
               target="_blank"
               rel="noreferrer"
             >
-              npm CLI
+              npm @genxapi/cli
             </a>
           </div>
         </div>

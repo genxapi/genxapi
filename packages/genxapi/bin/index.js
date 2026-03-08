@@ -17,8 +17,8 @@ limitations under the License.
 import { execSync } from "node:child_process";
 
 const major = Number(process.versions.node.split(".")[0]);
-if (Number.isNaN(major) || major < 18) {
-  console.error("genxapi requires Node.js 18 or higher.");
+if (Number.isNaN(major) || major < 20) {
+  console.error("genxapi requires Node.js 20 or higher.");
   process.exit(1);
 }
 

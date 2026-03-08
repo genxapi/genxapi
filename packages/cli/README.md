@@ -1,20 +1,23 @@
 # @genxapi/cli
 
-CLI to scaffold, regenerate, synchronise, and publish multiple API clients using the GenX API templates.
+CLI for GenX API orchestration. The current public command surface is intentionally small and explicit.
 
 ## Requirements
 
-- Node.js **v20+** (required by Orval's Commander dependency; older runtimes will emit engine warnings).
+- Node.js **v20+**.
 - Access tokens if you plan to push to GitHub (`GITHUB_TOKEN`) or publish to npm (`NPM_TOKEN`).
 
 ## Commands
 
-- `genxapi generate` – Generate clients defined in configuration, optionally override the output directory (`--target`), initialise/synchronise a GitHub repository, and publish to npm.
+- `genxapi generate` – Generate clients defined in configuration, optionally override the output directory (`--target`), and run configured post-generation GitHub or registry steps.
 - `genxapi publish` – Create GitHub releases using Octokit.
+
+There is no public `genxapi diff` command in the current CLI surface.
 
 ## Running the CLI
 
-- One-off (no install): `npx @genxapi/cli --help`
+- Primary public alias: `npx genxapi --help`
+- Direct package alternative: `npx @genxapi/cli --help`
 - Local install: add `"cli": "genxapi"` to `package.json` scripts, then run `npm run cli -- --help`
 
 ### Environment Variables
@@ -63,22 +66,7 @@ This command will:
 1. Load the config (including repository/publish settings) from the provided path or cosmiconfig search.
 2. Call `@genxapi/template-orval` to scaffold the template, apply replacements, copy swagger files, run Orval, and execute hooks.
 3. Commit and push the generated changes to GitHub and open a pull request if `project.repository` exists.
-4. Publish the package if `project.publish.npm.enabled` is `true` (generated clients default to public access, matching the publish scripts in this monorepo).
-
-### Semantic-release examples
-
-After running the generator, you can compare swagger revisions and generate a commit message for semantic-release:
-
-```bash
-# Compare swagger files and classify the change
-node --input-type=module -e "import base from './packages/cli/src/utils/swaggerDiff/fixtures/base.json' assert { type: 'json' };
-import { analyzeSwaggerDiff } from './packages/cli/src/utils/swaggerDiff/index.js';
-const next = structuredClone(base);
-next.paths['/pets/{id}'] = { get: { operationId: 'getPet', responses: { '200': { description: 'single pet' } } } };
-console.log(analyzeSwaggerDiff(base, next));"
-```
-
-This prints the commit suggestion (`feat`, `fix`, or `chore`) that feeds semantic-release version bumps.
+4. Publish the package if `project.publish.npm.enabled` is `true`.
 
 ### Type safety
 
@@ -93,18 +81,3 @@ npm publish --workspace @genxapi/cli --access public
 ```
 
 Publishing to GitHub Packages is optional; include `--registry https://npm.pkg.github.com` and use a PAT with `read:packages` and `write:packages` scopes.
-
-### Installing from GitHub Packages
-
-1. Authenticate (requires `GITHUB_TOKEN` with `read:packages` + `write:packages`):
-   ```bash
-   npm config set @genxapi:registry https://npm.pkg.github.com/
-   npm config set //npm.pkg.github.com/:_authToken ${GITHUB_TOKEN}
-   ```
-2. Run the bundled sample:
-   ```bash
-   npx genxapi generate \
-     --config samples/orval-multi-client.config.json \
-     --target ./examples/multi-client-demo \
-     --log-level info
-   ```

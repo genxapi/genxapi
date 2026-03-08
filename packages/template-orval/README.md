@@ -21,12 +21,11 @@ await generateClients(config);
 ```jsonc
 // examples/petstore/genxapi.config.json
 {
+  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/packages/cli/schemas/genxapi.schema.json",
   "project": {
     "name": "petstore-client",
     "directory": "./examples/petstore/output",
-    "template": {
-      "name": "@genxapi/template-orval"
-    },
+    "template": "orval",
     "repository": {
       "owner": "your-github-handle",
       "name": "petstore-client",
@@ -55,9 +54,10 @@ await generateClients(config);
     {
       "name": "pets",
       "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
-      "output": {
-        "workspace": "./src/pets",
-        "target": "./src/pets/client.ts"
+      "config": {
+        "client": "react-query",
+        "httpClient": "axios",
+        "mock": { "type": "msw", "delay": 300 }
       }
     }
   ]
@@ -71,7 +71,7 @@ await generateClients(config);
   "project": {
     "name": "demo-client",
     "directory": "./clients/demo",
-    "template": { "name": "@genxapi/template-orval" },
+    "template": "orval",
     "repository": {
       "owner": "your-handle",
       "name": "demo-client-repo",
@@ -82,11 +82,7 @@ await generateClients(config);
     {
       "name": "pets",
       "swagger": "./specs/petstore.yaml",
-      "output": {
-        "workspace": "./src/pets",
-        "target": "./src/pets/client.ts"
-      },
-      "orval": {
+      "config": {
         "client": "react-query",
         "httpClient": "axios",
         "mock": { "type": "msw", "delay": 300 }
@@ -96,4 +92,4 @@ await generateClients(config);
 }
 ```
 
-See `samples/orval-multi-client.config.json` for a full example.
+See `samples/orval-multi-client.config.json` for a full example. Consumers should import the generated package boundary, not internal `src/` or `dist/` files.

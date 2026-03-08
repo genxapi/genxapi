@@ -39,7 +39,7 @@ Pushing a `v*` tag triggers the publish workflow and releases `@genxapi/cli`.
 ## Post-publish validation
 
 ```bash
-npx @genxapi/cli --help
+npx genxapi --help
 ```
 
-Note: `npx genxapi --help` is only expected if the unscoped `genxapi` package is also published separately.
+Direct package alternative: `npx @genxapi/cli --help`.

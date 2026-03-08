@@ -1,197 +1,147 @@
 # GenX API
 
-> Orchestration for API client generation.
+> Orchestration for contract-driven client and package generation.
 
-GenX API is an orchestrator that aligns API client generation, packaging, and release automation across teams. It discovers your OpenAPI-driven configuration, coordinates multiple generators, enforces semantic versioning, and pushes releases to GitHub and npm without bespoke scripts. First-party templates bundle Orval and Kubb adapters, and you can layer in custom engines through hooks or bespoke templates.
+GenX API sits between your API contract and your generated package. It loads OpenAPI-driven configuration, delegates generator-specific work to templates, and coordinates shared lifecycle concerns such as scaffolding, hooks, repository sync, and optional registry publishing.
 
-> 💡 Configuration lives in `genxapi.config.{json,ts}`. Commit it so local runs and CI pipelines stay aligned.
+> Configuration files can be JSON, YAML, or TypeScript: `genxapi.config.json`, `genxapi.config.yaml`, `genxapi.config.yml`, or `genxapi.config.ts`.
 
----
+## Product Boundaries
 
-## What GenX API is
+- Backend boundary: OpenAPI or Swagger contract.
+- Consumer boundary: generated package interface.
+- Template boundary: Orval, Kubb, or a custom template package own generator-specific behaviour.
+- Core boundary: GenX API owns orchestration, lifecycle, metadata, and shared workflow concerns.
 
-GenX API is orchestration for API client generation that keeps specs, generators, packaging, and releases aligned.
+Read the full boundary definition in [docs/architecture/boundaries.md](docs/architecture/boundaries.md).
 
-### Capabilities
+## Current Capabilities
 
-- Orchestrates API client generation workflows from a unified config.
-- Supports generator-driven client creation via templates (Orval, Kubb, or custom).
-- Produces ready-to-consume client packages/projects with consistent scaffolding.
-- Automates GitHub and npm release workflows where configured.
-- Aligns releases with semantic diffing and versioning.
+- Run multi-client generation from one config file.
+- Delegate generation through first-party Orval and Kubb templates, or a custom template package.
+- Scaffold generated packages into monorepo-friendly directories via `project.directory` and per-client outputs.
+- Apply shared overrides such as `--template`, `--http-client`, `--client`, `--mode`, and `--mock-*`.
+- Scaffold package files and stable package entrypoints for generated SDKs.
+- Run hooks plus optional post-generation GitHub sync and npm or GitHub Packages publish steps when configured.
+- Create a GitHub release with the `publish` command.
 
-### Benefits
+## Planned Capabilities
 
-- Continuous alignment between APIs and clients.
-- Faster delivery cycles with fewer handoffs.
-- Reduced release coordination friction.
-- Better traceability and auditability of changes.
-- Developer autonomy with confidence for consumers.
+These are intentionally not described as shipped today:
 
-## Why this orchestrator exists
+- First-class `diff` command and contract change reporting.
+- Diff-driven SemVer advice or release intelligence.
+- Marketplace or catalog features.
+- Broader reporting and CI intelligence beyond the current CLI workflow.
 
-Manual duplication across specs, SDKs, and releases slows teams down. API client generation helps, packaging helps, but coordination still creates friction. GenX API adds orchestration to shift left on API client generation so generation, packaging, and releases stay aligned from one config file.
+The roadmap remains visible in [docs/next-steps.md](docs/next-steps.md).
 
-- **Single source of truth** for generation, versioning, and publishing.
-- **Consistent automation** across repositories and CI providers.
-- **Extensible workflow** that composes existing generators rather than replacing them.
+## Command Surface
 
----
+The shipped CLI currently exposes two commands:
 
-## What it does
+| Command | What it does today |
+| ------- | ------------------ |
+| `generate` | Loads config, resolves the template, generates clients, and may run post-generation GitHub or registry actions when configured. |
+| `publish` | Creates a GitHub release for an explicit `owner` / `repo` / `tag`. |
 
-- Discovers multi-client configs and invokes the generators defined by your templates (Orval/Kubb adapters ship in-repo, but you can register alternatives).
-- Applies reusable templates, hooks, and post-processing to keep scaffolded clients uniform.
-- Calculates semantic version bumps from OpenAPI diffs and writes changelog metadata.
-- Commits, pushes, and raises pull requests; creates GitHub releases; publishes to public or private npm registries.
-- Runs headless inside CI/CD, honouring cache layers and environment variables such as `GITHUB_TOKEN` and `NPM_TOKEN`.
+There is no public `diff` command in the current CLI contract.
 
-## What it does not do
+## CLI Invocation
 
-- Replace your chosen code generators (e.g. Orval, Kubb, OpenAPI Generator).
-- Provide runtime HTTP layers or opinionated API consumption utilities.
-- Offer a graphical dashboard (the focus is CLI and automation tooling).
-- Deploy generated projects beyond packaging and publishing.
+Recommended repeatable setup for a project:
 
----
-
-## Spec → Generate → Publish
-
-```
-┌────────────┐    configure     ┌─────────────┐    orchestrate    ┌──────────────┐
-│ OpenAPI    │ ──► config file ─►  GenX API  │ ──► git/npm ▷ ci ─► Released SDK │
-│ documents  │                   (CLI binary) │                    artefacts     │
-└────────────┘                                  └─────────────┬────┴──────────────┘
-                                                              │
-              delegates generation to template-backed engines ◄──────────┘
+```bash
+npm install --save-dev @genxapi/cli @genxapi/template-orval
+npx genxapi generate --log-level info
 ```
 
----
+Recommended one-off invocation path today:
+
+```bash
+npx genxapi generate --log-level info
+```
+
+Notes:
+
+- `genxapi` is the primary human-facing command name.
+- One-off `npx genxapi ...` uses the `genxapi` package, which forwards to the latest `@genxapi/cli`.
+- Local installs still use `@genxapi/cli`, whose binary is also named `genxapi`.
+- If you want to call the underlying package explicitly, `npx @genxapi/cli ...` remains supported.
 
 ## Quickstart
 
-Install the orchestrator alongside the template package you intend to drive:
-
-```bash
-# Orval template
-npm install --save-dev @genxapi/cli @genxapi/template-orval
-
-# Kubb template
-npm install --save-dev @genxapi/cli @genxapi/template-kubb
-```
-
-Create a unified config and generate clients locally:
+Start from the bundled Orval sample:
 
 ```bash
 cp samples/orval-multi-client.config.json ./genxapi.config.json
-npx genxapi generate --log-level info
+npx genxapi generate --config ./genxapi.config.json --log-level info
+```
 
-# One-off runs without a local install
-npx @genxapi/cli generate --log-level info
+Minimal config:
 
-# Switch engines or override behaviour at runtime
+```jsonc
+{
+  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/packages/cli/schemas/genxapi.schema.json",
+  "project": {
+    "name": "petstore-sdk",
+    "directory": "./sdk/petstore",
+    "template": "orval",
+    "output": "./src",
+    "config": {
+      "httpClient": "axios",
+      "client": "react-query",
+      "mock": { "type": "msw" }
+    },
+    "publish": {
+      "npm": { "enabled": false }
+    }
+  },
+  "clients": [
+    {
+      "name": "pets",
+      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json"
+    }
+  ],
+  "hooks": {
+    "beforeGenerate": [],
+    "afterGenerate": []
+  }
+}
+```
+
+Useful commands:
+
+```bash
+# Validate config without writing files
+npx genxapi generate --config ./genxapi.config.json --dry-run
+
+# Switch templates or generator-facing options for a single run
 npx genxapi generate \
+  --config ./genxapi.config.json \
   --template kubb \
   --http-client fetch \
-  --mode split-tag \
-  --mock-type msw
-
-# Aliases resolved by the CLI
-#   orval → @genxapi/template-orval (default)
-#   kubb  → @genxapi/template-kubb
+  --mode split-tag
 ```
 
-### Try the bundled samples
+## Current vs Planned Release Workflow
 
-Run either sample directly from the repo to see the unified config in action:
+Current:
 
-```bash
-# Orval-flavoured demo (generates into examples/multi-client-demo)
-npx genxapi generate \
-  --config samples/orval-multi-client.config.json \
-  --log-level info
+- `project.publish.npm` and `project.publish.github` are post-generation publish settings used by `generate`.
+- `genxapi publish` creates a GitHub release when you pass `--token`, `--owner`, `--repo`, and `--tag`.
+- The root `npm run publish -- ...` helper is a repository maintenance script for this monorepo, not part of the product CLI surface.
 
-# Kubb-flavoured demo (generates into examples/multi-client-kubb)
-npx genxapi generate \
-  --config samples/kubb-multi-client.config.json \
-  --log-level info
+Planned:
 
-# Validate configs without writing files
-npx genxapi generate \
-  --config samples/orval-multi-client.config.json \
-  --dry-run
-```
+- Contract diffing, SemVer inference, and richer release intelligence are future phases.
 
-Dry-run a release to verify GitHub and npm connectivity:
-
-```bash
-GITHUB_TOKEN=ghp_xxx NPM_TOKEN=npm_xxx \
-npx genxapi publish --dry-run
-```
-
-### Unified publish command
-
-Publishing every workspace now funnels through a single helper script that understands registry presets, access levels, and workspace aliases. From the repo root run:
-
-```bash
-# Publish the Orval template to the default (GitHub Packages) destination
-NPM_TOKEN=xxx npm run publish -- --template template-orval
-
-# Ship the CLI publicly to npmjs.org
-NPM_TOKEN=xxx npm run publish -- --workspace @genxapi/cli --pkg-manager npm --access public
-
-# Perform a dry-run with an explicit config file
-NPM_TOKEN=xxx npm run publish -- \
-  --config scripts/publish.orval.json \
-  --dry-run
-```
-
-Key flags:
-
-- `--workspace` / `--template` – choose the package (aliases include `template-orval`, `template-kubb`, `cli`).
-- `--pkg-manager` or `--registry` – pick a preset (`npm`, `github`) or provide a full registry URL.
-- `--access` – toggle `public` vs `restricted`.
-- `--tag`, `--token-env`, `--command`, `--dry-run`, `--otp` – fine‑tune publish behaviour.
-- `--config <file>` – merge additional JSON config, useful when generators emit publish metadata alongside the generated project.
-
-Defaults live in the root `genxapiPublish` block, so template-generated projects can provide their own publish settings without coding bespoke scripts. You can list available packages with `npm run publish -- --list`.
-
-> Need to publish directly from a workspace? Each package still ships with a plain `npm publish` script, keeping the package self-contained while the unified helper remains available at the repo root.
-
-#### How `genxapiPublish` works
-
-The root `package.json` exposes a `genxapiPublish` section that layers configuration for the helper:
-
-- `defaults` – baseline values (command, tag, token variable) that apply to every workspace.
-- `presets` – shortcuts such as `npm` or `github` that expand into registry/access pairs; you can add more to target other registries.
-- `aliases` – human-friendly names (`template-orval`, `cli`, etc.) that the CLI resolves to real workspace package names.
-- `workspaces` – per-package overrides (e.g. locking templates to GitHub Packages while leaving the CLI free to override at runtime).
-
-The helper merges these layers with any config file you pass (`--config path/to/file.json`) and command-line flags. Template generators can emit JSON payloads with publish settings; drop that file alongside the generated project and invoke `npm run publish -- --config generated-publish.json` to honour whatever the template decided.
-
----
-
-## Command reference
-
-| Command | Summary | Frequent flags |
-| ------- | ------- | -------------- |
-| `generate` | Generates clients, runs hooks, and prepares Git changes. | `--config`, `--target`, `--template`, `--dry-run`, `--log-level` |
-| `publish` | Creates GitHub releases and publishes packages. | `--owner`, `--repo`, `--tag`, `--title`, `--body`, `--draft`, `--prerelease` |
-| `diff` | Compares two OpenAPI documents and classifies breaking changes. | `--base`, `--head`, `--format`, `--output` |
-
-Run `npx genxapi --help` to see every option and sub-command.
-
----
-
-## CI/CD example
+## CI Example
 
 ```yaml
-# .github/workflows/clients.yml
 name: Refresh SDKs
 
 on:
-  schedule:
-    - cron: "0 6 * * 1"
   workflow_dispatch:
 
 jobs:
@@ -204,40 +154,34 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npx genxapi generate --log-level info
-      - run: npx genxapi publish --dry-run
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+      - run: npx genxapi generate --config ./genxapi.config.json --log-level info
 ```
 
----
+If you want contract diff gates today, add your own external diff step or hook. A first-class GenX API `diff` command is planned, not shipped.
 
-## Website
+## Try the Bundled Samples
 
-The public landing page lives in the `website/` folder and is deployed via the `.github/workflows/deploy-website.yml` workflow. Update that directory (and the workflow inputs) if the hosting platform changes—no other parts of the repo depend on a specific provider.
+```bash
+npx genxapi generate \
+  --config samples/orval-multi-client.config.json \
+  --log-level info
 
----
+npx genxapi generate \
+  --config samples/kubb-multi-client.config.json \
+  --log-level info
+```
 
-## When to use it
+## Further Reading
 
-- You maintain multiple SDKs (internal or public) and need reproducible releases.
-- You already define APIs with OpenAPI and want automated feedback on breaking changes.
-- You prefer infrastructure-as-code for delivery pipelines and avoid bespoke shell scripts.
-
-Start with the [Getting Started guide](docs/getting-started.md) to wire the orchestrator into your workflow in under ten minutes.
-
----
-
-## Further reading
-
+- [Getting Started](docs/getting-started.md)
+- [Architecture boundaries](docs/architecture/boundaries.md)
 - [Unified configuration](docs/configuration/unified-generator-config.md)
+- [Templates](docs/templates.md)
 - [CI integration](docs/ci-integration.md)
-- [Templates & adapters](docs/templates.md)
-- [Versioning & releases](docs/versioning.md)
-- [Contributing](docs/contributing.md)
-- [Next steps & roadmap](docs/next-steps.md)
-### Templates and generators
+- [Versioning and releases](docs/versioning.md)
+- [Roadmap](docs/next-steps.md)
+
+## Template Packages
 
 - **Orval template (`@genxapi/template-orval`)** — the default adapter for TypeScript + React Query workflows. [Usage guide](docs/templates/orval-api-client-template.md).
 - **Kubb template (`@genxapi/template-kubb`)** — exposes the Kubb plugin ecosystem for multi-language SDKs. [Usage guide](docs/templates/kubb-api-client-template.md).

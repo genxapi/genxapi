@@ -22,7 +22,7 @@ import { runGenerateCommand } from "./commands/generate";
 import { runPublishCommand } from "./commands/publish";
 import { Logger, type LogLevel } from "./utils/logger";
 
-const CURRENT_VERSION = "0.1.0";
+const CURRENT_VERSION = "0.1.9";
 const LOG_LEVEL_CHOICES: readonly LogLevel[] = ["silent", "error", "warn", "info", "debug"] as const;
 const PACKAGE_MANAGER_CHOICES = ["npm", "pnpm", "yarn", "bun"] as const;
 const NPM_COMMAND_CHOICES = PACKAGE_MANAGER_CHOICES;

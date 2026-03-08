@@ -9,6 +9,10 @@ export function getNav(): NavItem[] {
   return [
     { title: "Overview", href: "/overview" },
     {
+      title: "Architecture",
+      children: [{ title: "Boundaries", href: "/docs/architecture/boundaries" }]
+    },
+    {
       title: "Getting Started",
       href: "/docs/getting-started"
     },
