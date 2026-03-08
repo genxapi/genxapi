@@ -33,6 +33,9 @@ jobs:
       - name: Test Kubb template
         run: npm run test --workspace "@genxapi/template-kubb"
 
+      - name: Verify Kubb release baseline
+        run: node scripts/verify-release-baseline.mjs packages/template-kubb template-kubb-v
+
       - name: Release Kubb template
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

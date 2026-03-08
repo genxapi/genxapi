@@ -39,6 +39,9 @@ jobs:
       - name: CLI pack smoke test
         run: npm run pack:cli:smoke
 
+      - name: Verify CLI release baseline
+        run: node scripts/verify-release-baseline.mjs packages/cli cli-v
+
       - name: Release CLI
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

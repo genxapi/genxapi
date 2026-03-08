@@ -44,6 +44,8 @@ git tag template-kubb-v0.1.0
 git push origin cli-v0.2.0 template-orval-v0.1.1 template-kubb-v0.1.0
 ```
 
+Each package workflow now checks for an existing baseline tag before running `semantic-release`. If the baseline tag is missing, the workflow fails early instead of silently bootstrapping an unintended `1.0.0`.
+
 Current package tags:
 
 - `cli-vX.Y.Z`

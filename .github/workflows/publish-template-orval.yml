@@ -33,6 +33,9 @@ jobs:
       - name: Test Orval template
         run: npm run test --workspace "@genxapi/template-orval"
 
+      - name: Verify Orval release baseline
+        run: node scripts/verify-release-baseline.mjs packages/template-orval template-orval-v
+
       - name: Release Orval template
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
