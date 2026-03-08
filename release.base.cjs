@@ -1,3 +1,11 @@
+const path = require("node:path");
+
+const githubPlugin = path.join(
+  __dirname,
+  "scripts",
+  "semantic-release-github-no-fail.mjs"
+);
+
 module.exports = {
   branches: ["main"],
   plugins: [
@@ -10,7 +18,7 @@ module.exports = {
       }
     ],
     [
-      "@semantic-release/github",
+      githubPlugin,
       {
         successComment: false,
         failComment: false
