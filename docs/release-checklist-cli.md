@@ -58,7 +58,7 @@ Current release rules come from conventional commits:
 
 ## Package workflow isolation
 
-Each scoped package has its own semantic-release workflow so trusted publishing stays pinned to the matching workflow file. `semantic-release-monorepo` still analyzes commits independently per package root, but each workflow can publish only its own package.
+Each scoped package has its own semantic-release workflow so trusted publishing stays pinned to the matching workflow file. A repo-local package-scoped semantic-release plugin filters commits to the current workspace before version analysis, so each workflow can publish only its own package for relevant changes.
 
 ## Optional proxy release
 

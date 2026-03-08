@@ -123,7 +123,7 @@ samples/                         # Reference configuration files
 1. Use Conventional Commits in the PR you plan to merge (`fix`, `feat`, and `BREAKING CHANGE` drive release types).
 2. Merge the PR into `main`.
 3. `.github/workflows/publish-template-orval.yml`, `.github/workflows/publish-template-kubb.yml`, and `.github/workflows/publish-cli.yml` run `semantic-release` for their matching package only.
-4. `semantic-release-monorepo` filters commits per package, applies the correct SemVer bump, publishes to npm, and creates package-specific git tags plus GitHub releases.
+4. The repo-local package-scoped semantic-release plugin filters commits per package, applies the correct SemVer bump, publishes to npm, and creates package-specific git tags plus GitHub releases.
 5. Keep `genxapi` manual unless the proxy package itself changes:
    - `npm run publish -- --workspace genxapi --pkg-manager npm --access public`
 6. Optionally run `npx genxapi publish --token <token> --owner <owner> --repo <repo> --tag vX.Y.Z` to create an additional GitHub release from the CLI itself.

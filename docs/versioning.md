@@ -17,7 +17,7 @@ Current shipped behaviour:
 - `publish` creates a GitHub release when you pass explicit release metadata.
 - Version choice for generated SDKs remains your responsibility or the responsibility of your surrounding release tooling.
 
-For this monorepo's own scoped packages, releases are now managed in CI with `semantic-release` plus `semantic-release-monorepo`.
+For this monorepo's own scoped packages, releases are now managed in CI with `semantic-release` plus a repo-local package-scoped commit filter.
 
 ## Generated Packages Today
 
@@ -77,7 +77,7 @@ The scoped packages published from this repository use merge-to-main automation:
 Current release behaviour:
 
 - Conventional commits determine patch, minor, and major bumps.
-- `semantic-release-monorepo` filters commits per package root so only relevant packages release.
+- The repo-local package-scoped semantic-release plugin filters commits per package root so only relevant packages release.
 - Releases create package-specific tags (`cli-vX.Y.Z`, `template-orval-vX.Y.Z`, `template-kubb-vX.Y.Z`) and GitHub releases.
 - `genxapi` remains a manual proxy-package release from the maintainer laptop.
 
