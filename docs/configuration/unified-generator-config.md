@@ -4,15 +4,17 @@ title: "Unified Generator Config"
 
 # Unified Generator Config
 
-This document expands on the engine-agnostic configuration model introduced in October 2025. Declare generator intent once and let the CLI translate it into the correct template-specific shape (Orval, Kubb, or future adapters).
+Declare generator intent once and let the CLI translate it into the correct template-specific shape for the selected template.
 
-> 📦 **Schema reference** – `packages/cli/schemas/genxapi.schema.json` (the same file published to the `$id` URL). Point your editor to it for IntelliSense.
+> 📦 **Schema reference** – local file: `packages/cli/schemas/genxapi.schema.json`
+>
+> Raw URL: `https://raw.githubusercontent.com/genxapi/genxapi/main/packages/cli/schemas/genxapi.schema.json`
 
 ## Top-level structure
 
 ```jsonc
 {
-  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/schemas/genxapi.schema.json",
+  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/packages/cli/schemas/genxapi.schema.json",
   "project": {
     "name": "multi-client-demo",
     "directory": "../examples/multi-client-demo",
@@ -38,6 +40,7 @@ This document expands on the engine-agnostic configuration model introduced in O
 - **`project.output`** defines the base directory for derived workspaces. Defaults to `./src/<client-name>` if omitted.
 - **`project.config`** sets generator defaults; `clients[].config` provides per-client overrides.
 - **`hooks`** remain unchanged from earlier releases.
+- **Config format today** can be JSON, YAML, or TypeScript.
 
 ## GeneratorOptions
 
@@ -175,7 +178,7 @@ Any extra keys under `plugins.*` are copied verbatim to `kubb.config.ts`.
 
 The CLI still understands the legacy structure, but new capabilities (HTTP client overrides, advanced mock settings, plugin merges) are only available through the unified schema.
 
-## When to favour CLI overrides
+## When to Favour CLI Overrides
 
 - **CI smoke tests** – `npx genxapi generate --dry-run --mock-type off` lets you disable mocks without editing shared config.
 - **Ad-hoc builds** – experiments with `--client zod` or `--http-client fetch` remain local.

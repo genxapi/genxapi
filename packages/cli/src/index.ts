@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { readFileSync } from "node:fs";
 import { relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
@@ -22,7 +23,7 @@ import { runGenerateCommand } from "./commands/generate";
 import { runPublishCommand } from "./commands/publish";
 import { Logger, type LogLevel } from "./utils/logger";
 
-const CURRENT_VERSION = "0.1.0";
+const CURRENT_VERSION = readCurrentVersion();
 const LOG_LEVEL_CHOICES: readonly LogLevel[] = ["silent", "error", "warn", "info", "debug"] as const;
 const PACKAGE_MANAGER_CHOICES = ["npm", "pnpm", "yarn", "bun"] as const;
 const NPM_COMMAND_CHOICES = PACKAGE_MANAGER_CHOICES;
@@ -476,6 +477,16 @@ function buildOverridesFromFlags(flags: GenerateFlags): TemplateOverrides | unde
   }
 
   return Object.keys(overrides).length > 0 ? overrides : undefined;
+}
+
+function readCurrentVersion(): string {
+  try {
+    const packageJsonUrl = new URL("../package.json", import.meta.url);
+    const packageJson = JSON.parse(readFileSync(packageJsonUrl, "utf8")) as { version?: unknown };
+    return typeof packageJson.version === "string" ? packageJson.version : "0.0.0-development";
+  } catch {
+    return "0.0.0-development";
+  }
 }
 
 function normaliseRegistryPreset(value: string): string {

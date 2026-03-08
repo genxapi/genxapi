@@ -151,7 +151,7 @@ async function prepareWorkspace(baseUrl: string): Promise<{
   const projectPath = join(workspace, "orval-generated");
   const configPath = join(workspace, "genxapi.config.json");
   const config = {
-    $schema: "https://raw.githubusercontent.com/genxapi/genxapi/main/schemas/genxapi.schema.json",
+    $schema: "https://raw.githubusercontent.com/genxapi/genxapi/main/packages/cli/schemas/genxapi.schema.json",
     logLevel: "info",
     project: {
       name: "orval-e2e",

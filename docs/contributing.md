@@ -4,7 +4,7 @@ title: "Contributing"
 
 # Contributing
 
-Thanks for helping improve the API client generator! This guide explains the contribution process, coding standards, and release workflow.
+Thanks for helping improve GenX API. This guide explains the contribution process, coding standards, and release workflow.
 
 ## Code of Conduct
 
@@ -47,6 +47,8 @@ npm run genxapi:cli -- --help
 ```
 
 `npm run genxapi:cli -- ...` is intentionally fast and assumes you have already run `npm run build:cli` after changing CLI or template code.
+
+That repo-local shortcut is for monorepo development only. The public command surface remains `npx genxapi generate ...` and `npx genxapi publish ...`.
 
 Dry-run both bundled configs before doing a real generation:
 
@@ -118,13 +120,15 @@ samples/                         # Reference configuration files
 
 ## Releasing
 
-1. Bump versions with `npm version <major|minor|patch> --workspace <package>`.
-2. Commit the version bump and changelog updates.
-3. Publish packages (`npm run publish:template:npm`, `npm run publish:cli:npm`).
-4. Tag the release (`git tag vX.Y.Z`) and push tags.
-5. Optionally run `npx genxapi publish` to create a GitHub release.
+1. Use Conventional Commits in the PR you plan to merge (`fix`, `feat`, and `BREAKING CHANGE` drive release types).
+2. Merge the PR into `main`.
+3. `.github/workflows/publish-template-orval.yml`, `.github/workflows/publish-template-kubb.yml`, and `.github/workflows/publish-cli.yml` run `semantic-release` for their matching package only.
+4. `semantic-release-monorepo` filters commits per package, applies the correct SemVer bump, publishes to npm, and creates package-specific git tags plus GitHub releases.
+5. Keep `genxapi` manual unless the proxy package itself changes:
+   - `npm run publish -- --workspace genxapi --pkg-manager npm --access public`
+6. Optionally run `npx genxapi publish --token <token> --owner <owner> --repo <repo> --tag vX.Y.Z` to create an additional GitHub release from the CLI itself.
 
-> ⚠️ Warning: npm disallows publishing over an existing version. Always increment versions before publishing from CI or locally.
+> ⚠️ Warning: npm disallows publishing over an existing version. `semantic-release` now handles version selection for the scoped packages, but manual releases such as `genxapi` still require you to choose a new version yourself.
 
 ## Getting Help
 

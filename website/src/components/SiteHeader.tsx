@@ -72,11 +72,19 @@ export function SiteHeader({ sticky = true }: Props) {
             </a>
             <a
               className={navButtonGhost}
+              href="https://www.npmjs.com/package/genxapi"
+              target="_blank"
+              rel="noreferrer"
+            >
+              npm genxapi
+            </a>
+            <a
+              className={navButtonGhost}
               href="https://www.npmjs.com/package/@genxapi/cli"
               target="_blank"
               rel="noreferrer"
             >
-              npm
+              npm @genxapi/cli
             </a>
           </nav>
         </div>

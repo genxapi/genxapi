@@ -1,4 +1,4 @@
-name: Publish CLI
+name: Publish Template Kubb
 
 on:
   push:
@@ -10,11 +10,11 @@ permissions:
   id-token: write
 
 concurrency:
-  group: publish-cli
+  group: publish-template-kubb
   cancel-in-progress: false
 
 jobs:
-  release-cli:
+  release-template-kubb:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -30,13 +30,10 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Test CLI
-        run: npm run test --workspace "@genxapi/cli"
+      - name: Test Kubb template
+        run: npm run test --workspace "@genxapi/template-kubb"
 
-      - name: CLI pack smoke test
-        run: npm run pack:cli:smoke
-
-      - name: Release CLI
+      - name: Release Kubb template
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: npm run release --workspace "@genxapi/cli"
+        run: npm run release --workspace "@genxapi/template-kubb"

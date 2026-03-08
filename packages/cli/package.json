@@ -1,6 +1,6 @@
 {
   "name": "@genxapi/cli",
-  "version": "0.1.9",
+  "version": "0.2.0",
   "description": "GenX API CLI - Orchestration for API client generation workflows.",
   "license": "MIT",
   "engines": {
@@ -40,12 +40,13 @@
     "prebuild": "npm run clean",
     "postbuild": "node -e \"const fs=require('node:fs'); const targets=['dist/cli.js','dist/index.js']; for (const target of targets) { if (fs.existsSync(target)) fs.chmodSync(target, 0o755); }\"",
     "prepack": "npm run build && npm run smoke:cli",
+    "release": "semantic-release",
     "smoke:cli": "npm run genxapi:cli -- --help",
     "test": "vitest run"
   },
   "dependencies": {
-    "@genxapi/template-kubb": "0.1.0",
-    "@genxapi/template-orval": "0.1.0",
+    "@genxapi/template-kubb": "^0.1.0",
+    "@genxapi/template-orval": "^0.1.1",
     "@stricli/core": "^1.2.4",
     "chalk": "^5.3.0",
     "cosmiconfig": "^9.0.0",
@@ -54,6 +55,7 @@
     "merge-deep": "^3.0.3",
     "octokit": "^4.0.0",
     "ora": "^8.0.0",
+    "typescript": "^5.6.3",
     "yaml": "^2.5.1",
     "zod": "^3.23.8"
   },
@@ -69,7 +71,6 @@
     "rollup-plugin-delete": "^2.1.0",
     "rollup-plugin-dts": "^6.1.1",
     "tslib": "^2.8.1",
-    "typescript": "^5.6.3",
     "vitest": "^3.2.4"
   }
 }

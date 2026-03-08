@@ -71,7 +71,62 @@ describe("loadCliConfig", () => {
     );
 
     const { config } = await loadCliConfig({ file: configPath, template: "kubb" });
-    console.log(config);
     expect(config.project.template).toBe(TEMPLATE_PACKAGE_MAP.kubb);
+  });
+
+  it("loads a TypeScript config file when passed explicitly", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "genxapi-"));
+    const configPath = join(dir, "genxapi.config.ts");
+    await writeFile(
+      configPath,
+      `const config = {
+  project: {
+    name: "demo-ts",
+    directory: "./demo"
+  },
+  clients: [
+    {
+      name: "pets",
+      swagger: "./specs/pet.yaml"
+    }
+  ]
+};
+
+export default config;
+`,
+      "utf8"
+    );
+
+    const { config } = await loadCliConfig({ file: configPath });
+    expect(config.project.name).toBe("demo-ts");
+    expect(config.project.template).toBe(TEMPLATE_PACKAGE_MAP.orval);
+  });
+
+  it("discovers a TypeScript config file from cwd", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "genxapi-"));
+    const configPath = join(dir, "genxapi.config.ts");
+    await writeFile(
+      configPath,
+      `const config = {
+  project: {
+    name: "demo-search-ts",
+    directory: "./demo"
+  },
+  clients: [
+    {
+      name: "pets",
+      swagger: "./specs/pet.yaml"
+    }
+  ]
+};
+
+export default config;
+`,
+      "utf8"
+    );
+
+    const { config } = await loadCliConfig({ cwd: dir });
+    expect(config.project.name).toBe("demo-search-ts");
+    expect(config.project.template).toBe(TEMPLATE_PACKAGE_MAP.orval);
   });
 });

@@ -4,7 +4,17 @@ title: "CI Integration"
 
 # CI Integration
 
-Automate client generation in your pipelines to keep SDKs in sync with your APIs. This guide covers GitHub Actions, reproducible builds, and extending to other CI providers.
+Automate generation in your pipelines to keep generated packages aligned with the API contract. This guide covers the shipped CI surface and calls out what is still planned.
+
+## Current Workflow
+
+Current CI usage is generation-first:
+
+- Run `generate` against a committed JSON or YAML config file.
+- Optionally allow `generate` to perform post-generation GitHub sync or registry publish when `project.repository` or `project.publish` is configured.
+- Optionally call `publish` afterwards if you want GenX API to create a GitHub release for a specific tag.
+
+There is no public `diff` command in the shipped CLI today.
 
 ## GitHub Actions Workflow
 
@@ -39,14 +49,11 @@ jobs:
           node-version: 20
           cache: npm
 
-      - name: Install CLI
-        run: npm install --no-save @genxapi/cli
-
       - name: Generate clients
         env:
           GITHUB_TOKEN: ${{ secrets.GENERATOR_GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN }}
-        run: npx genxapi generate --log-level info
+        run: npx genxapi generate --config ./genxapi.config.json --log-level info
 
       - name: Publish release
         if: success() && github.event_name == 'workflow_dispatch'
@@ -63,21 +70,16 @@ jobs:
 
 > 💡 Tip: Use a **fine-grained personal access token** for `GENERATOR_GITHUB_TOKEN` with `Contents` and `Pull requests` write access to allow branch pushes and PR creation.
 
-## Cache Orval & Dependencies
+## Local Install Variant
 
-The template installs dependencies via the configured package manager. Cache the generated project’s `node_modules` to speed up repeated runs:
+If your repository installs `@genxapi/cli` locally, `npx genxapi generate` is also valid in CI:
 
-```yaml
-      - name: Cache generated project deps
-        uses: actions/cache@v4
-        with:
-          path: sdk/petstore/node_modules
-          key: node-${{ runner.os }}-${{ hashFiles('sdk/petstore/package-lock.json') }}
-          restore-keys: |
-            node-${{ runner.os }}-
+```bash
+npm install --save-dev @genxapi/cli @genxapi/template-orval
+npx genxapi generate --config ./genxapi.config.json --log-level info
 ```
 
-Adjust the path to match `project.directory`.
+Use `npx genxapi ...` as the primary one-off path. Use `npx @genxapi/cli ...` when you want to target the direct package explicitly.
 
 ## Matrix Strategies
 
@@ -97,7 +99,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm install --no-save @genxapi/cli
       - run: npx genxapi generate --config ${{ matrix.config }}
         env:
           GITHUB_TOKEN: ${{ secrets.GENERATOR_GITHUB_TOKEN }}
@@ -105,25 +106,22 @@ jobs:
 
 Each matrix entry resolves paths relative to the repository root. Override output directories with `--target` if needed.
 
-## Failing Fast on Swagger Changes
+## Contract Gates Today
 
-Prevent unapproved API changes from merging by running the `diff` command before generation:
+If you need contract diff gates today, add an external tool or hook before generation. Examples:
 
-```yaml
-      - name: Diff OpenAPI
-        run: >
-          npx genxapi diff
-          --base specs/petstore-main.yaml
-          --head specs/petstore-pr.yaml
-          --format summary
-```
+- Spectral or another OpenAPI linter in `hooks.beforeGenerate`
+- A custom contract diff step in CI before calling GenX API
+- A repository policy that reviews the OpenAPI file itself before merge
 
-> 💡 Tip: Emit the diff as Markdown (`--format markdown`) and attach it to PR comments for reviewers.
+Planned later:
+
+- First-class GenX API diff reporting and richer contract intelligence.
 
 ## Integrate with Other CI Providers
 
-- **GitLab CI/CD** – run `npx genxapi generate` inside a Node.js image and set `GITHUB_TOKEN`/`NPM_TOKEN` as masked variables.
-- **CircleCI** – add a Node orb, install the CLI, and reuse the same commands. Persist the generated project as a workspace to share across jobs.
+- **GitLab CI/CD** – run `npx genxapi generate` inside a Node.js image and set `GITHUB_TOKEN` and `NPM_TOKEN` as masked variables.
+- **CircleCI** – add a Node orb, install the CLI or use one-off `npx genxapi`, and reuse the same commands.
 - **Azure Pipelines** – use the Node task, install via `npm`, and call the CLI in a script block. Consider secure variable groups for tokens.
 
 Ensure the working directory contains the configuration file or pass `--config` explicitly.
@@ -147,7 +145,7 @@ Ensure the working directory contains the configuration file or pass `--config` 
 ## Next Steps
 
 - Dive into [Templates](./templates.md) to customise project scaffolding.
-- Learn about [Versioning strategies](./versioning.md) to automate releases downstream.
+- Read [Versioning strategies](./versioning.md) to see what GenX API handles today and what remains planned.
 
 ---
 

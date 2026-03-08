@@ -4,7 +4,7 @@ import "../styles/globals.css";
 
 const META_TITLE = "GenX API - Orchestration for API client generation";
 const META_DESCRIPTION =
-  "GenX API is public and available now. Orchestration for API client generation with unified configuration, templates, and release automation.";
+  "GenX API is an orchestration layer for contract-driven client and package generation with unified configuration and template-driven workflows.";
 const SITE_URL = "https://genxapi.dev";
 const OG_IMAGE = `${SITE_URL}/assets/genxapi-logo.png`;
 

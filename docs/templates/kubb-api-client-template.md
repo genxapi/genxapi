@@ -1,6 +1,6 @@
 # Kubb API Client Template (`@genxapi/template-kubb`)
 
-The Kubb template wraps the [Kubb](https://kubb.dev/) plugin ecosystem so you can orchestrate TypeScript (and multi-language) SDKs with the same unified config used by the CLI. This guide explains how to install the template, what it generates, and how to override plugins through configuration.
+The Kubb template wraps the [Kubb](https://kubb.dev/) plugin ecosystem so you can orchestrate package generation with the same unified config used by the CLI. This guide explains how to install the template, what it generates, and how to override plugins through configuration.
 
 ## Installation
 
@@ -20,6 +20,7 @@ npm install --save-dev @kubb/cli @kubb/core @kubb/plugin-client @kubb/plugin-ts 
 examples/<project>/
  ├── package.json                # Includes Kubb plugins, Rollup, Vitest
  ├── kubb.config.ts              # Derived from unified config + per-client overrides
+ ├── src/index.ts                # Stable package entrypoint assembled by the template
  ├── src/<client>/               # Generated client code (fetch/axios) and schemas
  ├── tsconfig.json
  ├── rollup.config.mjs
@@ -69,15 +70,17 @@ The template calls `@kubb/cli generate --config kubb.config.ts` behind the scene
 
 ## Consuming the generated SDK
 
+Import the generated package boundary, not internal generator output paths.
+
 ### Fetch / axios clients
 
 Kubb emits plain async functions by default. With `httpClient: "fetch"` and `dataReturnType: "data"` you can:
 
 ```ts
-import { getPets } from "./src/pets/client";
+import { pets } from "petstore-sdk";
 
-const pets = await getPets({ query: { limit: 20 } });
-console.log(pets.data);
+const result = await pets.getPets({ query: { limit: 20 } });
+console.log(result.data);
 ```
 
 Switch to axios by setting `httpClient: "axios"` (globally or per client) – the return type adapts automatically if you tweak `dataReturnType`.
@@ -148,7 +151,14 @@ The scaffolded `package.json` contains:
 - `npm run build` – wipes `dist/`, regenerates clients, then bundles via Rollup.
 - `npm run test` – executes Vitest.
 
-Respect `publish.npm` settings in your top-level config to publish via `genxapi publish`.
+Current behaviour:
+
+- `generate` can trigger registry publish when `project.publish` enables it.
+- The generated package exposes a stable root entrypoint after build.
+
+Planned later:
+
+- Diff-driven release decisions and SemVer inference are not part of the current Kubb template surface.
 
 ## Resources
 

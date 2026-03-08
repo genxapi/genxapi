@@ -1,6 +1,6 @@
 # Orval API Client Template (`@genxapi/template-orval`)
 
-The Orval template scaffolds a TypeScript SDK and orchestrates Orval’s generator with opinionated defaults for React Query, MSW mocks, and Rollup bundling. This guide covers installation, generated layout, and how to consume the artefacts.
+The Orval template scaffolds a TypeScript package and delegates generator-specific behaviour to Orval. This guide covers installation, generated layout, and the correct package consumption boundary.
 
 ## Installation
 
@@ -22,6 +22,7 @@ Running `npx genxapi generate` with `project.template: "orval"` produces:
 examples/<project>/
  ├── package.json                # Includes build/test scripts, orval + rollup deps
  ├── orval.config.ts             # Generated from unified config options
+ ├── src/index.ts                # Stable package entrypoint assembled by the template
  ├── src/
  │    ├── <client>/client.ts     # Fully-typed HTTP clients / hooks
  │    └── <client>/model/…       # Schemas & types
@@ -62,15 +63,17 @@ The CLI converts these options to Orval’s `output` block. For the exhaustive l
 
 ## Consuming the generated SDK
 
+Import the generated package boundary, not `src/` or `dist/` internals.
+
 ### React Query hooks
 
 With `client: "react-query"` you receive ready-made hooks:
 
 ```ts
-import { useGetPetsQuery } from "./src/pets/client";
+import { pets } from "petstore-sdk";
 
 export function PetsList() {
-  const { data, isLoading } = useGetPetsQuery();
+  const { data, isLoading } = pets.useGetPetsQuery();
   if (isLoading) return <p>Loading…</p>;
   return (
     <ul>
@@ -89,9 +92,9 @@ Switch `project.config.client` to `"swr"`, `"vue-query"`, `"svelte-query"`, `"ax
 When `client: "axios"` (or `"fetch"`) the template emits plain functions instead of hooks:
 
 ```ts
-import { getPets } from "./src/pets/client";
+import { pets } from "petstore-sdk";
 
-const pets = await getPets({ params: { limit: 10 } });
+const result = await pets.getPets({ params: { limit: 10 } });
 ```
 
 Use `project.config.httpClient` or the `--http-client` flag to toggle between axios and fetch under the hood.
@@ -133,7 +136,16 @@ Disable mocks per client with `clients[].config.mock = { "type": "off" }` or glo
 
 ## Rollup build & publishing
 
-The template ships Rollup configuration that produces `dist/index.js` + `dist/index.d.ts`. Run `npm run build` inside the generated folder before publishing. The scaffolded `npm-publish` script honours `publish.npm` settings from the root config.
+The template ships Rollup configuration that produces `dist/index.js` + `dist/index.d.ts`. Run `npm run build` inside the generated folder before publishing or consuming the package from another workspace.
+
+Current behaviour:
+
+- `generate` can trigger post-generation registry publish when `project.publish` enables it.
+- The generated package exposes a stable package entrypoint after build.
+
+Planned later:
+
+- Diff-driven release advice and SemVer intelligence belong to later phases, not this template.
 
 ## Customising further
 

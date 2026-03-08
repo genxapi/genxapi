@@ -1,5 +1,5 @@
 {
-  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/schemas/genxapi.schema.json",
+  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/packages/cli/schemas/genxapi.schema.json",
   "project": {
     "name": "multi-client-demo",
     "directory": "../examples/multi-client-demo",

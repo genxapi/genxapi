@@ -1,6 +1,6 @@
 {
   "name": "genxapi",
-  "description": "GenX API. Run orchestration for API client generation with `npx genxapi`. Align configuration, generation, packaging, and releases.",
+  "description": "Thin proxy package for running the GenX API CLI with `npx genxapi`.",
   "version": "0.1.0",
   "type": "module",
   "license": "Apache-2.0",
@@ -35,7 +35,7 @@
     "proxy"
   ],
   "engines": {
-    "node": ">=18"
+    "node": ">=20"
   },
   "publishConfig": {
     "access": "public"

@@ -2,43 +2,32 @@
 
 ## Core intent
 
-We are building a **meta-orchestrator** for API client generation that still feels like a client API generator to its users while unifying how SDKs are produced, validated, versioned, and published. It co-ordinates generation engines under consistent configuration, CI logic, and release workflows.
+We are building an orchestration layer for contract-driven client and package generation. The current focus is keeping the contract boundary, template boundary, consumer boundary, and orchestration boundary explicit.
 
 This project does **not** replace Orval, Kubb, or any other generator. Instead, it acts as the conductor that executes whichever engine a template supplies, all under shared guardrails.
 
-## Capabilities
+## Current Scope
 
 ### Generation orchestration
 
 - Uses the engines declared in templates (first-party adapters include Orval and Kubb) to produce SDKs from OpenAPI schemas.
 - Accepts a unified configuration surface (`project.template`, `project.config`, `clients[].config`) that is mapped onto each template automatically.
 - Supports multiple clients within a monorepo or spread across repositories.
+- Can scaffold generated packages into monorepo workspace paths through `project.directory` and client output resolution.
 - Handles configuration discovery (`genxapi.config.*`) and per-client overrides.
 
-### CI/CD integration
+### Lifecycle orchestration
 
-- Runs commands in headless mode for pipelines.
-- Integrates with GitHub Actions and other CI workflows to regenerate and publish SDKs automatically.
-- Triggers GitHub commits, pull requests, and releases after generation.
-- Derives semantic versioning decisions from OpenAPI diffs.
+- Runs headless in CI and local automation.
+- Can sync generated changes to GitHub repositories when configured.
+- Can publish generated packages to npm or GitHub Packages when configured.
+- Can create a GitHub release from explicit release metadata.
 
 ### Templating & configuration management
 
 - Provides reusable templates for consistent SDK scaffolding (package manifests, TypeScript configs, bundler settings, etc.).
-- Supports local and remote config schemas validated via Zod.
+- Supports config schemas validated via Zod and published JSON Schema.
 - Centralises configuration so every SDK follows the same rules.
-
-### Publishing
-
-- Automates release creation and npm publishing through Octokit and npm APIs.
-- Supports private and public registries.
-- Manages authentication (`GITHUB_TOKEN`, `NPM_TOKEN`) for CI/CD environments.
-
-### Developer experience
-
-- Ships a unified CLI (`generate`, `publish`, `diff`).
-- Offers logging, dry-runs, validation, and hooks for custom workflows.
-- Encourages shift-left testing and validation of API contracts.
 
 ## Explicit non-goals
 
@@ -49,26 +38,27 @@ This project does **not** replace Orval, Kubb, or any other generator. Instead, 
 - ❌ Deploy or host generated SDKs beyond packaging and publishing.
 - ❌ Hard-code generator-specific logic that prevents future extensibility.
 
-## Core boundaries
+## Boundaries
 
 | Layer | Owned by this project | Delegated / external |
 |-------|-----------------------|----------------------|
 | CLI & orchestration | ✅ | |
 | Schema parsing / SDK codegen | | 🧩 Template-provided engines (e.g. Orval, Kubb, OpenAPI Generator) |
 | Templates & project scaffolding | ✅ | 🧩 Generator-specific artefacts |
-| Diff & semantic versioning | ✅ | |
-| Publishing (GitHub / npm) | ✅ | |
+| Contract ownership | | 🧩 Backend / service owners |
+| Package consumption | | 🧩 Consumer applications |
+| Publishing (GitHub / npm) | ✅ orchestration | 🧩 GitHub APIs, npm CLI, registries |
 | Pipeline execution (CI) | ✅ command layer | 🧩 CI runners |
 | Runtime SDK behaviour | | ❌ out of scope |
 
-## Stretch goals
+See [Architecture boundaries](./architecture/boundaries.md) for the concrete definitions.
 
-- Support multi-language orchestration (Python, Go, .NET adapters via Kubb).
-- Add config-driven end-to-end smoke testing for generated SDKs.
-- Introduce a plugin system for custom generation engines.
-- Provide a dashboard or web interface for release visibility.
-- Offer metrics integration (GitHub Actions annotations, generation statistics).
-- Build an SDK registry index that tracks generated clients and versions.
+## Explicitly Planned for Later Phases
+
+- First-class contract diffing.
+- Diff-driven SemVer and release intelligence.
+- Additional first-party template coverage and multi-language workflows.
+- Broader reporting, catalog, or dashboard surfaces.
 
 ## Maintainers’ notes
 

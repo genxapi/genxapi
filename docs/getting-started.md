@@ -4,19 +4,17 @@ title: "Getting Started"
 
 # Getting Started
 
-Welcome to GenX API. Orchestration for API client generation lets you shift left on client delivery. In a few commands you can turn an OpenAPI specification into a versioned SDK that ships through your CI/CD pipeline. This guide walks through installation, configuration, and validating the first generation locally.
+Welcome to GenX API. The current release focuses on orchestration for contract-driven client and package generation. This guide walks through installation, configuration, and validating a first generation locally.
 
 ## Prerequisites
 
-- Node.js **20 or newer** (Orval and Commander target Node 20).
+- Node.js **20 or newer**.
 - A package manager (`npm`, `pnpm`, or `yarn`) installed on your machine.
 - Optional: `GITHUB_TOKEN` and `NPM_TOKEN` environment variables if you plan to push commits or publish packages.
 
-> ⚠️ Warning: Node 18 can execute the CLI but emits engine warnings from dependencies. Use Node 20+ for production pipelines.
-
 ## Install the CLI
 
-Choose your preferred workflow (install the CLI plus the template package you plan to use):
+Choose the template you plan to drive and install it alongside the CLI:
 
 ```bash
 # npm (Orval template)
@@ -31,11 +29,17 @@ pnpm add -D @genxapi/cli @genxapi/template-orval
 # yarn
 yarn add --dev @genxapi/cli @genxapi/template-orval
 
-# Try it instantly
+# One-off execution without a local install
 npx genxapi --help
 ```
 
-> ℹ️  The Orval template remains the default. Swap `@genxapi/template-orval` for `@genxapi/template-kubb` (and ensure Node 20+) when you prefer Kubb’s plug-in ecosystem, or pass `--template kubb` to the CLI for a one-off switch.
+Recommended invocation paths:
+
+- Local install in your project: `npx genxapi ...`
+- One-off execution today: `npx genxapi ...`
+- Direct package alternative: `npx @genxapi/cli ...`
+
+The `genxapi` package is the primary alias for the command name. It forwards to the latest `@genxapi/cli`, while `@genxapi/cli` remains the direct installable package.
 
 When contributing to this repository, bootstrap everything with:
 
@@ -46,11 +50,18 @@ npm run build
 
 ## Create a Configuration File
 
-By default the CLI looks for `genxapi.config.json` or `genxapi.config.ts` in the current working directory. Start with a minimal JSON config:
+By default the CLI looks for config in the current working directory. Supported filenames today are:
+
+- `genxapi.config.json`
+- `genxapi.config.yaml`
+- `genxapi.config.yml`
+- `genxapi.config.ts`
+
+Start with a minimal JSON config:
 
 ```jsonc
 {
-  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/schemas/genxapi.schema.json",
+  "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/packages/cli/schemas/genxapi.schema.json",
   "project": {
     "name": "petstore-sdk",
     "directory": "./sdk/petstore",
@@ -102,7 +113,9 @@ const config: UnifiedGeneratorConfig = {
 export default config;
 ```
 
-> 💡 Tip: Keep the `$schema` reference (for JSON) or TypeScript import (for TS) so editors provide IntelliSense and validation while you edit.
+> 💡 Tip: Keep the `$schema` reference in JSON config files or use the `UnifiedGeneratorConfig` type in TypeScript config files so editors can validate while you edit.
+
+> ℹ️ In monorepos such as Nx, set `project.directory` to the workspace package path you want GenX API to scaffold, for example `libs/petstore-sdk` or `packages/petstore-sdk`.
 
 ### Selecting a template from the CLI
 
@@ -157,10 +170,10 @@ npx genxapi generate --log-level info
 The CLI:
 
 1. Scaffolds the TypeScript template into `project.directory`.
-2. Copies the OpenAPI document to the `swaggerCopyTarget`.
-3. Runs Orval for each client definition.
+2. Resolves the selected template and maps unified config into it.
+3. Runs the underlying generator for each client definition.
 4. Executes configured hooks.
-5. Optionally syncs commits/pull requests and publishes packages if environment variables are present.
+5. Optionally syncs GitHub changes and publishes packages if the config enables those post-generation steps.
 
 Dry-run the process to validate configuration without modifying files:
 
@@ -202,7 +215,15 @@ npm test
 npm run build
 ```
 
-> 📘 Note: If you set `project.runGenerate` to `false` the template is scaffolded but Orval is skipped. This is useful when you want to run Orval yourself or inject a custom build step.
+Consumer applications should import the generated package boundary after it is built, not internal `src/` or `dist/` paths. For example:
+
+```ts
+import { pets } from "petstore-sdk";
+
+const result = await pets.getPets();
+```
+
+> 📘 Note: If you set `project.runGenerate` to `false` the template is scaffolded but the underlying generator step is skipped. This is useful when you want to run the native generator yourself or inject a custom build step.
 
 ## Override the Output Directory
 
@@ -217,4 +238,5 @@ The CLI rewrites the directory relative to your configuration file and keeps pat
 ## Next Steps
 
 - Continue with the [Configuration Reference →](./configuration.md) to explore every option.
-- Jump ahead to [CI Integration →](./ci-integration.md) when you are ready to automate the workflow in pipelines.
+- Read [Architecture boundaries →](./architecture/boundaries.md) before wiring generated packages into other repositories.
+- Jump ahead to [CI Integration →](./ci-integration.md) when you are ready to automate the current workflow in pipelines.

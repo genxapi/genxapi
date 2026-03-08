@@ -18,7 +18,7 @@ const config = await loadTemplateConfig("./genxapi.config.json");
 await generateClients(config, { runKubb: true });
 ```
 
-See `src/types.ts` for the full schema. Each client can tweak the Kubb plugin options via the `kubb.oas`, `kubb.ts`, and `kubb.client` objects which are shallowly merged into sensible defaults.
+See `src/types.ts` for the full schema. Each client can tweak Kubb plugin options through the unified `config.plugins` fields that are merged into sensible defaults.
 
 > Heads up: for now this package assumes you will install `@kubb/cli`, `@kubb/core`, `@kubb/plugin-client`, `@kubb/plugin-oas`, and `@kubb/plugin-ts` inside the generated project. The template’s `package.json` already lists them under `devDependencies`.
 
@@ -29,22 +29,26 @@ See `src/types.ts` for the full schema. Each client can tweak the Kubb plugin op
   "project": {
     "name": "inventory-client",
     "directory": "./clients/inventory",
-    "template": { "name": "@genxapi/template-kubb" }
+    "template": "kubb"
   },
   "clients": [
     {
       "name": "items",
       "swagger": "./specs/inventory.yaml",
-      "kubb": {
-        "client": {
-          "client": "fetch",
-          "dataReturnType": "data"
-        },
-        "ts": {
-          "enumType": "asConst"
+      "config": {
+        "httpClient": "fetch",
+        "plugins": {
+          "client": {
+            "dataReturnType": "data"
+          },
+          "ts": {
+            "enumType": "asConst"
+          }
         }
       }
     }
   ]
 }
 ```
+
+Consumers should import the generated package boundary, not internal `src/` or `dist/` files.

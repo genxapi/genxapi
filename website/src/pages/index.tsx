@@ -26,15 +26,15 @@ export default function HomePage() {
                   GenX API
                 </p>
                 <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-                  Public launch - Available now
+                  Current release
                 </div>
               </div>
               <h1 className="text-[clamp(2.25rem,4.5vw+1rem,4.75rem)] font-bold leading-[1.06] tracking-[-0.01em] text-navy max-w-[22ch]">
-                Generate, version, and ship SDKs without bespoke scripts.
+                Generate contract-driven SDK packages without bespoke scripts.
               </h1>
               <p className="max-w-xl sm:max-w-2xl text-lg sm:text-xl lg:text-2xl text-muted">
-                GenX API is public and available now. Orchestration for API client generation that keeps
-                templates, packaging, and releases aligned across teams, locally and in CI.
+                Orchestration for API client generation that keeps templates, packaging, and releases
+                aligned across teams, locally and in CI.
               </p>
               <div className="flex flex-wrap items-center gap-3">
                 <Link
@@ -59,14 +59,22 @@ export default function HomePage() {
                 </a>
                 <a
                   className={ctaMeta}
+                  href="https://www.npmjs.com/package/genxapi"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  npm genxapi
+                </a>
+                <a
+                  className={ctaMeta}
                   href="https://www.npmjs.com/package/@genxapi/cli"
                   target="_blank"
                   rel="noreferrer"
                 >
-                  npm CLI
+                  npm @genxapi/cli
                 </a>
                 <span className="text-sm font-semibold text-muted">
-                  Public release - GitHub + npm ready
+                  Shipped today: generate plus targeted release helpers
                 </span>
               </div>
               <div className="flex flex-wrap gap-2">
@@ -87,11 +95,12 @@ export default function HomePage() {
             </div>
             <div className="grid gap-4 sm:gap-6">
               <StatCard
-                title="Spec → Generate → Publish"
-                body="Run once locally or in CI with the same config."
+                title="Current CLI"
+                body="Use the easy alias or call the direct CLI package explicitly with the same command surface."
                 code={`npm install --save-dev @genxapi/cli @genxapi/template-orval
 npx genxapi generate --log-level info
-npx genxapi publish --dry-run`}
+npx @genxapi/cli generate --log-level info
+npx genxapi generate --dry-run`}
               />
               <FeatureRow
                 title="Unified configuration"
@@ -105,7 +114,7 @@ npx genxapi publish --dry-run`}
               />
               <FeatureRow
                 title="CI friendly"
-                body="Cache-aware installs, dry-runs, and publish helpers for GitHub/npm."
+                body="Headless generation, dry-runs, and optional post-generation GitHub or registry steps."
                 href="/docs/ci-integration"
               />
             </div>
@@ -116,7 +125,7 @@ npx genxapi publish --dry-run`}
           <div className="container grid gap-6 sm:gap-7 py-10 sm:py-12 lg:py-14 md:grid-cols-3">
             <Card
               title="Single source of truth"
-              body="Define clients, templates, and publish targets in genxapi.config.*—the same file drives CI."
+              body="Define clients, templates, hooks, and optional post-generation actions in one config."
               href="/docs/configuration"
             />
             <Card
@@ -125,8 +134,8 @@ npx genxapi publish --dry-run`}
               href="/docs/templates"
             />
             <Card
-              title="Release automation"
-              body="OpenAPI diffs, SemVer hints, and publish helpers for GitHub + npm registries."
+              title="Current vs planned"
+              body="GitHub release creation ships today. Diff-driven SemVer and release intelligence are planned."
               href="/docs/versioning"
             />
           </div>

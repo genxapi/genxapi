@@ -4,21 +4,24 @@ title: "Versioning & Releases"
 
 # Versioning & Releases
 
-Consistent versioning keeps generated SDKs trustworthy. This guide covers semantic versioning, changelog automation, and release workflows using GenX API.
+Consistent versioning keeps generated SDKs trustworthy. This guide separates the shipped release surface from the contract-aware workflow GenX API is intended to grow into.
 
-## Semantic Versioning Principles
+## Current State
 
-We follow [SemVer](https://semver.org/):
+GenX API does **not** currently infer SemVer bumps from contract diffs.
 
-- **MAJOR** – backward-incompatible changes (removed endpoints, breaking schema changes).
-- **MINOR** – new functionality (new endpoints, optional fields).
-- **PATCH** – bug fixes or doc-only changes.
+Current shipped behaviour:
 
-> 💡 Tip: Automate SemVer bump detection by analysing OpenAPI diffs (see [Semantic Diffing](#semantic-diffing)).
+- Generated packages keep their own version in `package.json`.
+- `generate` can publish to npm or GitHub Packages when `project.publish` enables those post-generation steps.
+- `publish` creates a GitHub release when you pass explicit release metadata.
+- Version choice for generated SDKs remains your responsibility or the responsibility of your surrounding release tooling.
 
-## Managing Versions in the Template
+For this monorepo's own scoped packages, releases are now managed in CI with `semantic-release` plus `semantic-release-monorepo`.
 
-Each template stores its own version in `package.json`. Increment the version before publishing:
+## Generated Packages Today
+
+Increment the package version before publishing:
 
 ```bash
 npm version patch --workspace @genxapi/template-orval
@@ -26,38 +29,70 @@ npm version patch --workspace @genxapi/template-kubb
 npm version patch --workspace @genxapi/cli
 ```
 
-Update dependent workspaces if you bump major versions.
+For generated SDK packages, bump the version in the generated package itself or let an external release tool handle it.
 
-## Automating Generated SDK Releases
+When `project.publish.npm.enabled` or `project.publish.github.enabled` is `true`, `generate` may publish the generated package as a post-generation action.
 
-The generator publishes SDKs when `project.publish.npm.enabled` is `true`. Recommended flow:
+Recommended current flow:
 
-1. Run the generator in CI with the latest API spec.
-2. Inspect the generated diff (automated PR).
-3. Merge the PR; CI runs `npm publish` with the version already bumped.
-4. Tag releases using the `publish` command or your own release tooling.
+1. Run `generate` against the current contract.
+2. Review the generated package changes.
+3. Bump or confirm the package version.
+4. Publish the package, either through `project.publish` during generation or via your own package workflow.
+5. Optionally call `publish` to create a GitHub release.
 
-### Sample Release Script
+## Creating a GitHub Release Today
 
-Add to your generated repo:
+Use the `publish` command to create a GitHub release:
+
+```bash
+npx genxapi publish \
+  --token ${GITHUB_TOKEN} \
+  --owner acme \
+  --repo petstore-sdk \
+  --tag v1.4.0 \
+  --title "v1.4.0"
+```
+
+You can wrap that in a project script if you want a shorter release command. This example assumes a POSIX shell:
 
 ```jsonc
 {
   "scripts": {
-    "release": "genxapi publish --owner acme --repo petstore-sdk --tag v$npm_package_version --title \"Release $npm_package_version\""
+    "release:github": "genxapi publish --token $GITHUB_TOKEN --owner acme --repo petstore-sdk --tag v$npm_package_version --title \"Release $npm_package_version\""
   }
 }
 ```
 
-## Changelog Automation
+This command does not choose the version number for you and does not compute changelog entries from the contract.
 
-Use conventional commits or semantic-release inside the generated project. The generator’s automated PR includes:
+## This Monorepo Today
 
-- Summary of generated files.
-- Swagger diff summary (when `diff` integration is enabled).
-- Guidance for reviewers on testing steps.
+The scoped packages published from this repository use merge-to-main automation:
 
-Integrate [semantic-release](https://semantic-release.gitbook.io/semantic-release/) by adding:
+- `@genxapi/cli`
+- `@genxapi/template-orval`
+- `@genxapi/template-kubb`
+
+Current release behaviour:
+
+- Conventional commits determine patch, minor, and major bumps.
+- `semantic-release-monorepo` filters commits per package root so only relevant packages release.
+- Releases create package-specific tags (`cli-vX.Y.Z`, `template-orval-vX.Y.Z`, `template-kubb-vX.Y.Z`) and GitHub releases.
+- `genxapi` remains a manual proxy-package release from the maintainer laptop.
+
+## External Tooling You Can Pair With Today
+
+If you want automated versioning today, pair the generated package with your own release tooling, for example:
+
+- [semantic-release](https://semantic-release.gitbook.io/semantic-release/)
+- Release Please
+- Changesets
+- your own CI scripts
+
+That automation lives in the generated package or consumer repository, not inside GenX API core.
+
+Example `semantic-release` configuration for a generated package:
 
 ```jsonc
 {
@@ -78,11 +113,32 @@ Integrate [semantic-release](https://semantic-release.gitbook.io/semantic-releas
 }
 ```
 
-CI runs semantic-release after the generator merges changes, producing GitHub releases and changelog entries.
+With that setup, your generated package CI can run `semantic-release` after generation and review. GenX API does not manage that generated-package pipeline directly today.
 
-## Semantic Diffing
+## Planned Contract-Aware Release Flow
 
-The `diff` command compares two OpenAPI specs and categorises changes. Run it in CI before generation or as part of code review:
+The intended later-phase workflow is broader than the current CLI surface. Planned behaviour includes:
+
+- contract-aware change classification before generation or release
+- release guidance that helps select major, minor, or patch bumps
+- richer release metadata derived from contract and generated output
+- CI-friendly summaries for reviewers and maintainers
+
+Target workflow example:
+
+1. Compare the previous and next API contracts.
+2. Generate updated packages.
+3. Produce a reviewer summary with changed files and contract impact.
+4. Feed that information into package versioning and release tooling.
+5. Publish packages and create GitHub releases with richer release notes.
+
+This is target design context for upcoming phases, not shipped behaviour in the current CLI.
+
+## Planned Semantic Diffing
+
+GenX API does not ship a public `diff` command today. The following section describes the intended contract-aware workflow for later phases.
+
+Target command shape:
 
 ```bash
 npx genxapi diff \
@@ -92,36 +148,35 @@ npx genxapi diff \
   --output ./reports/petstore-diff.md
 ```
 
-Suggested commit messages:
+Target uses for that diff output:
 
-- `feat(api): add POST /pets` → triggers MINOR bump.
-- `fix(api): correct schema for Pet.status` → triggers PATCH bump.
-- Breaking changes produce `fix!` or `feat!` with SemVer major hints.
+- classify breaking and non-breaking contract changes
+- feed PR summaries or reviewer guidance
+- inform SemVer decisions in surrounding release tooling
 
-> 💡 Tip: Pair the diff output with semantic-release custom plugins to auto-select bump types based on detected breaking changes.
+Illustrative commit and release heuristics for later phases:
 
-## Tagging Releases with the CLI
+- `feat(api): add POST /pets` -> likely MINOR guidance
+- `fix(api): correct schema for Pet.status` -> likely PATCH guidance
+- breaking contract changes -> major-version guidance or explicit `!` commits in downstream tooling
 
-Use the `publish` command to create GitHub releases (changelog text is optional):
+Planned PR and release context may include:
 
-```bash
-npx genxapi publish \
-  --token ${GITHUB_TOKEN} \
-  --owner acme \
-  --repo petstore-sdk \
-  --tag v1.4.0 \
-  --title "v1.4.0" \
-  --body "$(cat CHANGELOG.md)" \
-  --prerelease
-```
+- summary of generated files
+- contract diff summary when first-class diff support lands
+- guidance for reviewers on testing steps
 
-Combine this with semantic-release or run it manually after reviewing generated changes.
+## Planned CI Pattern
 
-## Handling Multiple Languages
+One intended later-phase CI flow is:
 
-- TypeScript SDKs use npm semver. Keep the version in sync with changelog entries.
-- Python adapters (preview) will use `pyproject.toml` and follow [PEP 440](https://peps.python.org/pep-0440/). Mirror semantic intent even if the format differs (`1.4.0`, `1.4.0b1`, etc).
-- Document version strategy in your generated README so consumers know how to interpret updates.
+1. Run contract validation and diffing.
+2. Generate packages with `genxapi generate`.
+3. Open or update a review PR with generated changes and contract summary.
+4. Let external tooling such as `semantic-release` or Release Please decide and publish the release.
+5. Optionally use `genxapi publish` to create or enrich the GitHub release step.
+
+Until those phases land, treat this as roadmap context rather than operational product guidance.
 
 ## Next Steps
 
