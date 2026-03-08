@@ -56,7 +56,7 @@ export function Layout({ children, title, showNav = true, showTitle = false }: P
                       {title}
                     </h1>
                   ) : null}
-                  <div className="prose prose-xl max-w-[70ch]">{children}</div>
+                  <div className="prose prose-xl">{children}</div>
                 </div>
               </main>
             </>
@@ -73,7 +73,7 @@ export function Layout({ children, title, showNav = true, showTitle = false }: P
                     {title}
                   </h1>
                 ) : null}
-                <div className="prose prose-xl max-w-[70ch]">{children}</div>
+                <div className="prose prose-xl">{children}</div>
               </div>
             </main>
           )}
