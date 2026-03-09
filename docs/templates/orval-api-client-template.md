@@ -84,7 +84,7 @@ All generator intent now lives under `project.config` and `clients[].config`:
 }
 ```
 
-The CLI converts these options to Orval’s `output` block. For the exhaustive list of valid values see [.context/orval-output-api-options.md](../../.context/orval-output-api-options.md).
+The CLI converts these options to Orval’s `output` block. For the exhaustive list of valid values, see the [Orval documentation](https://orval.dev).
 
 ## Consuming the generated SDK
 
@@ -196,7 +196,7 @@ Planned later:
 ## Resources
 
 - [Unified generator config](../configuration/unified-generator-config.md)
-- [Orval configuration reference](https://orval.dev) (cross-check with `.context/orval-output-api-options.md`)
+- [Orval configuration reference](https://orval.dev)
 - [MSW documentation](https://mswjs.io/)
 
 With the unified interface you can flip between React Query, SWR, axios, or fetch clients—and enable/disable mocks—without touching template internals. The CLI handles the heavy lifting so you can focus on consuming the generated SDK.

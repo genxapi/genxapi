@@ -20,7 +20,7 @@ These are planned, not shipped in the current CLI surface:
 
 - Breaking vs non-breaking structural diffing and deeper release intelligence.
 - Automatic SemVer selection from contract diffs.
-- Marketplace-style discovery or broader reporting surfaces.
+- Broader catalog or reporting surfaces.
 
 ## Boundaries
 

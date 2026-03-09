@@ -25,7 +25,7 @@ Read the full boundary definition in [docs/architecture/boundaries.md](docs/arch
 - Compare two contracts with `genxapi diff`, including human-readable output, JSON output, and structured change classification.
 - Write a release manifest that ties contract diff results, generation planning, and release metadata together.
 - Scaffold package files and stable package entrypoints for generated SDKs.
-- Run generation through an official GitHub Action or directly through the CLI in CI.
+- Run generation directly through the CLI in CI, or adopt the official `genxapi-action` wrapper for GitHub workflows.
 - Run hooks plus optional post-generation GitHub sync and npm or GitHub Packages publish steps when configured.
 - Create a GitHub release with the `publish` command.
 
@@ -35,7 +35,7 @@ These are intentionally not described as shipped today:
 
 - Breaking vs non-breaking structural diffing and stronger SemVer automation.
 - Diff-driven release-note generation or PR annotation workflows.
-- Marketplace or catalog features.
+- Catalog surfaces around generated packages.
 - Broader reporting and CI intelligence beyond the current CLI workflow.
 
 The roadmap remains visible in [docs/next-steps.md](docs/next-steps.md).
@@ -71,6 +71,10 @@ Notes:
 - One-off `npx genxapi ...` uses the `genxapi` package, which forwards to the latest `@genxapi/cli`.
 - Local installs still use `@genxapi/cli`, whose binary is also named `genxapi`.
 - If you want to call the underlying package explicitly, `npx @genxapi/cli ...` remains supported.
+
+## GitHub Actions
+
+GenX API is the core product and CLI surface. For GitHub-native workflow adoption, [`genxapi-action`](https://github.com/genxapi/genxapi-action) is the official and recommended workflow wrapper. Use the CLI directly when you want provider-agnostic automation or fully custom orchestration.
 
 ## Quickstart
 
@@ -194,6 +198,8 @@ Planned:
 
 ## CI Example
 
+GitHub workflow example using the official action:
+
 ```yaml
 name: Backend Package Generation
 
@@ -212,21 +218,25 @@ on:
 jobs:
   generate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
     steps:
       - uses: actions/checkout@v4
       - id: genx
-        uses: genxapi/genxapi@main
+        uses: genxapi/genxapi-action@main
         with:
           config: ./genxapi.config.json
           contract: ./openapi/petstore.yaml
           output-path: ./sdk/petstore-sdk
           contract-version: ${{ github.sha }}
           dry-run: ${{ github.event_name == 'pull_request' }}
+          plan-output: ./artifacts/genxapi-plan.json
           release-manifest-output: ./artifacts/genxapi-release.json
           publish-mode: ${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}
 ```
 
-The action also emits JSON outputs for resolved contracts, output paths, planned actions, next steps, and selected template capabilities. For the full CI surface, see [CI integration](docs/ci-integration.md).
+Use a pinned release tag from `genxapi-action` once you standardise the version you want in production workflows. If you want to wire the CLI yourself, see [CI integration](docs/ci-integration.md) for the `npx genxapi -- ...` alternative.
 
 If you want contract diff gates today, run `genxapi diff` before generation and feed the same `--release-manifest-output` file into both steps.
 
@@ -252,7 +262,7 @@ npx genxapi generate \
 - [Templates](docs/templates.md)
 - [External template authoring](docs/templates/external-template-authoring.md)
 - [CI integration](docs/ci-integration.md)
-- [GitHub Action Marketplace readiness](docs/github-action-marketplace-readiness.md)
+- [Official GitHub Action](docs/github-action.md)
 - [Versioning and releases](docs/versioning.md)
 - [Roadmap](docs/next-steps.md)
 

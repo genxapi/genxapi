@@ -4,13 +4,13 @@ title: "CI Integration"
 
 # CI Integration
 
-GenX API now ships an official automation surface for backend-triggered package generation:
+GenX API stays CLI-first as a product, but GitHub workflows should usually start with the official `genxapi-action` wrapper:
 
+- `genxapi-action` is the recommended GitHub workflow entrypoint
 - the `generate` command can run headless dry-run planning with a JSON plan file
 - the `diff` command can produce contract comparison output for humans or automation
-- the repository root ships an official GitHub Action
-- the action exposes a stable set of CI inputs and outputs
-- dry runs now resolve contracts, template choice, output paths, planned lifecycle actions, and next-step reporting before any files are written
+- direct CLI execution still works in GitHub Actions and other CI systems
+- dry runs resolve contracts, template choice, output paths, planned lifecycle actions, and next-step reporting before any files are written
 
 This keeps the boundaries narrow:
 
@@ -19,60 +19,54 @@ This keeps the boundaries narrow:
 - template boundary: Orval or Kubb still own generator-specific capability behavior
 - core boundary: GenX API owns orchestration, metadata, lifecycle, and workflow reporting
 
-## Official GitHub Action
+## Choose your automation path
 
-Use the repository root action in GitHub Actions:
+- Use the official GitHub Action when your automation already lives in GitHub Actions and you want the canonical workflow wrapper around GenX API.
+- Use the CLI directly when you want the most flexible path, need the same automation pattern across GitHub Actions, GitLab CI, CircleCI, and local runners, or want full control over installation and invocation.
+
+See [Official GitHub Action](./github-action.md) for the wrapper repository and migration note.
+
+## Recommended for GitHub Actions
+
+Use the official action as the default GitHub workflow surface:
 
 ```yaml
-- name: Run GenX API
-  id: genx
-  uses: genxapi/genxapi@main
-  with:
-    config: ./genxapi.config.json
-    contract: ./openapi/petstore.yaml
-    output-path: ./sdk/petstore-sdk
-    dry-run: false
+name: Backend Package Generation
+
+on:
+  pull_request:
+    paths:
+      - openapi/**/*
+      - genxapi.config.json
+  push:
+    branches:
+      - main
+    paths:
+      - openapi/**/*
+      - genxapi.config.json
+
+jobs:
+  generate-sdk:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - id: genx
+        uses: genxapi/genxapi-action@main
+        with:
+          config: ./genxapi.config.json
+          contract: ./openapi/petstore.yaml
+          output-path: ./sdk/petstore-sdk
+          contract-version: ${{ github.sha }}
+          dry-run: ${{ github.event_name == 'pull_request' }}
+          plan-output: ./artifacts/genxapi-plan.json
+          release-manifest-output: ./artifacts/genxapi-release.json
+          publish-mode: ${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}
 ```
 
-Use a tagged release instead of `@main` once you standardise the version you want to pin in CI.
-
-Marketplace publication is intentionally deferred. See [GitHub Action Marketplace readiness](./github-action-marketplace-readiness.md) for the current checklist and decision.
-
-### Supported inputs
-
-| Input               | Meaning                                                                           | Default                     |
-| ------------------- | --------------------------------------------------------------------------------- | --------------------------- |
-| `config`            | Path to the GenX API config file.                                                 | `genxapi.config.json`       |
-| `contract`          | Optional contract path or URL override for single-client configs.                 | empty                       |
-| `output-path`       | Optional generated project directory override.                                    | empty                       |
-| `publish-mode`      | Publish override: `config`, `off`, `npm`, `github`, or `both`.                    | `config`                    |
-| `dry-run`           | Validate and emit a plan without writing generated files.                         | `false`                     |
-| `contract-version`  | Optional external contract version string recorded in plan and manifest metadata. | empty                       |
-| `plan-output`       | Optional JSON plan output path.                                                   | runner temp path            |
-| `release-manifest-output` | Optional JSON release manifest path.                                       | empty                       |
-| `log-level`         | CLI logging level.                                                                | `info`                      |
-| `working-directory` | Working directory that contains the config file.                                  | `.`                         |
-| `node-version`      | Node.js version used by the action.                                               | `22`                        |
-| `cli-version`       | Optional `@genxapi/cli` version override.                                         | action repo package version |
-
-### Action outputs
-
-| Output                       | Meaning                                               |
-| ---------------------------- | ----------------------------------------------------- |
-| `dry-run`                    | Whether the run executed in dry-run mode.             |
-| `plan-path`                  | Absolute path to the generated JSON plan file.        |
-| `manifest-path`              | Planned manifest path inside the generated package.   |
-| `release-manifest-path`      | Absolute path to the generated release manifest file. |
-| `template-name`              | Resolved template package name.                       |
-| `template-kind`              | Resolved template kind.                               |
-| `project-name`               | Generated package name.                               |
-| `project-directory`          | Generated package directory from the resolved run.    |
-| `contract-version`           | External contract version metadata for the run.       |
-| `contracts-json`             | JSON summary of resolved contract sources per client. |
-| `outputs-json`               | JSON summary of resolved output paths per client.     |
-| `planned-actions-json`       | JSON summary of planned GenX API lifecycle actions.   |
-| `next-steps-json`            | JSON summary of recommended next steps.               |
-| `selected-capabilities-json` | JSON array of selected template capabilities.         |
+Use a pinned release tag from `genxapi-action` once you standardise the version you want in production.
 
 ## Backend-Initiated Example
 
@@ -102,21 +96,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - id: genx
-        uses: genxapi/genxapi@main
+        uses: genxapi/genxapi-action@main
         with:
           config: ./genxapi.config.json
           contract: ./openapi/petstore.yaml
           output-path: ./sdk/petstore-sdk
           contract-version: ${{ github.sha }}
           dry-run: ${{ github.event_name == 'pull_request' }}
+          plan-output: ./artifacts/genxapi-plan.json
           release-manifest-output: ./artifacts/genxapi-release.json
           publish-mode: ${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}
       - name: Show resolved plan
         run: |
-          echo '${{ steps.genx.outputs.contracts-json }}'
-          echo '${{ steps.genx.outputs.outputs-json }}'
-          echo '${{ steps.genx.outputs.planned-actions-json }}'
-          echo '${{ steps.genx.outputs.next-steps-json }}'
+          cat "${{ steps.genx.outputs.plan-path }}"
+          if [ -n "${{ steps.genx.outputs.release-manifest-path }}" ]; then
+            cat "${{ steps.genx.outputs.release-manifest-path }}"
+          fi
 ```
 
 Why this is the intended backend flow:
@@ -125,6 +120,37 @@ Why this is the intended backend flow:
 - the only GenX API inputs are the config file plus optional automation overrides
 - the generated package boundary remains the package directory, not internal generator output paths
 - publish behavior stays opt-in and config-driven unless CI explicitly overrides it
+
+## Alternative: direct CLI wiring
+
+If you want to wire the CLI yourself inside GitHub Actions or reuse the same pattern in another CI system, prefer the human-facing command:
+
+```yaml
+- uses: actions/checkout@v4
+- uses: actions/setup-node@v4
+  with:
+    node-version: 22
+- name: Run GenX API directly
+  shell: bash
+  run: |
+    args=(
+      --config ./genxapi.config.json
+      --contract ./openapi/petstore.yaml
+      --output-path ./sdk/petstore-sdk
+      --contract-version "${GITHUB_SHA}"
+      --plan-output ./artifacts/genxapi-plan.json
+      --release-manifest-output ./artifacts/genxapi-release.json
+      --publish-mode "${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}"
+    )
+
+    if [ "${{ github.event_name }}" = "pull_request" ]; then
+      npx genxapi -- generate "${args[@]}" --dry-run
+    else
+      npx genxapi -- generate "${args[@]}"
+    fi
+```
+
+This keeps the command surface product-aligned while avoiding a GitHub-specific wrapper.
 
 ## Headless Dry Run and Plan Output
 
@@ -202,6 +228,12 @@ npx genxapi generate \
 
 This is the supported path for other CI providers as well.
 
+## Migration note
+
+Earlier versions of this documentation referenced a repository-root GitHub Action in `genxapi`. That wrapper now lives in `genxapi-action`.
+
+Keep using the same GenX API config, CLI flags, manifests, and diff flow. Only the GitHub Actions wrapper source moves to the dedicated action repository.
+
 ## What Is Still Not Shipped
 
 This phase still does not add:
@@ -218,6 +250,7 @@ Those stay in later phases.
 - Read [Generation Manifest](./generation-manifest.md) for the metadata produced after a real run.
 - Read [Versioning and releases](./versioning.md) for the current publish and release surface.
 - Read [Release lifecycle](./release-lifecycle.md) for the current diff-to-generation handoff.
+- Read [Official GitHub Action](./github-action.md) when you want the dedicated GitHub wrapper repository.
 
 ---
 
