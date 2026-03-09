@@ -1,6 +1,17 @@
 import { CliConfig } from "src/config/loader";
 
-type TemplateProject = Omit<CliConfig["project"], "template"> & {
+type TemplateProject = {
+  name: string;
+  directory: string;
+  packageManager: "npm" | "pnpm" | "yarn" | "bun";
+  runGenerate: boolean;
+  repository?: Record<string, unknown>;
+  publish?: {
+    readonly npm?: Record<string, unknown>;
+    readonly github?: Record<string, unknown>;
+    readonly [key: string]: unknown;
+  };
+  [key: string]: unknown;
   template: {
     name: string;
     installDependencies: boolean;

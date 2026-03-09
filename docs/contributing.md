@@ -70,10 +70,10 @@ To rerun the native generator from inside either example package:
 
 ```bash
 cd examples/multi-client-demo
-npm run generate-clients
+npm run generate
 
 cd ../multi-client-kubb
-npm run generate-clients
+npm run generate
 ```
 
 Current caveats:

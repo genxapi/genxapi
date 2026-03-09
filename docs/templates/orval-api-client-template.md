@@ -136,12 +136,17 @@ Disable mocks per client with `clients[].config.mock = { "type": "off" }` or glo
 
 ## Rollup build & publishing
 
-The template ships Rollup configuration that produces `dist/index.js` + `dist/index.d.ts`. Run `npm run build` inside the generated folder before publishing or consuming the package from another workspace.
+The template ships Rollup configuration that produces `dist/index.js` + `dist/index.d.ts`. The generated package now separates lifecycle scripts explicitly:
+
+- `npm run generate` regenerates source from the resolved contract inputs.
+- `npm run build` bundles the already generated source and does not rerun generation.
+- `npm run publish` runs `build` and then publishes without refetching contracts.
 
 Current behaviour:
 
 - `generate` can trigger post-generation registry publish when `project.publish` enables it.
 - The generated package exposes a stable package entrypoint after build.
+- `genxapi.manifest.json` records the resolved contract source, checksum, template, and output paths for traceability.
 
 Planned later:
 

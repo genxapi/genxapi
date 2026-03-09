@@ -147,14 +147,16 @@ Combine CLI overrides with configuration to experiment locally without committin
 
 The scaffolded `package.json` contains:
 
-- `npm run generate-clients` – invokes `kubb generate --config kubb.config.ts`.
-- `npm run build` – wipes `dist/`, regenerates clients, then bundles via Rollup.
+- `npm run generate` – invokes `kubb generate --config kubb.config.ts`.
+- `npm run build` – wipes `dist/` and bundles the already generated source via Rollup.
+- `npm run publish` – runs `build` and then publishes without regenerating contracts or source.
 - `npm run test` – executes Vitest.
 
 Current behaviour:
 
 - `generate` can trigger registry publish when `project.publish` enables it.
 - The generated package exposes a stable root entrypoint after build.
+- `genxapi.manifest.json` records the resolved contract source, checksum, template, and output paths for traceability.
 
 Planned later:
 

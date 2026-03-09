@@ -17,6 +17,24 @@ interface PublishOptions {
   readonly logger: Logger;
 }
 
+interface BuildOptions {
+  readonly projectDir: string;
+  readonly packageManager: "npm" | "pnpm" | "yarn" | "bun";
+  readonly logger: Logger;
+}
+
+export async function buildPackage(options: BuildOptions): Promise<void> {
+  const { projectDir, packageManager, logger } = options;
+
+  logger.info(`Building generated package with ${packageManager} before publish.`);
+  await execa(packageManager, ["run", "build"], {
+    cwd: projectDir,
+    stdio: "inherit"
+  });
+
+  logger.info("Package build completed successfully.");
+}
+
 export async function publishToNpm(options: PublishOptions): Promise<void> {
   const { projectDir, config, logger } = options;
   const registry = config.registry ?? process.env["npm_config_registry"];

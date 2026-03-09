@@ -72,7 +72,8 @@ export function buildKubbConfig(
 
     return {
       name: client.name,
-      swagger: client.swagger,
+      swagger: client.contract?.source ?? client.swagger,
+      contract: client.contract,
       output: outputs,
       kubb: kubbOptions
     } as KubbClientConfig;

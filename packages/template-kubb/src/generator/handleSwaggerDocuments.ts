@@ -2,7 +2,7 @@ import { readFile } from "node:fs/promises";
 import { relative as relativePath, resolve } from "node:path";
 import fs from "fs-extra";
 import YAML from "yaml";
-import type { ClientConfig, MultiClientConfig, GenerateClientsOptions } from "../types.js";
+import type { MultiClientConfig, GenerateClientsOptions } from "../types.js";
 import { ensureRelativePath } from "./pathHelpers.js";
 
 export interface SwaggerInfo {
@@ -22,20 +22,56 @@ export async function handleSwaggerDocuments(
   const infos: Record<string, SwaggerInfo | null> = {};
 
   for (const client of config.clients) {
-    const sourceAbsolute = resolve(options.configDir ?? process.cwd(), client.swagger);
-    if (client.copySwagger && !isHttp(client.swagger)) {
-      const destination = resolve(projectDir, client.swaggerCopyTarget);
-      logger?.info?.(`Copying ${client.swagger} -> ${client.swaggerCopyTarget}`);
+    const resolvedContract = options.resolvedContracts?.[client.name];
+    if (resolvedContract) {
+      targets[client.name] = resolvedContract.generatorInput;
+      infos[client.name] = resolvedContract.info;
+      continue;
+    }
+
+    const source = client.contract?.source ?? client.swagger;
+    if (!source) {
+      throw new Error(`Client "${client.name}" does not define a swagger or contract source.`);
+    }
+    const snapshotEnabled =
+      typeof client.contract?.snapshot === "boolean"
+        ? client.contract.snapshot
+        : client.contract?.snapshot
+          ? true
+          : client.copySwagger;
+    const snapshotPath =
+      typeof client.contract?.snapshot === "object" && client.contract.snapshot
+        ? client.contract.snapshot.path ?? client.swaggerCopyTarget
+        : client.swaggerCopyTarget;
+
+    if (client.contract?.auth && isHttp(source)) {
+      throw new Error(
+        `Client "${client.name}" defines remote contract auth. Resolve this configuration through @genxapi/cli so secrets can be applied without leaking into generator config.`
+      );
+    }
+
+    const sourceAbsolute = resolve(options.configDir ?? process.cwd(), source);
+    if (snapshotEnabled && !isHttp(source)) {
+      const destination = resolve(projectDir, snapshotPath);
+      logger?.info?.(`Copying ${source} -> ${snapshotPath}`);
       await fs.ensureDir(resolve(destination, ".."));
       await fs.copyFile(sourceAbsolute, destination);
-      targets[client.name] = client.swaggerCopyTarget;
-      infos[client.name] = await readSwaggerInfoFromFile(destination, client.swagger);
-    } else if (!client.copySwagger && !isHttp(client.swagger)) {
-      targets[client.name] = toProjectRelative(projectDir, sourceAbsolute, client.swagger);
-      infos[client.name] = await readSwaggerInfoFromFile(sourceAbsolute, client.swagger);
+      targets[client.name] = snapshotPath;
+      infos[client.name] = await readSwaggerInfoFromFile(destination, source);
+    } else if (!snapshotEnabled && !isHttp(source)) {
+      targets[client.name] = toProjectRelative(projectDir, sourceAbsolute, source);
+      infos[client.name] = await readSwaggerInfoFromFile(sourceAbsolute, source);
+    } else if (snapshotEnabled && isHttp(source)) {
+      const destination = resolve(projectDir, snapshotPath);
+      logger?.info?.(`Snapshotting ${source} -> ${snapshotPath}`);
+      await fs.ensureDir(resolve(destination, ".."));
+      const text = await fetchSwaggerDocument(source);
+      await fs.writeFile(destination, text, "utf8");
+      targets[client.name] = snapshotPath;
+      infos[client.name] = await readSwaggerInfoFromFile(destination, source);
     } else {
-      targets[client.name] = client.swagger;
-      infos[client.name] = await readSwaggerInfoFromRemote(client.swagger);
+      targets[client.name] = source;
+      infos[client.name] = await readSwaggerInfoFromRemote(source);
     }
   }
 
@@ -70,17 +106,21 @@ async function readSwaggerInfoFromRemote(url: string): Promise<SwaggerInfo | nul
     return { source: url };
   }
   try {
-    const response = await fetch(url);
-    if (!response.ok) {
-      return { source: url };
-    }
-    const text = await response.text();
+    const text = await fetchSwaggerDocument(url);
     const parsed = parseSwaggerSpec(text);
     if (!parsed) return { source: url };
     return { ...parsed, source: url };
   } catch {
     return { source: url };
   }
+}
+
+async function fetchSwaggerDocument(url: string): Promise<string> {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch swagger document from ${url}.`);
+  }
+  return response.text();
 }
 
 function parseSwaggerSpec(text: string): Omit<SwaggerInfo, "source"> | null {

@@ -64,7 +64,8 @@ export function buildOrvalConfig(
 
     return {
       name: client.name,
-      swagger: client.swagger,
+      swagger: client.contract?.source ?? client.swagger,
+      contract: client.contract,
       output: outputs,
       orval: orvalOptions
     } as OrvalClientConfig;

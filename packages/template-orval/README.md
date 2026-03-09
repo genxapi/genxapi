@@ -3,9 +3,10 @@
 Reusable Orval template that supports generating multiple clients from a single configuration file. It:
 
 - Loads JSON/YAML config files via `loadTemplateConfig`/`searchTemplateConfig`.
-- Scaffolds the bundled template, applies token replacements, copies swagger specs.
+- Scaffolds the bundled template, applies token replacements, and consumes resolved contract inputs from GenX API.
 - Generates Orval config and optionally executes Orval + hook scripts.
 - Supports optional GitHub sync/pull request and npm publish settings (consumed by the CLI).
+- Emits generated packages with separate `generate`, `build`, and `publish` scripts plus `genxapi.manifest.json`.
 
 ## Usage
 

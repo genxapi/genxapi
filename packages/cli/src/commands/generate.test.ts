@@ -1,15 +1,52 @@
 import { fileURLToPath } from "node:url";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 import { runGenerateCommand } from "./generate";
 import { loadCliConfig, type CliConfig, type TemplateModule } from "../config/loader";
 import type { Logger } from "../utils/logger";
 
+const contractMocks = vi.hoisted(() => ({
+  resolveContractSources: vi.fn(),
+  writeGenerationManifest: vi.fn()
+}));
+
+const { resolveContractSources, writeGenerationManifest } = contractMocks;
+
 vi.mock("src/utils/generation/runPostGenerationTasks", () => ({
   runPostGenerationTasks: vi.fn().mockResolvedValue(undefined)
 }));
 
+vi.mock("src/utils/contracts", () => ({
+  resolveContractSources: contractMocks.resolveContractSources,
+  writeGenerationManifest: contractMocks.writeGenerationManifest
+}));
+
 describe("runGenerateCommand", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    resolveContractSources.mockResolvedValue({
+      pets: {
+        source: "./pet.yaml",
+        type: "local",
+        resolvedSource: "/tmp/pet.yaml",
+        generatorInput: "swagger-spec.json",
+        snapshot: { enabled: true, path: "swagger-spec.json" },
+        metadata: { sizeBytes: 128 },
+        info: { source: "./pet.yaml", title: "Pets", version: "1.0.0" }
+      },
+      store: {
+        source: "./store.yaml",
+        type: "local",
+        resolvedSource: "/tmp/store.yaml",
+        generatorInput: "swagger-spec.json",
+        snapshot: { enabled: true, path: "swagger-spec.json" },
+        metadata: { sizeBytes: 128 },
+        info: { source: "./store.yaml", title: "Store", version: "1.0.0" }
+      }
+    });
+    writeGenerationManifest.mockResolvedValue(undefined);
+  });
+
   it("applies overrides and invokes template generateClients with hydrated template config", async () => {
     const generateClients = vi.fn().mockResolvedValue(undefined);
     const template: TemplateModule = {
@@ -58,10 +95,13 @@ describe("runGenerateCommand", () => {
 
     expect(generateClients).toHaveBeenCalledTimes(1);
     const [generatedConfig] = generateClients.mock.calls[0];
+    const [, generationOptions] = generateClients.mock.calls[0];
     expect(generatedConfig.project.template).toMatchObject({
       name: "@genxapi/template-orval"
     });
     expect(generatedConfig.clients[0].orval.httpClient).toBe("fetch");
+    expect(generationOptions.resolvedContracts.pets.generatorInput).toBe("swagger-spec.json");
+    expect(writeGenerationManifest).toHaveBeenCalledTimes(1);
   });
 
   it("passes the kubb sample config through to generate both pets and store clients", async () => {
