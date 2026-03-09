@@ -129,4 +129,48 @@ export default config;
     expect(config.project.name).toBe("demo-search-ts");
     expect(config.project.template).toBe(TEMPLATE_PACKAGE_MAP.orval);
   });
+
+  it("accepts contract.source in place of the legacy swagger string", async () => {
+    const dir = await mkdtemp(join(tmpdir(), "genxapi-"));
+    const configPath = join(dir, "config.json");
+    await writeFile(
+      configPath,
+      JSON.stringify(
+        {
+          project: {
+            name: "demo-contract",
+            directory: "./demo"
+          },
+          clients: [
+            {
+              name: "pets",
+              contract: {
+                source: "https://api.example.com/openapi.json",
+                auth: {
+                  type: "bearer",
+                  tokenEnv: "OPENAPI_TOKEN"
+                },
+                snapshot: {
+                  path: ".genxapi/contracts/pets.json"
+                }
+              }
+            }
+          ]
+        },
+        null,
+        2
+      ),
+      "utf8"
+    );
+
+    const { config } = await loadCliConfig({ file: configPath });
+    expect((config.clients[0] as any).swagger).toBe("https://api.example.com/openapi.json");
+    expect((config.clients[0] as any).contract).toMatchObject({
+      source: "https://api.example.com/openapi.json",
+      auth: {
+        type: "bearer",
+        tokenEnv: "OPENAPI_TOKEN"
+      }
+    });
+  });
 });

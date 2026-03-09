@@ -21,6 +21,7 @@ Read the full boundary definition in [docs/architecture/boundaries.md](docs/arch
 - Delegate generation through first-party Orval and Kubb templates, or a custom template package.
 - Scaffold generated packages into monorepo-friendly directories via `project.directory` and per-client outputs.
 - Apply shared overrides such as `--template`, `--http-client`, `--client`, `--mode`, and `--mock-*`.
+- Resolve local or remote contracts into reproducible generation inputs with optional snapshots, checksums, and manifest output.
 - Scaffold package files and stable package entrypoints for generated SDKs.
 - Run hooks plus optional post-generation GitHub sync and npm or GitHub Packages publish steps when configured.
 - Create a GitHub release with the `publish` command.
@@ -124,6 +125,43 @@ npx genxapi generate \
   --mode split-tag
 ```
 
+## Reproducible Contract Workflows
+
+`clients[].swagger` remains the shorthand for a contract source. Use `clients[].contract` when you need explicit snapshotting, checksums, or authenticated remote fetches.
+
+```jsonc
+{
+  "clients": [
+    {
+      "name": "pets",
+      "contract": {
+        "source": "https://api.example.com/openapi.json",
+        "auth": {
+          "type": "bearer",
+          "tokenEnv": "OPENAPI_TOKEN"
+        },
+        "snapshot": {
+          "path": ".genxapi/contracts/pets.json"
+        },
+        "checksum": true
+      }
+    }
+  ]
+}
+```
+
+Secure usage expectations:
+
+- Keep secrets in environment variables referenced by `contract.auth.*Env`; do not embed tokens in config files or URLs.
+- Prefer snapshotting remote contracts so generation runs against a fixed file instead of a mutable live endpoint.
+- Inspect `genxapi.manifest.json` after generation for the resolved contract source, checksum, output paths, template, and generation timestamp.
+
+Generated packages now separate lifecycle scripts explicitly:
+
+- `npm run generate` regenerates source from the resolved contract inputs.
+- `npm run build` bundles the already generated source and does not rerun generation.
+- `npm run publish` builds and publishes without implicitly fetching contracts again.
+
 ## Current vs Planned Release Workflow
 
 Current:
@@ -176,6 +214,7 @@ npx genxapi generate \
 - [Getting Started](docs/getting-started.md)
 - [Architecture boundaries](docs/architecture/boundaries.md)
 - [Unified configuration](docs/configuration/unified-generator-config.md)
+- [Generation manifest](docs/generation-manifest.md)
 - [Templates](docs/templates.md)
 - [CI integration](docs/ci-integration.md)
 - [Versioning and releases](docs/versioning.md)

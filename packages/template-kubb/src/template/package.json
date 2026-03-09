@@ -11,14 +11,18 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "genxapi.manifest.json"
   ],
   "scripts": {
     "clean": "rimraf dist",
-    "generate-clients": "kubb generate --config kubb.config.ts",
-    "build": "rimraf dist && npm run generate-clients && rollup -c",
+    "generate": "kubb generate --config kubb.config.ts",
+    "generate-clients": "npm run generate",
+    "build": "rimraf dist && rollup -c",
     "test": "vitest run",
-    "npm-publish": "npm publish --access public"
+    "publish": "npm run build && npm run publish:npm",
+    "publish:npm": "npm publish --access public",
+    "npm-publish": "npm run publish"
   },
   "devDependencies": {
     "@kubb/cli": "^4.1.3",

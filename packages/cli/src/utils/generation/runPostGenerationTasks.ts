@@ -7,7 +7,7 @@ import {
 } from "@genxapi/template-orval";
 import { GenerateCommandOptions } from "src/commands/generate";
 import { synchronizeRepository } from "src/services/github";
-import { publishToNpm } from "src/services/npm";
+import { buildPackage, publishToNpm } from "src/services/npm";
 
 /**
  * Executes post-generation actions such as repo sync and package publish.
@@ -36,12 +36,22 @@ export async function runPostGenerationTasks(options: GenerateCommandOptions): P
   const githubPublish = publish?.github as unknown as GithubPublishConfig | undefined;
   const resolvedGithubPublish: NpmPublishConfig | undefined = githubPublish
     ? {
+        ...githubPublish,
         registry: githubPublish.registry ?? "https://npm.pkg.github.com",
         tokenEnv: githubPublish.tokenEnv ?? "GITHUB_TOKEN",
-        access: githubPublish.access ?? "restricted",
-        ...githubPublish
+        access: githubPublish.access ?? "restricted"
       }
     : undefined;
+  const shouldPublish = Boolean(npmPublish?.enabled || resolvedGithubPublish?.enabled);
+
+  if (shouldPublish) {
+    options.logger.info("Post-generation: building generated package before registry publish.");
+    await buildPackage({
+      projectDir,
+      packageManager: options.config.project.packageManager,
+      logger: options.logger
+    });
+  }
 
   if (npmPublish?.enabled) {
     options.logger.info("Post-generation: publishing package to npm registry.");

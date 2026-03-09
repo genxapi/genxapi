@@ -254,7 +254,8 @@ const generateCommand = buildCommand<GenerateFlags, GenerateArgs, CliContext>({
         logger,
         dryRun: flags.dryRun ?? false,
         template,
-        overrides: buildOverridesFromFlags(flags)
+        overrides: buildOverridesFromFlags(flags),
+        toolVersion: CURRENT_VERSION
       });
     } catch (error) {
       logger.error(error instanceof Error ? error.message : String(error));

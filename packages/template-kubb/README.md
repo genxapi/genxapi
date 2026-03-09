@@ -5,9 +5,10 @@ Kubb-flavoured sibling of the Orval template. This package scaffolds a TypeScrip
 ## Highlights
 
 - Generates per-client Kubb projects with opinionated output folders for schemas, types, and HTTP clients.
-- Copies OpenAPI specifications into the generated workspace (or references remote URLs) just like the Orval variant.
+- Consumes resolved contract inputs from GenX API, including local snapshots for reproducible remote workflows.
 - Produces a README tailored to the generated clients with table output.
 - Keeps the same configuration shape as the CLI (`project`, `clients`, `hooks`) so it can plug into `@genxapi/cli`.
+- Emits generated packages with separate `generate`, `build`, and `publish` scripts plus `genxapi.manifest.json`.
 
 ## Usage
 

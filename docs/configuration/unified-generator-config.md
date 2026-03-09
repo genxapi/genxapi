@@ -25,7 +25,10 @@ Declare generator intent once and let the CLI translate it into the correct temp
   "clients": [
     {
       "name": "pets",
-      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
+      "contract": {
+        "source": "https://petstore3.swagger.io/api/v3/openapi.json",
+        "snapshot": true
+      },
       "config": { /* overrides */ }
     }
   ],
@@ -39,8 +42,56 @@ Declare generator intent once and let the CLI translate it into the correct temp
 - **`project.template`** accepts aliases (`"orval"`, `"kubb"`) or fully-qualified packages (`@genxapi/template-orval`).
 - **`project.output`** defines the base directory for derived workspaces. Defaults to `./src/<client-name>` if omitted.
 - **`project.config`** sets generator defaults; `clients[].config` provides per-client overrides.
+- **`clients[].swagger`** remains the shorthand contract field; **`clients[].contract`** is the first-class form for auth, snapshots, and checksums.
 - **`hooks`** remain unchanged from earlier releases.
 - **Config format today** can be JSON, YAML, or TypeScript.
+
+## Contract sources
+
+Every client can declare its contract in one of two ways:
+
+- `swagger: "https://..."` or `swagger: "./specs/pets.yaml"` for the compact form.
+- `contract: { ... }` for reproducible workflows, authenticated remote fetches, and manifest metadata.
+
+| Field | Type | Behaviour |
+|-------|------|-----------|
+| `contract.source` | `string` | Local path or remote URL for the OpenAPI/Swagger document. |
+| `contract.auth` | `{ type: "bearer", tokenEnv }` or `{ type: "basic", usernameEnv, passwordEnv }` or `{ type: "header", headerName, valueEnv, prefix? }` | Uses environment variables at generation time so secrets stay out of config files and logs. |
+| `contract.snapshot` | `boolean` or `{ path?: string }` | Writes a local snapshot that the generator consumes. This is the recommended mode for remote inputs and is required for authenticated remote contracts. |
+| `contract.checksum` | `boolean` or `{ algorithm?: "sha256" \| "sha512" }` | Calculates a checksum and records it in `genxapi.manifest.json`. |
+
+Notes:
+
+- Remote contracts are safer and more reproducible when `snapshot` is enabled because the generator reads a fixed file instead of refetching a mutable URL.
+- Authenticated remote contracts are always resolved before template execution so Orval/Kubb never need direct secret access in their config files.
+- `genxapi.manifest.json` captures the resolved contract source, snapshot path, checksum, output paths, template, and generation timestamp for traceability.
+
+### Secure remote contract example
+
+```jsonc
+{
+  "clients": [
+    {
+      "name": "pets",
+      "contract": {
+        "source": "https://api.example.com/openapi.json",
+        "auth": {
+          "type": "bearer",
+          "tokenEnv": "OPENAPI_TOKEN"
+        },
+        "snapshot": {
+          "path": ".genxapi/contracts/pets.json"
+        },
+        "checksum": {
+          "algorithm": "sha256"
+        }
+      }
+    }
+  ]
+}
+```
+
+`OPENAPI_TOKEN` should be injected by your shell, CI system, or secret manager. Do not hardcode tokens in `source` URLs or config files.
 
 ## GeneratorOptions
 
@@ -185,3 +236,5 @@ The CLI still understands the legacy structure, but new capabilities (HTTP clien
 - **Template switching** – `--template kubb` instantly switches engines, keeping the same `clients[].config` contract.
 
 With this unified interface you can add engines, rotate defaults, or run per-environment overrides without rewriting configuration files.
+
+For the manifest structure emitted by generation, see [Generation manifest](../generation-manifest.md).

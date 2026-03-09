@@ -41,10 +41,46 @@ describe("buildKubbConfig", () => {
     expect(result.project.template?.name).toBe("@genxapi/template-kubb");
     const client = result.clients[0] as any;
     expect(client.output.workspace).toBe("./clients/pets");
+    expect(client.swagger).toBe("./pet.yaml");
     expect(client.kubb.client.client).toBe("fetch");
     expect(client.kubb.client.baseURL).toBe("https://api.example.com");
     expect(client.kubb.client.baz).toBe(true);
     expect(client.kubb.ts).toEqual({ a: 1 });
     expect(client.kubb.oas).toEqual({ b: 2 });
+  });
+
+  it("uses contract.source when the unified config declares the first-class contract block", () => {
+    const result = buildKubbConfig(
+      {
+        ...unifiedBase,
+        clients: [
+          {
+            name: "pets",
+            contract: {
+              source: "https://api.example.com/openapi.json",
+              auth: {
+                type: "bearer",
+                tokenEnv: "OPENAPI_TOKEN"
+              }
+            },
+            output: {
+              workspace: "./clients/pets"
+            },
+            config: {}
+          }
+        ]
+      } as any,
+      "@genxapi/template-kubb"
+    );
+
+    const client = result.clients[0] as any;
+    expect(client.swagger).toBe("https://api.example.com/openapi.json");
+    expect(client.contract).toMatchObject({
+      source: "https://api.example.com/openapi.json",
+      auth: {
+        type: "bearer",
+        tokenEnv: "OPENAPI_TOKEN"
+      }
+    });
   });
 });

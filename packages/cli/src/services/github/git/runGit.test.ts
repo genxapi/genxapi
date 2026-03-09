@@ -39,7 +39,7 @@ describe("runGit", () => {
   });
 
   it("disables interactive terminal prompts", async () => {
-    execaMock.mockResolvedValueOnce({ stdout: "" });
+    execaMock.mockResolvedValueOnce({ stdout: "" } as any);
 
     await runGit(["status"], "/repo");
 

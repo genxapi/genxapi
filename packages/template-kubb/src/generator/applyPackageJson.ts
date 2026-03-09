@@ -26,8 +26,14 @@ export async function applyPackageJson(projectDir: string, config: MultiClientCo
   }
   const pkg = JSON.parse(await readFile(pkgPath, "utf8"));
   pkg.name = resolvePackageName(config);
+  pkg.files = Array.isArray(pkg.files) ? pkg.files : [];
+  if (!pkg.files.includes("genxapi.manifest.json")) {
+    pkg.files.push("genxapi.manifest.json");
+  }
   pkg.scripts = pkg.scripts ?? {};
-  pkg.scripts["generate-clients"] = "kubb generate --config kubb.config.ts";
+  pkg.scripts["generate"] = "kubb generate --config kubb.config.ts";
+  pkg.scripts["generate-clients"] = "npm run generate";
+  pkg.scripts["build"] = "rimraf dist && rollup -c";
   const npmPublishConfig = config.project.publish?.npm as NpmPublishConfig | undefined;
   const githubPublishConfig = config.project.publish?.github as GithubPublishConfig | undefined;
   pkg.scripts["publish:npm"] = buildPublishCommand(npmPublishConfig);
@@ -37,7 +43,8 @@ export async function applyPackageJson(projectDir: string, config: MultiClientCo
     registry: "https://npm.pkg.github.com",
     ...(githubPublishConfig ?? {})
   });
-  pkg.scripts["npm-publish"] = "npm run publish:npm";
+  pkg.scripts["publish"] = "npm run build && npm run publish:npm";
+  pkg.scripts["npm-publish"] = "npm run publish";
   await writeFile(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
 }
 

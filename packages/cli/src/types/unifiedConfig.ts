@@ -45,6 +45,58 @@ export const PluginOptionsSchema = z
   })
   .partial();
 
+export const CONTRACT_CHECKSUM_ALGORITHMS = ["sha256", "sha512"] as const;
+export const ContractChecksumAlgorithmSchema = z.enum(CONTRACT_CHECKSUM_ALGORITHMS);
+
+export const ContractChecksumSchema = z.union([
+  z.boolean(),
+  z
+    .object({
+      algorithm: ContractChecksumAlgorithmSchema.optional()
+    })
+    .partial()
+]);
+
+export const ContractSnapshotSchema = z.union([
+  z.boolean(),
+  z
+    .object({
+      path: z.string().optional()
+    })
+    .partial()
+]);
+
+export const ContractAuthSchema = z.discriminatedUnion("type", [
+  z.object({
+    type: z.literal("bearer"),
+    tokenEnv: z.string().min(1),
+    scheme: z.string().min(1).optional()
+  }),
+  z.object({
+    type: z.literal("basic"),
+    usernameEnv: z.string().min(1),
+    passwordEnv: z.string().min(1)
+  }),
+  z.object({
+    type: z.literal("header"),
+    headerName: z.string().min(1),
+    valueEnv: z.string().min(1),
+    prefix: z.string().min(1).optional()
+  })
+]);
+
+export const ContractConfigSchema = z
+  .object({
+    source: z.string().min(1),
+    auth: ContractAuthSchema.optional(),
+    checksum: ContractChecksumSchema.optional(),
+    snapshot: ContractSnapshotSchema.optional()
+  })
+  .partial()
+  .refine((value) => typeof value.source === "string" && value.source.length > 0, {
+    message: "Contract source is required."
+  });
+
 export const UnifiedClientOptionsSchema = z
   .object({
     httpClient: HttpClientSchema.optional(),
@@ -73,12 +125,22 @@ export type UnifiedClientOutputInput = z.input<typeof UnifiedClientOutputSchema>
 export const UnifiedClientSchema = z
   .object({
     name: z.string().min(1),
-    swagger: z.string().min(1),
+    swagger: z.string().min(1).optional(),
+    contract: ContractConfigSchema.optional(),
     output: UnifiedClientOutputSchema.optional(),
     config: UnifiedClientOptionsSchema.optional(),
     template: TemplateIdentifierSchema.optional()
   })
-  .passthrough();
+  .passthrough()
+  .superRefine((value, ctx) => {
+    if (!value.swagger && !value.contract?.source) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Each client must define either `swagger` or `contract.source`.",
+        path: ["swagger"]
+      });
+    }
+  });
 
 export const UnifiedProjectSchema = z
   .object({
@@ -118,3 +180,8 @@ export type UnifiedClientOptions = z.infer<typeof UnifiedClientOptionsSchema>;
 export type HttpClientValue = z.infer<typeof HttpClientSchema>;
 export type OrvalClientAdapterValue = z.infer<typeof OrvalClientAdapterSchema>;
 export type OrvalModeValue = z.infer<typeof OrvalModeSchema>;
+export type ContractConfig = z.infer<typeof ContractConfigSchema>;
+export type ContractAuthConfig = z.infer<typeof ContractAuthSchema>;
+export type ContractChecksumConfig = z.infer<typeof ContractChecksumSchema>;
+export type ContractSnapshotConfig = z.infer<typeof ContractSnapshotSchema>;
+export type ContractChecksumAlgorithm = z.infer<typeof ContractChecksumAlgorithmSchema>;

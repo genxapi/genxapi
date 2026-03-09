@@ -50,10 +50,15 @@
       "minItems": 1,
       "items": {
         "type": "object",
-        "required": ["name", "swagger"],
+        "required": ["name"],
+        "anyOf": [
+          { "required": ["swagger"] },
+          { "required": ["contract"] }
+        ],
         "properties": {
           "name": { "type": "string" },
           "swagger": { "type": "string" },
+          "contract": { "$ref": "#/definitions/contract" },
           "output": {
             "type": "object",
             "properties": {
@@ -167,6 +172,77 @@
       },
       "additionalProperties": true,
       "default": {}
+    },
+    "contract": {
+      "type": "object",
+      "required": ["source"],
+      "properties": {
+        "source": { "type": "string" },
+        "auth": { "$ref": "#/definitions/contractAuth" },
+        "checksum": {
+          "oneOf": [
+            { "type": "boolean" },
+            {
+              "type": "object",
+              "properties": {
+                "algorithm": {
+                  "type": "string",
+                  "enum": ["sha256", "sha512"]
+                }
+              },
+              "additionalProperties": false
+            }
+          ]
+        },
+        "snapshot": {
+          "oneOf": [
+            { "type": "boolean" },
+            {
+              "type": "object",
+              "properties": {
+                "path": { "type": "string" }
+              },
+              "additionalProperties": false
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "contractAuth": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "tokenEnv"],
+          "properties": {
+            "type": { "const": "bearer" },
+            "tokenEnv": { "type": "string" },
+            "scheme": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "usernameEnv", "passwordEnv"],
+          "properties": {
+            "type": { "const": "basic" },
+            "usernameEnv": { "type": "string" },
+            "passwordEnv": { "type": "string" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "headerName", "valueEnv"],
+          "properties": {
+            "type": { "const": "header" },
+            "headerName": { "type": "string" },
+            "valueEnv": { "type": "string" },
+            "prefix": { "type": "string" }
+          },
+          "additionalProperties": false
+        }
+      ]
     },
     "repository": {
       "type": "object",
