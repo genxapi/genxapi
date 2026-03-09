@@ -55,8 +55,8 @@ See [Architecture boundaries](./architecture/boundaries.md) for the concrete def
 
 ## Explicitly Planned for Later Phases
 
-- First-class contract diffing.
-- Diff-driven SemVer and release intelligence.
+- Breaking vs non-breaking contract analysis on top of the shipped diff command.
+- Stronger diff-driven SemVer and release intelligence.
 - Additional first-party template coverage and multi-language workflows.
 - Broader reporting, catalog, or dashboard surfaces.
 

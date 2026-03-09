@@ -126,8 +126,8 @@ Key capabilities:
 
 Later phases are expected to cover:
 
-- First-class contract diffing.
-- SemVer or release intelligence driven by contract changes.
+- Breaking vs non-breaking contract analysis beyond the shipped diff classification.
+- Stronger SemVer or release intelligence driven by contract changes.
 - Broader reporting and catalog surfaces.
 
 ## Further reading

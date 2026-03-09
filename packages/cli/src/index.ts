@@ -19,6 +19,7 @@ import {
   ORVAL_MODE_CHOICES,
   type TemplateOverrides,
 } from "./types";
+import { runDiffCommand } from "./commands/diff";
 import { runGenerateCommand } from "./commands/generate";
 import { runPublishCommand } from "./commands/publish";
 import { Logger, type LogLevel } from "./utils/logger";
@@ -37,6 +38,7 @@ const NPM_COMMAND_CHOICES = PACKAGE_MANAGER_CHOICES;
 const MOCK_TYPE_CHOICES = ["msw", "off"] as const;
 const ACCESS_CHOICES = ["public", "restricted"] as const;
 const PUBLISH_MODE_CHOICES = ["config", "off", "npm", "github", "both"] as const;
+const DIFF_FORMAT_CHOICES = ["text", "json"] as const;
 
 interface GenerateFlags {
   readonly config?: string;
@@ -45,6 +47,7 @@ interface GenerateFlags {
   readonly target?: string;
   readonly outputPath?: string;
   readonly planOutput?: string;
+  readonly releaseManifestOutput?: string;
   readonly contract?: string;
   readonly contractVersion?: string;
   readonly publishMode?: (typeof PUBLISH_MODE_CHOICES)[number];
@@ -67,6 +70,15 @@ interface GenerateFlags {
   readonly noNpmPublish?: boolean;
 }
 
+interface DiffFlags {
+  readonly base: string;
+  readonly head: string;
+  readonly format?: (typeof DIFF_FORMAT_CHOICES)[number];
+  readonly output?: string;
+  readonly releaseManifestOutput?: string;
+  readonly logLevel?: LogLevel;
+}
+
 interface PublishFlags {
   readonly token: string;
   readonly owner: string;
@@ -79,6 +91,7 @@ interface PublishFlags {
 }
 
 type GenerateArgs = [];
+type DiffArgs = [];
 type PublishArgs = [];
 
 interface CliContext extends CommandContext {
@@ -95,6 +108,7 @@ const packageManagerParser = buildChoiceParser(PACKAGE_MANAGER_CHOICES);
 const npmCommandParser = buildChoiceParser(NPM_COMMAND_CHOICES);
 const accessParser = buildChoiceParser(ACCESS_CHOICES);
 const publishModeParser = buildChoiceParser(PUBLISH_MODE_CHOICES);
+const diffFormatParser = buildChoiceParser(DIFF_FORMAT_CHOICES);
 
 const generateCommand = buildCommand<GenerateFlags, GenerateArgs, CliContext>({
   docs: {
@@ -139,6 +153,12 @@ const generateCommand = buildCommand<GenerateFlags, GenerateArgs, CliContext>({
       planOutput: {
         kind: "parsed",
         brief: "Write the resolved generation plan to a JSON file",
+        optional: true,
+        parse: trimInput,
+      },
+      releaseManifestOutput: {
+        kind: "parsed",
+        brief: "Write release lifecycle metadata to a JSON file",
         optional: true,
         parse: trimInput,
       },
@@ -313,6 +333,87 @@ const generateCommand = buildCommand<GenerateFlags, GenerateArgs, CliContext>({
         toolVersion: CURRENT_VERSION,
         planOutputFile: flags.planOutput ? resolve(process.cwd(), flags.planOutput) : undefined,
         contractVersion: flags.contractVersion,
+        releaseManifestOutputFile: flags.releaseManifestOutput
+          ? resolve(process.cwd(), flags.releaseManifestOutput)
+          : undefined,
+      });
+    } catch (error) {
+      logger.error(redactSecrets(error instanceof Error ? error.message : String(error)));
+      process.exitCode = 1;
+    }
+  },
+});
+
+const diffCommand = buildCommand<DiffFlags, DiffArgs, CliContext>({
+  docs: {
+    brief: "Compare two OpenAPI contracts and classify the detected changes",
+    fullDescription:
+      "Loads a base and head contract from local files or URLs, reports OpenAPI changes, and can emit JSON for automation.",
+  },
+  parameters: {
+    aliases: {
+      b: "base",
+      h: "head",
+      o: "output",
+    },
+    flags: {
+      base: {
+        kind: "parsed",
+        brief: "Base contract path or URL",
+        optional: false,
+        parse: trimInput,
+      },
+      head: {
+        kind: "parsed",
+        brief: "Head contract path or URL",
+        optional: false,
+        parse: trimInput,
+      },
+      format: {
+        kind: "parsed",
+        brief: "Output format (text|json)",
+        optional: true,
+        parse: diffFormatParser,
+      },
+      output: {
+        kind: "parsed",
+        brief: "Write the diff report to a file",
+        optional: true,
+        parse: trimInput,
+      },
+      releaseManifestOutput: {
+        kind: "parsed",
+        brief: "Write release lifecycle metadata to a JSON file",
+        optional: true,
+        parse: trimInput,
+      },
+      logLevel: {
+        kind: "parsed",
+        brief: "Log level (silent|error|warn|info|debug)",
+        optional: true,
+        parse: logLevelParser,
+      },
+    },
+  },
+  async func(flags) {
+    const logger = new Logger();
+
+    try {
+      if (flags.logLevel) {
+        logger.setLevel(flags.logLevel);
+      }
+
+      await runDiffCommand({
+        base: flags.base,
+        head: flags.head,
+        logger,
+        cwd: process.cwd(),
+        format: flags.format,
+        outputFile: flags.output ? resolve(process.cwd(), flags.output) : undefined,
+        releaseManifestOutputFile: flags.releaseManifestOutput
+          ? resolve(process.cwd(), flags.releaseManifestOutput)
+          : undefined,
+        toolVersion: CURRENT_VERSION,
       });
     } catch (error) {
       logger.error(redactSecrets(error instanceof Error ? error.message : String(error)));
@@ -404,9 +505,10 @@ const publishCommand = buildCommand<PublishFlags, PublishArgs, CliContext>({
   },
 });
 
-const rootRoutes = buildRouteMap<"generate" | "publish", CliContext>({
+const rootRoutes = buildRouteMap<"generate" | "diff" | "publish", CliContext>({
   routes: {
     generate: generateCommand,
+    diff: diffCommand,
     publish: publishCommand,
   },
   docs: {

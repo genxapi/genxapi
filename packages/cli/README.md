@@ -10,9 +10,8 @@ CLI for GenX API orchestration. The current public command surface is intentiona
 ## Commands
 
 - `genxapi generate` – Generate clients defined in configuration, optionally override the output directory (`--target`), and run configured post-generation GitHub or registry steps.
+- `genxapi diff` – Compare two OpenAPI contracts, render a human-readable summary or JSON report, and optionally write release metadata.
 - `genxapi publish` – Create GitHub releases using Octokit.
-
-There is no public `genxapi diff` command in the current CLI surface.
 
 ## Running the CLI
 
@@ -67,6 +66,27 @@ This command will:
 2. Call `@genxapi/template-orval` to scaffold the template, apply replacements, copy swagger files, run Orval, and execute hooks.
 3. Commit and push the generated changes to GitHub and open a pull request if `project.repository` exists.
 4. Publish the package if `project.publish.npm.enabled` is `true`.
+
+Contract diff example:
+
+```bash
+genxapi diff \
+  --base ./contracts/petstore-prev.json \
+  --head ./contracts/petstore-next.json \
+  --format json \
+  --output ./artifacts/genxapi-diff.json \
+  --release-manifest-output ./artifacts/genxapi-release.json
+```
+
+Generation can append planning metadata to the same release manifest:
+
+```bash
+genxapi generate \
+  --config ./genxapi.config.json \
+  --dry-run \
+  --plan-output ./artifacts/genxapi-plan.json \
+  --release-manifest-output ./artifacts/genxapi-release.json
+```
 
 ### Type safety
 

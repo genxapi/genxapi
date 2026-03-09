@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { dirname, isAbsolute, relative as relativePath, resolve } from "node:path";
 import fs from "fs-extra";
-import YAML from "yaml";
+import { parseOpenApiText } from "./openapi";
 
 export interface ContractResolutionLogger {
   info?(message: string): void;
@@ -430,43 +430,14 @@ function toProjectRelative(projectDir: string, absolute: string, original: strin
 }
 
 function buildSwaggerInfo(text: string, source: string): ResolvedSwaggerInfo | null {
-  const parsed = parseSwaggerSpec(text);
+  const parsed = parseOpenApiText(text);
   if (!parsed) {
     return { source };
   }
   return {
-    ...parsed,
+    ...parsed.info,
     source,
   };
-}
-
-function parseSwaggerSpec(text: string): Omit<ResolvedSwaggerInfo, "source"> | null {
-  try {
-    const asJson = JSON.parse(text);
-    if (typeof asJson === "object" && asJson !== null) {
-      const info = (asJson as { info?: Record<string, unknown> }).info ?? {};
-      return {
-        title: typeof info.title === "string" ? info.title : undefined,
-        description: typeof info.description === "string" ? info.description : undefined,
-        version: typeof info.version === "string" ? info.version : undefined,
-      };
-    }
-  } catch {
-    try {
-      const asYaml = YAML.parse(text);
-      if (typeof asYaml === "object" && asYaml !== null) {
-        const info = (asYaml as { info?: Record<string, unknown> }).info ?? {};
-        return {
-          title: typeof info.title === "string" ? info.title : undefined,
-          description: typeof info.description === "string" ? info.description : undefined,
-          version: typeof info.version === "string" ? info.version : undefined,
-        };
-      }
-    } catch {
-      return null;
-    }
-  }
-  return null;
 }
 
 export function sanitiseSourceForLog(source: string): string {

@@ -30,7 +30,7 @@ export function analyzePaths(
 
   for (const path of oldPathKeys) {
     if (!newPathKeys.has(path)) {
-      diff.modifications.push(`operation path removed ${path}`);
+      diff.removals.push(`path removed ${path}`);
     }
   }
 
@@ -70,7 +70,7 @@ function analyzeMethods(
 
   for (const method of oldSet) {
     if (!newSet.has(method)) {
-      diff.modifications.push(`operation removed ${method.toUpperCase()} ${path}`);
+      diff.removals.push(`operation removed ${method.toUpperCase()} ${path}`);
     }
   }
 

@@ -32,7 +32,13 @@ export function getNav(): NavItem[] {
       ]
     },
     { title: "CI integration", href: "/docs/ci-integration" },
-    { title: "Versioning & releases", href: "/docs/versioning" },
+    {
+      title: "Versioning & releases",
+      children: [
+        { title: "Overview", href: "/docs/versioning" },
+        { title: "Release lifecycle", href: "/docs/release-lifecycle" }
+      ]
+    },
     {
       title: "Context & roadmap",
       children: [

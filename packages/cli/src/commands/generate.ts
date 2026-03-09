@@ -13,6 +13,7 @@ import {
 } from "src/utils/generation/planReport";
 import { runPostGenerationTasks } from "src/utils/generation/runPostGenerationTasks";
 import { resolveContractSources, writeGenerationManifest } from "src/utils/contracts";
+import { writeReleaseManifest } from "src/utils/release";
 
 export interface GenerateCommandOptions {
   readonly config: CliConfig;
@@ -24,6 +25,7 @@ export interface GenerateCommandOptions {
   readonly toolVersion?: string;
   readonly planOutputFile?: string;
   readonly contractVersion?: string;
+  readonly releaseManifestOutputFile?: string;
 }
 
 export async function runGenerateCommand(options: GenerateCommandOptions): Promise<void> {
@@ -93,6 +95,25 @@ export async function runGenerateCommand(options: GenerateCommandOptions): Promi
     options.logger.info(renderGenerationPlanReport(planReport).trimEnd());
 
     if (options.dryRun) {
+      if (options.releaseManifestOutputFile) {
+        await writeReleaseManifest({
+          filePath: options.releaseManifestOutputFile,
+          generatedAt,
+          toolVersion: options.toolVersion,
+          contractVersion: options.contractVersion,
+          project: {
+            name: options.config.project.name,
+            directory: options.config.project.directory,
+          },
+          template: {
+            kind: templateKind,
+            name: options.template.name,
+          },
+          generationReport: planReport,
+        });
+        options.logger.info(`Release manifest written to ${options.releaseManifestOutputFile}.`);
+      }
+
       spinner?.succeed("Configuration validated. Dry run complete.");
       if (!spinner) {
         options.logger.info("Configuration validated. Dry run complete.");
@@ -127,6 +148,25 @@ export async function runGenerateCommand(options: GenerateCommandOptions): Promi
       toolVersion: options.toolVersion,
       contractVersion: options.contractVersion,
     });
+
+    if (options.releaseManifestOutputFile) {
+      await writeReleaseManifest({
+        filePath: options.releaseManifestOutputFile,
+        generatedAt,
+        toolVersion: options.toolVersion,
+        contractVersion: options.contractVersion,
+        project: {
+          name: options.config.project.name,
+          directory: options.config.project.directory,
+        },
+        template: {
+          kind: templateKind,
+          name: options.template.name,
+        },
+        generationReport: planReport,
+      });
+      options.logger.info(`Release manifest written to ${options.releaseManifestOutputFile}.`);
+    }
 
     spinner?.succeed("Clients generated successfully");
     if (!spinner) {

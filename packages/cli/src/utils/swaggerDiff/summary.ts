@@ -9,7 +9,7 @@ const METHOD_PATTERN = /^operation\s+(\w+)/i;
  * @returns Semantic change type (feat, fix, chore).
  */
 export function determineResultType(diff: DiffReport): ChangeType {
-  if (diff.modifications.length > 0 || diff.removals.length > 0) {
+  if (diff.removals.length > 0 || diff.modifications.length > 0) {
     return "fix";
   }
   if (diff.additions.length > 0) {
@@ -37,10 +37,18 @@ export function buildSummary(type: ChangeType, diff: DiffReport): string {
       return `feat(api): ${formatDiffEntry(target)}`;
     }
     case "fix": {
-      const target = diff.modifications[0] ?? diff.removals?.[0] ?? "adjust API definitions";
+      const target = diff.removals[0] ?? diff.modifications[0] ?? "adjust API definitions";
       return `fix(api): ${formatDiffEntry(target)}`;
     }
     case "chore": {
+      if (
+        diff.additions.length === 0 &&
+        diff.removals.length === 0 &&
+        diff.modifications.length === 0 &&
+        diff.docChanges.length === 0
+      ) {
+        return "chore(api): no contract changes detected";
+      }
       const target = diff.docChanges[0] ?? "sync OpenAPI metadata";
       return `chore(api): ${formatDiffEntry(target)}`;
     }

@@ -67,6 +67,17 @@ describe("analyzeSwaggerDiff", () => {
 
     const result = analyzeSwaggerDiff(baseSpec, nextSpec);
     expect(result.type).toBe("fix");
-    expect(result.diff.modifications).toContain("schema removed components/schemas/Pet");
+    expect(result.diff.removals).toContain("schema removed components/schemas/Pet");
+    expect(result.classification.changeLevel).toBe("structural");
+    expect(result.classification.releaseSignal.level).toBe("manual-review");
+  });
+
+  it("marks identical specs as no-op classification", () => {
+    const result = analyzeSwaggerDiff(baseSpec, structuredClone(baseSpec));
+
+    expect(result.type).toBe("chore");
+    expect(result.summary).toBe("chore(api): no contract changes detected");
+    expect(result.classification.changeLevel).toBe("none");
+    expect(result.classification.releaseSignal.suggestedVersionBump).toBe("none");
   });
 });

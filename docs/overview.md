@@ -6,6 +6,9 @@ GenX API is an orchestration layer for contract-driven client and package genera
 
 - Unified config for multi-client generation.
 - First-party Orval and Kubb templates, plus custom template package support.
+- First-class `diff` command for OpenAPI comparisons with text and JSON output.
+- Structured change classification with the current supported levels: `none`, `documentation`, `additive`, and `structural`.
+- Release manifest support that can collect diff and generation metadata into one machine-readable file.
 - Workspace and package scaffolding for monorepos, including Nx-style repository layouts.
 - Generation-time hooks and package scaffolding.
 - Optional post-generation GitHub sync and npm or GitHub Packages publish steps.
@@ -15,8 +18,8 @@ GenX API is an orchestration layer for contract-driven client and package genera
 
 These are planned, not shipped in the current CLI surface:
 
-- First-class OpenAPI diffing.
-- Diff-driven SemVer or release intelligence.
+- Breaking vs non-breaking structural diffing and deeper release intelligence.
+- Automatic SemVer selection from contract diffs.
 - Marketplace-style discovery or broader reporting surfaces.
 
 ## Boundaries
@@ -46,11 +49,10 @@ npx genxapi generate --log-level info
 The shipped command surface is currently:
 
 - `generate`
+- `diff`
 - `publish`
 
 `genxapi` is the primary command alias; `@genxapi/cli` remains the direct package alternative.
-
-There is no public `diff` command today.
 
 ## Templates
 
@@ -58,4 +60,4 @@ There is no public `diff` command today.
 - **Kubb template**: package scaffolding plus Kubb plugin configuration and output assembly.
 - **Custom templates**: packages that export the same template surface and keep generator-specific richness on the template side.
 
-Next steps: read [Getting Started](./getting-started.md), then [Configuration](./configuration.md), [Templates](./templates.md), and [Next steps](./next-steps.md).
+Next steps: read [Getting Started](./getting-started.md), then [Configuration](./configuration.md), [Release lifecycle](./release-lifecycle.md), [Templates](./templates.md), and [Next steps](./next-steps.md).

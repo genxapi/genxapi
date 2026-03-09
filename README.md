@@ -22,6 +22,8 @@ Read the full boundary definition in [docs/architecture/boundaries.md](docs/arch
 - Scaffold generated packages into monorepo-friendly directories via `project.directory` and per-client outputs.
 - Apply shared overrides such as `--template`, `--http-client`, `--client`, `--mode`, and `--mock-*`.
 - Resolve local or remote contracts into reproducible generation inputs with optional snapshots, checksums, and manifest output.
+- Compare two contracts with `genxapi diff`, including human-readable output, JSON output, and structured change classification.
+- Write a release manifest that ties contract diff results, generation planning, and release metadata together.
 - Scaffold package files and stable package entrypoints for generated SDKs.
 - Run generation through an official GitHub Action or directly through the CLI in CI.
 - Run hooks plus optional post-generation GitHub sync and npm or GitHub Packages publish steps when configured.
@@ -31,8 +33,8 @@ Read the full boundary definition in [docs/architecture/boundaries.md](docs/arch
 
 These are intentionally not described as shipped today:
 
-- First-class `diff` command and contract change reporting.
-- Diff-driven SemVer advice or release intelligence.
+- Breaking vs non-breaking structural diffing and stronger SemVer automation.
+- Diff-driven release-note generation or PR annotation workflows.
 - Marketplace or catalog features.
 - Broader reporting and CI intelligence beyond the current CLI workflow.
 
@@ -40,14 +42,13 @@ The roadmap remains visible in [docs/next-steps.md](docs/next-steps.md).
 
 ## Command Surface
 
-The shipped CLI currently exposes two commands:
+The shipped CLI currently exposes three commands:
 
 | Command    | What it does today                                                                                                              |
 | ---------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | `generate` | Loads config, resolves the template, generates clients, and may run post-generation GitHub or registry actions when configured. |
+| `diff`     | Compares two OpenAPI contracts, emits human or JSON output, and classifies the detected changes for release review.             |
 | `publish`  | Creates a GitHub release for an explicit `owner` / `repo` / `tag`.                                                              |
-
-There is no public `diff` command in the current CLI contract.
 
 ## CLI Invocation
 
@@ -119,7 +120,16 @@ Useful commands:
 npx genxapi generate \
   --config ./genxapi.config.json \
   --dry-run \
-  --plan-output ./artifacts/genxapi-plan.json
+  --plan-output ./artifacts/genxapi-plan.json \
+  --release-manifest-output ./artifacts/genxapi-release.json
+
+# Compare two contracts and emit JSON for automation
+npx genxapi diff \
+  --base ./contracts/petstore-prev.json \
+  --head ./contracts/petstore-next.json \
+  --format json \
+  --output ./artifacts/genxapi-diff.json \
+  --release-manifest-output ./artifacts/genxapi-release.json
 
 # Switch templates or generator-facing options for a single run
 npx genxapi generate \
@@ -170,13 +180,17 @@ Generated packages now separate lifecycle scripts explicitly:
 
 Current:
 
+- `genxapi diff` compares two OpenAPI documents and emits structured classification with levels `none`, `documentation`, `additive`, and `structural`.
+- Diff output includes a release signal, but final version selection remains manual today.
+- `generate --release-manifest-output` can add generation planning metadata to the same release manifest used by `diff`.
 - `project.publish.npm` and `project.publish.github` are post-generation publish settings used by `generate`.
 - `genxapi publish` creates a GitHub release when you pass `--token`, `--owner`, `--repo`, and `--tag`.
 - The root `npm run publish -- ...` helper is a repository maintenance script for this monorepo, not part of the product CLI surface.
 
 Planned:
 
-- Contract diffing, SemVer inference, and richer release intelligence are future phases.
+- deeper breaking vs non-breaking contract analysis
+- stronger SemVer automation and release-note generation
 
 ## CI Example
 
@@ -208,12 +222,13 @@ jobs:
           output-path: ./sdk/petstore-sdk
           contract-version: ${{ github.sha }}
           dry-run: ${{ github.event_name == 'pull_request' }}
+          release-manifest-output: ./artifacts/genxapi-release.json
           publish-mode: ${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}
 ```
 
-The action also emits JSON outputs for resolved contracts, output paths, planned actions, and selected template capabilities. For the full CI surface, see [CI integration](docs/ci-integration.md).
+The action also emits JSON outputs for resolved contracts, output paths, planned actions, next steps, and selected template capabilities. For the full CI surface, see [CI integration](docs/ci-integration.md).
 
-If you want contract diff gates today, add your own external diff step or hook. A first-class GenX API `diff` command is planned, not shipped.
+If you want contract diff gates today, run `genxapi diff` before generation and feed the same `--release-manifest-output` file into both steps.
 
 ## Try the Bundled Samples
 
@@ -233,6 +248,7 @@ npx genxapi generate \
 - [Architecture boundaries](docs/architecture/boundaries.md)
 - [Unified configuration](docs/configuration/unified-generator-config.md)
 - [Generation manifest](docs/generation-manifest.md)
+- [Release lifecycle](docs/release-lifecycle.md)
 - [Templates](docs/templates.md)
 - [CI integration](docs/ci-integration.md)
 - [Versioning and releases](docs/versioning.md)

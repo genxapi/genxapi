@@ -99,4 +99,15 @@ The manifest gives you a traceable record of:
 - Use the checksum and snapshot metadata to confirm generation came from a fixed contract file instead of a mutable live input.
 - Inspect `selectedFeatures` and `output` when comparing package changes across templates or configuration updates.
 
-The manifest is metadata only. It does not replace backend-owned contract versioning or future contract diff tooling.
+The manifest is metadata only. It does not replace backend-owned contract versioning or release decisions.
+
+## Generation Manifest vs Release Manifest
+
+`genxapi.manifest.json` lives inside the generated package and answers: "Which contract input and template settings produced this package?"
+
+The optional release manifest answers a different orchestration question: "What contract diff was detected, what generation plan or output followed, and what release review steps come next?"
+
+Use both when you want end-to-end traceability:
+
+- commit `genxapi.manifest.json` with generated package changes
+- store the release manifest in CI artifacts when you run `diff` and `generate`

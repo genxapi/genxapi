@@ -9,8 +9,12 @@ const contractMocks = vi.hoisted(() => ({
   resolveContractSources: vi.fn(),
   writeGenerationManifest: vi.fn(),
 }));
+const releaseMocks = vi.hoisted(() => ({
+  writeReleaseManifest: vi.fn(),
+}));
 
 const { resolveContractSources, writeGenerationManifest } = contractMocks;
+const { writeReleaseManifest } = releaseMocks;
 
 vi.mock("src/utils/generation/runPostGenerationTasks", () => ({
   runPostGenerationTasks: vi.fn().mockResolvedValue(undefined),
@@ -20,6 +24,10 @@ vi.mock("src/utils/contracts", () => ({
   resolveContractSources: contractMocks.resolveContractSources,
   writeGenerationManifest: contractMocks.writeGenerationManifest,
   sanitiseSourceForLog: (value: string) => value,
+}));
+
+vi.mock("src/utils/release", () => ({
+  writeReleaseManifest: releaseMocks.writeReleaseManifest,
 }));
 
 describe("runGenerateCommand", () => {
@@ -46,6 +54,7 @@ describe("runGenerateCommand", () => {
       },
     });
     writeGenerationManifest.mockResolvedValue(undefined);
+    writeReleaseManifest.mockResolvedValue(undefined);
   });
 
   it("applies overrides and invokes template generateClients with hydrated template config", async () => {
@@ -254,6 +263,66 @@ describe("runGenerateCommand", () => {
     expect(logger.info).toHaveBeenCalledWith(expect.stringContaining("Dry run: yes"));
     expect(logger.info).toHaveBeenCalledWith(
       expect.stringContaining("Configuration validated. Dry run complete."),
+    );
+  });
+
+  it("writes release lifecycle metadata when requested", async () => {
+    const generateClients = vi.fn().mockResolvedValue(undefined);
+    const template: TemplateModule = {
+      id: "orval",
+      name: "@genxapi/template-orval",
+      displayName: "Orval API Client Template",
+      aliases: ["orval"],
+      capabilityManifest: {
+        summary: "test",
+        capabilities: [],
+      },
+      schema: z.object({
+        project: z.any(),
+        clients: z.array(z.any()),
+        hooks: z.any(),
+      }),
+      generateClients,
+    };
+
+    await runGenerateCommand({
+      config: {
+        logLevel: "info",
+        project: {
+          name: "demo",
+          directory: "./demo",
+          packageManager: "npm",
+          runGenerate: true,
+          template: "@genxapi/template-orval",
+          templateOptions: { installDependencies: true },
+          publish: {},
+        },
+        clients: [
+          {
+            name: "pets",
+            swagger: "./pet.yaml",
+            output: {
+              target: "./src/pets/client.ts",
+            },
+            orval: {},
+          },
+        ],
+        hooks: { beforeGenerate: [], afterGenerate: [] },
+      },
+      configDir: process.cwd(),
+      logger: createLogger(),
+      template,
+      releaseManifestOutputFile: "/tmp/genxapi-release.json",
+      contractVersion: "backend-sha-123",
+      toolVersion: "0.2.0",
+    });
+
+    expect(writeReleaseManifest).toHaveBeenCalledWith(
+      expect.objectContaining({
+        filePath: "/tmp/genxapi-release.json",
+        contractVersion: "backend-sha-123",
+        toolVersion: "0.2.0",
+      }),
     );
   });
 });

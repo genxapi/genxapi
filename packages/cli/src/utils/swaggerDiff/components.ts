@@ -33,7 +33,7 @@ export function analyzeComponents(
 
   for (const key of oldKeys) {
     if (!newKeys.has(key)) {
-      diff.modifications.push(`schema removed components/schemas/${key}`);
+      diff.removals.push(`schema removed components/schemas/${key}`);
     }
   }
 
