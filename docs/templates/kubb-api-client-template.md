@@ -55,7 +55,7 @@ The template calls `@kubb/cli generate --config kubb.config.ts` behind the scene
 
 ## Configuration recap
 
-```jsonc
+```json
 {
   "project": {
     "template": "kubb",
@@ -113,7 +113,7 @@ Switch to axios by setting `httpClient: "axios"` (globally or per client) – th
 
 Use `plugins.ts` to adjust how models are emitted:
 
-```jsonc
+```json
 {
   "project": {
     "config": {
@@ -131,14 +131,16 @@ Use `plugins.ts` to adjust how models are emitted:
 This translates to:
 
 ```ts
-export enum PetStatus { /* … */ }
+export enum PetStatus {
+  /* … */
+}
 ```
 
 ### OAS plugin overrides
 
 Anything placed under `plugins.oas` is forwarded directly to `plugin-oas`. Example:
 
-```jsonc
+```json
 {
   "clients": [
     {
@@ -159,11 +161,11 @@ Anything placed under `plugins.oas` is forwarded directly to `plugin-oas`. Examp
 
 ## CLI overrides
 
-| Flag | Effect |
-|------|--------|
-| `--template kubb` | Forces the Kubb template even if config defaults to Orval. |
-| `--http-client axios` | Overrides `plugin-client.client` for all clients. |
-| `--base-url https://api.example.com` | Sets `plugin-client.baseURL`. |
+| Flag                                 | Effect                                                     |
+| ------------------------------------ | ---------------------------------------------------------- |
+| `--template kubb`                    | Forces the Kubb template even if config defaults to Orval. |
+| `--http-client axios`                | Overrides `plugin-client.client` for all clients.          |
+| `--base-url https://api.example.com` | Sets `plugin-client.baseURL`.                              |
 
 Combine CLI overrides with configuration to experiment locally without committing changes.
 

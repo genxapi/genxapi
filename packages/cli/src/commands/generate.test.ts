@@ -7,18 +7,19 @@ import type { Logger } from "../utils/logger";
 
 const contractMocks = vi.hoisted(() => ({
   resolveContractSources: vi.fn(),
-  writeGenerationManifest: vi.fn()
+  writeGenerationManifest: vi.fn(),
 }));
 
 const { resolveContractSources, writeGenerationManifest } = contractMocks;
 
 vi.mock("src/utils/generation/runPostGenerationTasks", () => ({
-  runPostGenerationTasks: vi.fn().mockResolvedValue(undefined)
+  runPostGenerationTasks: vi.fn().mockResolvedValue(undefined),
 }));
 
 vi.mock("src/utils/contracts", () => ({
   resolveContractSources: contractMocks.resolveContractSources,
-  writeGenerationManifest: contractMocks.writeGenerationManifest
+  writeGenerationManifest: contractMocks.writeGenerationManifest,
+  sanitiseSourceForLog: (value: string) => value,
 }));
 
 describe("runGenerateCommand", () => {
@@ -32,7 +33,7 @@ describe("runGenerateCommand", () => {
         generatorInput: "swagger-spec.json",
         snapshot: { enabled: true, path: "swagger-spec.json" },
         metadata: { sizeBytes: 128 },
-        info: { source: "./pet.yaml", title: "Pets", version: "1.0.0" }
+        info: { source: "./pet.yaml", title: "Pets", version: "1.0.0" },
       },
       store: {
         source: "./store.yaml",
@@ -41,8 +42,8 @@ describe("runGenerateCommand", () => {
         generatorInput: "swagger-spec.json",
         snapshot: { enabled: true, path: "swagger-spec.json" },
         metadata: { sizeBytes: 128 },
-        info: { source: "./store.yaml", title: "Store", version: "1.0.0" }
-      }
+        info: { source: "./store.yaml", title: "Store", version: "1.0.0" },
+      },
     });
     writeGenerationManifest.mockResolvedValue(undefined);
   });
@@ -51,7 +52,7 @@ describe("runGenerateCommand", () => {
     const generateClients = vi.fn().mockResolvedValue(undefined);
     const planGeneration = vi.fn().mockReturnValue({
       selectedCapabilities: ["http-client"],
-      dependencies: []
+      dependencies: [],
     });
     const template: TemplateModule = {
       id: "orval",
@@ -60,15 +61,15 @@ describe("runGenerateCommand", () => {
       aliases: ["orval"],
       capabilityManifest: {
         summary: "test",
-        capabilities: []
+        capabilities: [],
       },
       schema: z.object({
         project: z.any(),
         clients: z.array(z.any()),
-        hooks: z.any()
+        hooks: z.any(),
       }),
       planGeneration,
-      generateClients
+      generateClients,
     };
     const logger = createLogger();
 
@@ -81,17 +82,17 @@ describe("runGenerateCommand", () => {
         runGenerate: true,
         template: "@genxapi/template-orval",
         templateOptions: { installDependencies: true },
-        publish: {}
+        publish: {},
       },
       clients: [
         {
           name: "pets",
           swagger: "./pet.yaml",
           output: {},
-          orval: {}
-        }
+          orval: {},
+        },
       ],
-      hooks: { beforeGenerate: [], afterGenerate: [] }
+      hooks: { beforeGenerate: [], afterGenerate: [] },
     };
 
     await runGenerateCommand({
@@ -101,15 +102,15 @@ describe("runGenerateCommand", () => {
       template,
       overrides: {
         baseUrl: "https://api.example.com",
-        httpClient: "fetch"
-      }
+        httpClient: "fetch",
+      },
     });
 
     expect(generateClients).toHaveBeenCalledTimes(1);
     const [generatedConfig] = generateClients.mock.calls[0];
     const [, generationOptions] = generateClients.mock.calls[0];
     expect(generatedConfig.project.template).toMatchObject({
-      name: "@genxapi/template-orval"
+      name: "@genxapi/template-orval",
     });
     expect(generatedConfig.clients[0].orval.httpClient).toBe("fetch");
     expect(generationOptions.resolvedContracts.pets.generatorInput).toBe("swagger-spec.json");
@@ -119,7 +120,7 @@ describe("runGenerateCommand", () => {
 
   it("passes the kubb sample config through to generate both pets and store clients", async () => {
     const samplePath = fileURLToPath(
-      new URL("../../../../samples/kubb-multi-client.config.json", import.meta.url)
+      new URL("../../../../samples/kubb-multi-client.config.json", import.meta.url),
     );
     const { config, configDir, template } = await loadCliConfig({ file: samplePath });
     const generateClients = vi.fn().mockResolvedValue(undefined);
@@ -128,7 +129,7 @@ describe("runGenerateCommand", () => {
       config,
       configDir,
       logger: createLogger(),
-      template: { ...template, generateClients }
+      template: { ...template, generateClients },
     });
 
     expect(generateClients).toHaveBeenCalledTimes(1);
@@ -155,7 +156,7 @@ describe("runGenerateCommand", () => {
 
   it("passes the orval sample config through to generate both pets and store clients", async () => {
     const samplePath = fileURLToPath(
-      new URL("../../../../samples/orval-multi-client.config.json", import.meta.url)
+      new URL("../../../../samples/orval-multi-client.config.json", import.meta.url),
     );
     const { config, configDir, template } = await loadCliConfig({ file: samplePath });
     const generateClients = vi.fn().mockResolvedValue(undefined);
@@ -164,7 +165,7 @@ describe("runGenerateCommand", () => {
       config,
       configDir,
       logger: createLogger(),
-      template: { ...template, generateClients }
+      template: { ...template, generateClients },
     });
 
     expect(generateClients).toHaveBeenCalledTimes(1);
@@ -187,6 +188,74 @@ describe("runGenerateCommand", () => {
     expect(store.orval.client).toBe("axios");
     expect(store.orval.mock).toBe(false);
   });
+
+  it("builds a dry-run plan without generating files", async () => {
+    const generateClients = vi.fn().mockResolvedValue(undefined);
+    const template: TemplateModule = {
+      id: "orval",
+      name: "@genxapi/template-orval",
+      displayName: "Orval API Client Template",
+      aliases: ["orval"],
+      capabilityManifest: {
+        summary: "test",
+        capabilities: [],
+      },
+      schema: z.object({
+        project: z.any(),
+        clients: z.array(z.any()),
+        hooks: z.any(),
+      }),
+      generateClients,
+    };
+    const logger = createLogger();
+    const config: CliConfig = {
+      logLevel: "info",
+      project: {
+        name: "demo",
+        directory: "./demo",
+        packageManager: "npm",
+        runGenerate: true,
+        template: "@genxapi/template-orval",
+        templateOptions: { installDependencies: true },
+        publish: {},
+      },
+      clients: [
+        {
+          name: "pets",
+          swagger: "./pet.yaml",
+          output: {
+            workspace: "./src/pets",
+            target: "./src/pets/client.ts",
+            schemas: "./src/pets/model",
+          },
+          orval: {},
+        },
+      ],
+      hooks: { beforeGenerate: [], afterGenerate: [] },
+    };
+
+    await runGenerateCommand({
+      config,
+      configDir: process.cwd(),
+      logger,
+      template,
+      dryRun: true,
+      contractVersion: "2026.03.09",
+    });
+
+    expect(resolveContractSources).toHaveBeenCalledWith(
+      expect.objectContaining({
+        writeSnapshots: false,
+      }),
+    );
+    expect(generateClients).not.toHaveBeenCalled();
+    expect(writeGenerationManifest).not.toHaveBeenCalled();
+    expect(logger.info).toHaveBeenCalledWith(expect.stringContaining("GenX API generation plan"));
+    expect(logger.info).toHaveBeenCalledWith(expect.stringContaining("Dry run: yes"));
+    expect(logger.info).toHaveBeenCalledWith(
+      expect.stringContaining("Configuration validated. Dry run complete."),
+    );
+  });
 });
 
 function createLogger(): Logger {
@@ -195,6 +264,6 @@ function createLogger(): Logger {
     info: vi.fn(),
     warn: vi.fn(),
     error: vi.fn(),
-    setLevel: vi.fn()
+    setLevel: vi.fn(),
   } as any;
 }

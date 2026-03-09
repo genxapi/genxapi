@@ -1,7 +1,7 @@
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { cleanUndefined } from "../cleanUndefined";
-import type { ResolvedContractSource } from "./resolveContractSources";
+import { sanitiseSourceForLog, type ResolvedContractSource } from "./resolveContractSources";
 
 interface ManifestClientOutput {
   readonly workspace?: string;
@@ -21,6 +21,7 @@ export interface WriteGenerationManifestOptions {
   readonly templateName: string;
   readonly templateKind: string;
   readonly toolVersion?: string;
+  readonly contractVersion?: string;
   readonly generatedAt: string;
   readonly projectName: string;
   readonly projectDirectory: string;
@@ -29,50 +30,54 @@ export interface WriteGenerationManifestOptions {
 }
 
 export async function writeGenerationManifest(
-  options: WriteGenerationManifestOptions
+  options: WriteGenerationManifestOptions,
 ): Promise<void> {
   const manifest = {
     schemaVersion: 1,
     generatedAt: options.generatedAt,
+    contractVersion: options.contractVersion,
     tool: {
       name: "@genxapi/cli",
-      version: options.toolVersion ?? "unknown"
+      version: options.toolVersion ?? "unknown",
     },
     template: {
       kind: options.templateKind,
-      name: options.templateName
+      name: options.templateName,
     },
     project: {
       name: options.projectName,
-      directory: options.projectDirectory
+      directory: options.projectDirectory,
     },
     clients: options.clients.map((client) => {
       const resolvedContract = options.resolvedContracts[client.name];
       return {
         name: client.name,
         contract: {
-          source: resolvedContract.source,
+          source: sanitiseSourceForLog(resolvedContract.source),
           type: resolvedContract.type,
-          resolvedSource: resolvedContract.resolvedSource,
+          resolvedSource: sanitiseSourceForLog(resolvedContract.resolvedSource),
           generatorInput: resolvedContract.generatorInput,
           snapshot: resolvedContract.snapshot,
           checksum: resolvedContract.checksum,
-          metadata: resolvedContract.metadata
+          metadata: resolvedContract.metadata,
         },
         output: client.output,
-        selectedFeatures: buildSelectedFeatures(options.templateKind, client)
+        selectedFeatures: buildSelectedFeatures(options.templateKind, client),
       };
-    })
+    }),
   };
 
   await writeFile(
     join(options.projectDir, "genxapi.manifest.json"),
     `${JSON.stringify(manifest, null, 2)}\n`,
-    "utf8"
+    "utf8",
   );
 }
 
-function buildSelectedFeatures(templateKind: string, client: ManifestClientShape): Record<string, unknown> | undefined {
+function buildSelectedFeatures(
+  templateKind: string,
+  client: ManifestClientShape,
+): Record<string, unknown> | undefined {
   if (templateKind === "orval" && client.orval) {
     return cleanUndefined({
       mode: client.orval.mode,
@@ -81,7 +86,7 @@ function buildSelectedFeatures(templateKind: string, client: ManifestClientShape
       baseUrl: client.orval.baseUrl,
       mock: client.orval.mock,
       prettier: client.orval.prettier,
-      clean: client.orval.clean
+      clean: client.orval.clean,
     });
   }
 
@@ -89,7 +94,7 @@ function buildSelectedFeatures(templateKind: string, client: ManifestClientShape
     return cleanUndefined({
       client: client.kubb.client,
       ts: client.kubb.ts,
-      oas: client.kubb.oas
+      oas: client.kubb.oas,
     });
   }
 

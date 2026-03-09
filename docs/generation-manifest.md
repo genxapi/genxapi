@@ -22,6 +22,7 @@ The manifest gives you a traceable record of:
 {
   "schemaVersion": 1,
   "generatedAt": "2026-03-08T12:00:00.000Z",
+  "contractVersion": "backend-sha-abc123",
   "tool": {
     "name": "@genxapi/cli",
     "version": "0.2.0"
@@ -74,22 +75,23 @@ The manifest gives you a traceable record of:
 
 ## Field Reference
 
-| Field | Meaning |
-|-------|---------|
-| `schemaVersion` | Manifest format version. |
-| `generatedAt` | ISO-8601 timestamp for the generation run. |
-| `tool` | The GenX API CLI package name and version that wrote the output. |
-| `template` | Template kind (`orval`, `kubb`, or `custom`) plus the resolved template package name. |
-| `project` | Generated package name and configured output directory. |
-| `clients[].contract.source` | Original contract input from config. |
-| `clients[].contract.type` | `local` or `remote`. |
-| `clients[].contract.resolvedSource` | Absolute local path or final fetched URL after resolution. |
-| `clients[].contract.generatorInput` | The exact path or URL handed to Orval/Kubb. |
-| `clients[].contract.snapshot` | Whether a local snapshot was written and where it lives inside the generated project. |
-| `clients[].contract.checksum` | Optional checksum recorded for reproducibility. |
-| `clients[].contract.metadata` | Non-secret source metadata such as fetch time, content type, ETag, auth env names, and size. |
-| `clients[].output` | Workspace, client target, and schemas output paths. |
-| `clients[].selectedFeatures` | Template-specific feature summary when it can be derived cleanly. |
+| Field                               | Meaning                                                                                      |
+| ----------------------------------- | -------------------------------------------------------------------------------------------- |
+| `schemaVersion`                     | Manifest format version.                                                                     |
+| `generatedAt`                       | ISO-8601 timestamp for the generation run.                                                   |
+| `contractVersion`                   | Optional external contract version recorded by CI automation.                                |
+| `tool`                              | The GenX API CLI package name and version that wrote the output.                             |
+| `template`                          | Template kind (`orval`, `kubb`, or `custom`) plus the resolved template package name.        |
+| `project`                           | Generated package name and configured output directory.                                      |
+| `clients[].contract.source`         | Sanitised contract input recorded for traceability.                                          |
+| `clients[].contract.type`           | `local` or `remote`.                                                                         |
+| `clients[].contract.resolvedSource` | Absolute local path or sanitised fetched URL after resolution.                               |
+| `clients[].contract.generatorInput` | The exact path or URL handed to Orval/Kubb.                                                  |
+| `clients[].contract.snapshot`       | Whether a local snapshot was written and where it lives inside the generated project.        |
+| `clients[].contract.checksum`       | Optional checksum recorded for reproducibility.                                              |
+| `clients[].contract.metadata`       | Non-secret source metadata such as fetch time, content type, ETag, auth env names, and size. |
+| `clients[].output`                  | Workspace, client target, and schemas output paths.                                          |
+| `clients[].selectedFeatures`        | Template-specific feature summary when it can be derived cleanly.                            |
 
 ## Intended Use
 

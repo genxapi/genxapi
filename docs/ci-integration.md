@@ -4,148 +4,200 @@ title: "CI Integration"
 
 # CI Integration
 
-Automate generation in your pipelines to keep generated packages aligned with the API contract. This guide covers the shipped CI surface and calls out what is still planned.
+GenX API now ships an official automation surface for backend-triggered package generation:
 
-## Current Workflow
+- the `generate` command can run headless dry-run planning with a JSON plan file
+- the repository root ships an official GitHub Action
+- the action exposes a stable set of CI inputs and outputs
+- dry runs now resolve contracts, template choice, output paths, and planned lifecycle actions before any files are written
 
-Current CI usage is generation-first:
+This keeps the boundaries narrow:
 
-- Run `generate` against a committed JSON or YAML config file.
-- Optionally allow `generate` to perform post-generation GitHub sync or registry publish when `project.repository` or `project.publish` is configured.
-- Optionally call `publish` afterwards if you want GenX API to create a GitHub release for a specific tag.
+- backend boundary: your OpenAPI or Swagger contract
+- consumer boundary: the generated package interface
+- template boundary: Orval or Kubb still own generator-specific capability behavior
+- core boundary: GenX API owns orchestration, metadata, lifecycle, and workflow reporting
 
-There is no public `diff` command in the shipped CLI today.
+## Official GitHub Action
 
-## GitHub Actions Workflow
-
-Create `.github/workflows/generate-clients.yml`:
+Use the repository root action in GitHub Actions:
 
 ```yaml
-name: Generate API Clients
+- name: Run GenX API
+  id: genx
+  uses: genxapi/genxapi@main
+  with:
+    config: ./genxapi.config.json
+    contract: ./openapi/petstore.yaml
+    output-path: ./sdk/petstore-sdk
+    dry-run: false
+```
+
+Use a tagged release instead of `@main` once you standardise the version you want to pin in CI.
+
+### Supported inputs
+
+| Input               | Meaning                                                                           | Default                     |
+| ------------------- | --------------------------------------------------------------------------------- | --------------------------- |
+| `config`            | Path to the GenX API config file.                                                 | `genxapi.config.json`       |
+| `contract`          | Optional contract path or URL override for single-client configs.                 | empty                       |
+| `output-path`       | Optional generated project directory override.                                    | empty                       |
+| `publish-mode`      | Publish override: `config`, `off`, `npm`, `github`, or `both`.                    | `config`                    |
+| `dry-run`           | Validate and emit a plan without writing generated files.                         | `false`                     |
+| `contract-version`  | Optional external contract version string recorded in plan and manifest metadata. | empty                       |
+| `plan-output`       | Optional JSON plan output path.                                                   | runner temp path            |
+| `log-level`         | CLI logging level.                                                                | `info`                      |
+| `working-directory` | Working directory that contains the config file.                                  | `.`                         |
+| `node-version`      | Node.js version used by the action.                                               | `22`                        |
+| `cli-version`       | Optional `@genxapi/cli` version override.                                         | action repo package version |
+
+### Action outputs
+
+| Output                       | Meaning                                               |
+| ---------------------------- | ----------------------------------------------------- |
+| `dry-run`                    | Whether the run executed in dry-run mode.             |
+| `plan-path`                  | Absolute path to the generated JSON plan file.        |
+| `manifest-path`              | Planned manifest path inside the generated package.   |
+| `template-name`              | Resolved template package name.                       |
+| `template-kind`              | Resolved template kind.                               |
+| `project-name`               | Generated package name.                               |
+| `project-directory`          | Generated package directory from the resolved run.    |
+| `contract-version`           | External contract version metadata for the run.       |
+| `contracts-json`             | JSON summary of resolved contract sources per client. |
+| `outputs-json`               | JSON summary of resolved output paths per client.     |
+| `planned-actions-json`       | JSON summary of planned GenX API lifecycle actions.   |
+| `selected-capabilities-json` | JSON array of selected template capabilities.         |
+
+## Backend-Initiated Example
+
+Reference workflow: [docs/backend-package-generation.workflow.yml](./backend-package-generation.workflow.yml)
+
+```yaml
+name: Backend Package Generation
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: "0 6 * * 1" # every Monday
-  push:
+  pull_request:
     paths:
-      - genxapi.config.*
-      - specs/**
+      - openapi/**/*
+      - genxapi.config.json
+  push:
+    branches:
+      - main
+    paths:
+      - openapi/**/*
+      - genxapi.config.json
 
 jobs:
-  generate:
+  generate-sdk:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      pull-requests: write
       packages: write
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - id: genx
+        uses: genxapi/genxapi@main
         with:
-          node-version: 20
-          cache: npm
-
-      - name: Generate clients
-        env:
-          GITHUB_TOKEN: ${{ secrets.GENERATOR_GITHUB_TOKEN }}
-          NPM_TOKEN: ${{ secrets.NPM_AUTOMATION_TOKEN }}
-        run: npx genxapi generate --config ./genxapi.config.json --log-level info
-
-      - name: Publish release
-        if: success() && github.event_name == 'workflow_dispatch'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GENERATOR_GITHUB_TOKEN }}
-        run: >
-          npx genxapi publish
-          --owner ${{ github.repository_owner }}
-          --repo ${{ github.event.repository.name }}
-          --tag v${{ github.run_number }}
-          --title "Automated client refresh"
-          --body "Generated by GenX API workflow."
+          config: ./genxapi.config.json
+          contract: ./openapi/petstore.yaml
+          output-path: ./sdk/petstore-sdk
+          contract-version: ${{ github.sha }}
+          dry-run: ${{ github.event_name == 'pull_request' }}
+          publish-mode: ${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}
+      - name: Show resolved plan
+        run: |
+          echo '${{ steps.genx.outputs.contracts-json }}'
+          echo '${{ steps.genx.outputs.outputs-json }}'
+          echo '${{ steps.genx.outputs.planned-actions-json }}'
 ```
 
-> 💡 Tip: Use a **fine-grained personal access token** for `GENERATOR_GITHUB_TOKEN` with `Contents` and `Pull requests` write access to allow branch pushes and PR creation.
+Why this is the intended backend flow:
 
-## Local Install Variant
+- the workflow starts from the backend-owned contract file
+- the only GenX API inputs are the config file plus optional automation overrides
+- the generated package boundary remains the package directory, not internal generator output paths
+- publish behavior stays opt-in and config-driven unless CI explicitly overrides it
 
-If your repository installs `@genxapi/cli` locally, `npx genxapi generate` is also valid in CI:
+## Headless Dry Run and Plan Output
+
+`generate --dry-run` now resolves enough of the run to be trustworthy in CI:
+
+- template kind and template package
+- contract source and generator input
+- output workspace, target, and schema paths
+- planned GenX API actions such as manifest writing, repository sync, and publish steps
+- selected template capabilities and dependency plan
+
+Example:
 
 ```bash
-npm install --save-dev @genxapi/cli @genxapi/template-orval
-npx genxapi generate --config ./genxapi.config.json --log-level info
+npx genxapi generate \
+  --config ./genxapi.config.json \
+  --dry-run \
+  --plan-output ./artifacts/genxapi-plan.json \
+  --contract ./openapi/petstore.yaml \
+  --output-path ./sdk/petstore-sdk
 ```
 
-Use `npx genxapi ...` as the primary one-off path. Use `npx @genxapi/cli ...` when you want to target the direct package explicitly.
+The JSON plan file is the recommended CI hand-off artifact before you allow generation or publishing.
 
-## Matrix Strategies
+## CLI Automation Overrides
 
-Generate clients across multiple specs or branches:
+The supported CI-facing `generate` overrides are intentionally small:
 
-```yaml
-jobs:
-  generate:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        config:
-          - genxapi.config.json
-          - services/payments/genxapi.config.yaml
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-      - run: npx genxapi generate --config ${{ matrix.config }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GENERATOR_GITHUB_TOKEN }}
+- `--contract` overrides the contract source for a single-client config
+- `--output-path` overrides the generated package directory
+- `--publish-mode` flips publish automation between `config`, `off`, `npm`, `github`, and `both`
+- `--contract-version` records external contract version metadata in the plan and manifest
+- `--plan-output` writes a JSON plan file for CI parsing
+
+These flags do not collapse template behavior into the shared automation surface. They only control orchestration inputs that belong in GenX API core.
+
+## Logging and Failure Behavior
+
+Headless runs are now clearer by default:
+
+- dry runs print a real generation plan instead of exiting after config validation
+- CI mode avoids spinner-only progress reporting
+- contract URLs are sanitised before they are echoed in plan and manifest metadata
+- top-level CLI failures pass through secret redaction before they hit stderr
+
+Operational guidance:
+
+- keep tokens in environment variables referenced by config, never inline in URLs
+- use `publish-mode: off` on pull requests so validation stays side-effect free
+- promote to `publish-mode: config` or a narrower explicit mode only on protected branches
+
+## Direct CLI Usage
+
+If you do not want to use GitHub Actions, the same surface is available directly:
+
+```bash
+npx genxapi generate \
+  --config ./genxapi.config.json \
+  --contract ./openapi/petstore.yaml \
+  --output-path ./sdk/petstore-sdk \
+  --publish-mode off \
+  --dry-run \
+  --plan-output ./artifacts/genxapi-plan.json
 ```
 
-Each matrix entry resolves paths relative to the repository root. Override output directories with `--target` if needed.
+This is the supported path for other CI providers as well.
 
-## Contract Gates Today
+## What Is Still Not Shipped
 
-If you need contract diff gates today, add an external tool or hook before generation. Examples:
+This phase does not add:
 
-- Spectral or another OpenAPI linter in `hooks.beforeGenerate`
-- A custom contract diff step in CI before calling GenX API
-- A repository policy that reviews the OpenAPI file itself before merge
+- first-class diff or release classification
+- template flattening between Orval and Kubb
+- consumer-repo coupling or dist-path based automation
 
-Planned later:
-
-- First-class GenX API diff reporting and richer contract intelligence.
-
-## Integrate with Other CI Providers
-
-- **GitLab CI/CD** – run `npx genxapi generate` inside a Node.js image and set `GITHUB_TOKEN` and `NPM_TOKEN` as masked variables.
-- **CircleCI** – add a Node orb, install the CLI or use one-off `npx genxapi`, and reuse the same commands.
-- **Azure Pipelines** – use the Node task, install via `npm`, and call the CLI in a script block. Consider secure variable groups for tokens.
-
-Ensure the working directory contains the configuration file or pass `--config` explicitly.
-
-## Handling Secrets Securely
-
-- Store tokens as repository or organisation secrets (`Settings ▸ Secrets and variables ▸ Actions`).
-- Rotate tokens regularly and prefer automation-scoped tokens.
-- Use environment protection rules to require approvals before publishing from protected branches.
-
-## Common Troubleshooting
-
-| Symptom | Fix |
-| ------- | --- |
-| `Could not resolve entry module "dist/index.d.ts"` | Run `npm run build` in the monorepo to ensure the template and CLI are compiled before CI packaging. |
-| Git pushes fail with `Authentication failed` | Confirm `repository.tokenEnv` matches the environment variable set in CI and token scopes include `repo` push access. |
-| npm publish exits with `You cannot publish over the previously published versions` | Bump the generated SDK version before running the workflow or enable prerelease tags (e.g., `beta`). |
-
-> 🛠️ Tip: Add `continue-on-error: true` to optional steps (like publishing) when experimenting, then remove once the pipeline is stable.
+Those stay in later phases.
 
 ## Next Steps
 
-- Dive into [Templates](./templates.md) to customise project scaffolding.
-- Read [Versioning strategies](./versioning.md) to see what GenX API handles today and what remains planned.
+- Read [Generation Manifest](./generation-manifest.md) for the metadata produced after a real run.
+- Read [Versioning and releases](./versioning.md) for the current publish and release surface.
 
 ---
 

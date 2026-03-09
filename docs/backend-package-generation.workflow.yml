@@ -1,0 +1,47 @@
+name: Backend Package Generation
+
+on:
+  pull_request:
+    paths:
+      - openapi/**/*
+      - genxapi.config.json
+  push:
+    branches:
+      - main
+    paths:
+      - openapi/**/*
+      - genxapi.config.json
+  workflow_dispatch:
+
+jobs:
+  generate-sdk:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout backend repository
+        uses: actions/checkout@v4
+
+      - name: Plan or generate the package
+        id: genx
+        uses: genxapi/genxapi@main
+        with:
+          config: ./genxapi.config.json
+          contract: ./openapi/petstore.yaml
+          output-path: ./sdk/petstore-sdk
+          contract-version: ${{ github.sha }}
+          dry-run: ${{ github.event_name == 'pull_request' }}
+          publish-mode: ${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}
+
+      - name: Show resolved plan
+        run: |
+          echo '${{ steps.genx.outputs.contracts-json }}'
+          echo '${{ steps.genx.outputs.outputs-json }}'
+          echo '${{ steps.genx.outputs.planned-actions-json }}'
+
+      - name: Verify the generated package boundary
+        if: ${{ github.event_name != 'pull_request' }}
+        run: |
+          test -f sdk/petstore-sdk/package.json
+          test -f sdk/petstore-sdk/genxapi.manifest.json

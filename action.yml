@@ -1,0 +1,169 @@
+name: "GenX API Generate"
+description: "Run GenX API generation or dry-run planning from CI without repository-specific wiring."
+
+inputs:
+  config:
+    description: "Path to the GenX API config file."
+    required: false
+    default: "genxapi.config.json"
+  contract:
+    description: "Optional contract path or URL override for single-client configs."
+    required: false
+    default: ""
+  output-path:
+    description: "Optional generated project directory override."
+    required: false
+    default: ""
+  publish-mode:
+    description: "Publish override: config, off, npm, github, or both."
+    required: false
+    default: "config"
+  dry-run:
+    description: "When true, validate and emit the generation plan without writing generated files."
+    required: false
+    default: "false"
+  contract-version:
+    description: "Optional external contract version string to attach to plan and manifest metadata."
+    required: false
+    default: ""
+  plan-output:
+    description: "Optional path for the generated JSON plan file."
+    required: false
+    default: ""
+  log-level:
+    description: "CLI log level."
+    required: false
+    default: "info"
+  working-directory:
+    description: "Working directory that contains the config file."
+    required: false
+    default: "."
+  node-version:
+    description: "Node.js version used to run the action."
+    required: false
+    default: "22"
+  cli-version:
+    description: "Optional @genxapi/cli version to run. Defaults to the version declared in this action repository."
+    required: false
+    default: ""
+
+outputs:
+  dry-run:
+    description: "Whether the action ran in dry-run mode."
+    value: ${{ steps.outputs.outputs.dry_run }}
+  plan-path:
+    description: "Absolute path to the generated JSON plan file."
+    value: ${{ steps.outputs.outputs.plan_path }}
+  manifest-path:
+    description: "Planned manifest path inside the generated package."
+    value: ${{ steps.outputs.outputs.manifest_path }}
+  template-name:
+    description: "Resolved template package name."
+    value: ${{ steps.outputs.outputs.template_name }}
+  template-kind:
+    description: "Resolved template kind."
+    value: ${{ steps.outputs.outputs.template_kind }}
+  project-name:
+    description: "Configured generated project name."
+    value: ${{ steps.outputs.outputs.project_name }}
+  project-directory:
+    description: "Configured generated project directory."
+    value: ${{ steps.outputs.outputs.project_directory }}
+  contract-version:
+    description: "Resolved contract version metadata for the run."
+    value: ${{ steps.outputs.outputs.contract_version }}
+  contracts-json:
+    description: "JSON summary of resolved client contract sources."
+    value: ${{ steps.outputs.outputs.contracts_json }}
+  outputs-json:
+    description: "JSON summary of resolved client output paths."
+    value: ${{ steps.outputs.outputs.outputs_json }}
+  planned-actions-json:
+    description: "JSON summary of planned GenX API actions for the run."
+    value: ${{ steps.outputs.outputs.planned_actions_json }}
+  selected-capabilities-json:
+    description: "JSON array of template capabilities selected for this run."
+    value: ${{ steps.outputs.outputs.selected_capabilities_json }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+
+    - name: Resolve CLI version and plan path
+      id: resolve
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        INPUT_CLI_VERSION: ${{ inputs.cli-version }}
+        INPUT_PLAN_OUTPUT: ${{ inputs.plan-output }}
+      run: |
+        set -euo pipefail
+
+        cli_version="$INPUT_CLI_VERSION"
+        if [ -z "$cli_version" ]; then
+          cli_version="$(node -e "const fs=require('node:fs'); const pkg=JSON.parse(fs.readFileSync(process.argv[1], 'utf8')); process.stdout.write(pkg.version);" "$GITHUB_ACTION_PATH/packages/cli/package.json")"
+        fi
+
+        plan_path="$INPUT_PLAN_OUTPUT"
+        if [ -z "$plan_path" ]; then
+          plan_path="$RUNNER_TEMP/genxapi-plan.json"
+        elif [[ "$plan_path" != /* ]]; then
+          plan_path="$(pwd)/$plan_path"
+        fi
+
+        echo "cli_version=$cli_version" >> "$GITHUB_OUTPUT"
+        echo "plan_path=$plan_path" >> "$GITHUB_OUTPUT"
+
+    - name: Run GenX API
+      id: generate
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        CLI_VERSION: ${{ steps.resolve.outputs.cli_version }}
+        PLAN_PATH: ${{ steps.resolve.outputs.plan_path }}
+        INPUT_CONFIG: ${{ inputs.config }}
+        INPUT_CONTRACT: ${{ inputs.contract }}
+        INPUT_OUTPUT_PATH: ${{ inputs.output-path }}
+        INPUT_PUBLISH_MODE: ${{ inputs.publish-mode }}
+        INPUT_DRY_RUN: ${{ inputs.dry-run }}
+        INPUT_CONTRACT_VERSION: ${{ inputs.contract-version }}
+        INPUT_LOG_LEVEL: ${{ inputs.log-level }}
+      run: |
+        set -euo pipefail
+
+        args=(generate --config "$INPUT_CONFIG" --log-level "$INPUT_LOG_LEVEL" --plan-output "$PLAN_PATH")
+
+        if [ "$INPUT_DRY_RUN" = "true" ]; then
+          args+=(--dry-run)
+        fi
+
+        if [ -n "$INPUT_CONTRACT" ]; then
+          args+=(--contract "$INPUT_CONTRACT")
+        fi
+
+        if [ -n "$INPUT_OUTPUT_PATH" ]; then
+          args+=(--output-path "$INPUT_OUTPUT_PATH")
+        fi
+
+        if [ "$INPUT_PUBLISH_MODE" != "config" ]; then
+          args+=(--publish-mode "$INPUT_PUBLISH_MODE")
+        fi
+
+        if [ -n "$INPUT_CONTRACT_VERSION" ]; then
+          args+=(--contract-version "$INPUT_CONTRACT_VERSION")
+        fi
+
+        npx -y -p "@genxapi/cli@$CLI_VERSION" genxapi "${args[@]}"
+
+    - name: Expose action outputs
+      id: outputs
+      shell: bash
+      env:
+        PLAN_PATH: ${{ steps.resolve.outputs.plan_path }}
+      run: |
+        set -euo pipefail
+        node "$GITHUB_ACTION_PATH/.github/actions/write-generate-action-outputs.mjs" "$PLAN_PATH" "$GITHUB_OUTPUT"

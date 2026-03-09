@@ -62,7 +62,7 @@ examples/<project>/
 
 All generator intent now lives under `project.config` and `clients[].config`:
 
-```jsonc
+```json
 {
   "project": {
     "template": "orval",
@@ -128,7 +128,7 @@ Use `project.config.httpClient` or the `--http-client` flag to toggle between ax
 
 Setting `mock` to an object enables MSW handler generation:
 
-```jsonc
+```json
 {
   "project": {
     "config": {
@@ -151,13 +151,13 @@ Disable mocks per client with `clients[].config.mock = { "type": "off" }` or glo
 
 ## CLI overrides
 
-| Flag | Effect |
-|------|--------|
+| Flag                  | Effect                                                           |
+| --------------------- | ---------------------------------------------------------------- |
 | `--http-client fetch` | Overrides `project.config.httpClient` regardless of config file. |
-| `--client swr` | Emits SWR-compatible client calls. |
-| `--mode split-tag` | Switches Orval’s output mode. |
-| `--mock-type off` | Disables mock generation for the current run. |
-| `--mock-delay 1000` | Sets a 1s artificial delay in the generated MSW handlers. |
+| `--client swr`        | Emits SWR-compatible client calls.                               |
+| `--mode split-tag`    | Switches Orval’s output mode.                                    |
+| `--mock-type off`     | Disables mock generation for the current run.                    |
+| `--mock-delay 1000`   | Sets a 1s artificial delay in the generated MSW handlers.        |
 
 ## Rollup build & publishing
 

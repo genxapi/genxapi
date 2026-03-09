@@ -59,7 +59,7 @@ By default the CLI looks for config in the current working directory. Supported 
 
 Start with a minimal JSON config:
 
-```jsonc
+```json
 {
   "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/packages/cli/schemas/genxapi.schema.json",
   "project": {
@@ -99,15 +99,15 @@ const config: UnifiedGeneratorConfig = {
     output: "./src",
     config: {
       httpClient: "axios",
-      client: "react-query"
-    }
+      client: "react-query",
+    },
   },
   clients: [
     {
       name: "petstore",
-      swagger: "https://petstore3.swagger.io/api/v3/openapi.json"
-    }
-  ]
+      swagger: "https://petstore3.swagger.io/api/v3/openapi.json",
+    },
+  ],
 };
 
 export default config;
@@ -134,7 +134,7 @@ Aliases:
 
 Set `project.template` to `"kubb"` (or run with `--template kubb`) and provide plugin overrides via `config`:
 
-```jsonc
+```json
 {
   "project": {
     "name": "petstore-sdk",
@@ -175,10 +175,10 @@ The CLI:
 4. Executes configured hooks.
 5. Optionally syncs GitHub changes and publishes packages if the config enables those post-generation steps.
 
-Dry-run the process to validate configuration without modifying files:
+Dry-run the process to validate configuration, resolve contracts, and inspect the planned outputs without modifying files:
 
 ```bash
-npx genxapi generate --dry-run
+npx genxapi generate --dry-run --plan-output ./artifacts/genxapi-plan.json
 ```
 
 Export tokens to unlock automation:
@@ -239,4 +239,4 @@ The CLI rewrites the directory relative to your configuration file and keeps pat
 
 - Continue with the [Configuration Reference →](./configuration.md) to explore every option.
 - Read [Architecture boundaries →](./architecture/boundaries.md) before wiring generated packages into other repositories.
-- Jump ahead to [CI Integration →](./ci-integration.md) when you are ready to automate the current workflow in pipelines.
+- Jump ahead to [CI Integration →](./ci-integration.md) when you are ready to automate the current workflow with the official GitHub Action or a headless CLI plan.

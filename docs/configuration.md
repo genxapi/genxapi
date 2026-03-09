@@ -19,7 +19,7 @@ For the full JSON Schema, mapping tables, and advanced examples read the dedicat
 
 Below is a trimmed example highlighting the most common fields:
 
-```jsonc
+```json
 {
   "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/packages/cli/schemas/genxapi.schema.json",
   "logLevel": "info",
@@ -33,9 +33,7 @@ Below is a trimmed example highlighting the most common fields:
       "client": "react-query",
       "mode": "split",
       "mock": { "type": "msw", "delay": 250 }
-    },
-    "repository": { /* optional GitHub sync after generation */ },
-    "publish": { /* optional registry publish after generation */ }
+    }
   },
   "clients": [
     {
@@ -63,6 +61,8 @@ Below is a trimmed example highlighting the most common fields:
   }
 }
 ```
+
+Optional automation blocks such as `project.repository` and `project.publish` can be added when you want post-generation sync or publishing.
 
 ### Response to CLI overrides
 
