@@ -109,7 +109,7 @@ GenX API now treats these settings as three distinct ownership classes:
 | Field              | Type                                                                                                                       | Applies to   | Behaviour                                                                                                       |
 | ------------------ | -------------------------------------------------------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------- |
 | `httpClient`       | `"axios"` \| `"fetch"`                                                                                                     | Orval & Kubb | Sets the HTTP transport (Orval `output.httpClient`, Kubb `plugin-client.client`).                               |
-| `client`           | `"react-query"`, `"swr"`, `"vue-query"`, `"svelte-query"`, `"axios"`, `"axios-functions"`, `"angular"`, `"zod"`, `"fetch"` | Orval        | Selects the runtime client flavour (see [`client` options](../../.context/orval-output-api-options.md#client)). |
+| `client`           | `"react-query"`, `"swr"`, `"vue-query"`, `"svelte-query"`, `"axios"`, `"axios-functions"`, `"angular"`, `"zod"`, `"fetch"` | Orval        | Selects the runtime client flavour. |
 | `mode`             | `"single"`, `"split"`, `"split-tag"`, `"split-tags"`, `"tags"`, `"tags-split"`                                             | Orval        | Maps to Orval’s output mode.                                                                                    |
 | `baseUrl`          | `string`                                                                                                                   | Orval & Kubb | Injects a default base URL (`output.baseUrl`, `plugin-client.baseURL`).                                         |
 | `mock`             | `boolean` or `{ type: "msw" \| "off", delay?: number, useExamples?: boolean }`                                             | Orval        | Controls MSW mock generation. `type: "off"` disables mocks.                                                     |
@@ -215,7 +215,7 @@ Note: `--template` accepts alias and package strings. Use the config file when y
 | `prettier`     | `output.prettier`   | Mirrors Orval toggle.                                     |
 | `clean`        | `output.clean`      | Mirrors Orval toggle.                                     |
 
-> ℹ️ Dive into [.context/orval-output-api-options.md](../../.context/orval-output-api-options.md) for the exhaustive list of supported Orval options.
+> ℹ️ Dive into the [Orval documentation](https://orval.dev) for the exhaustive list of supported Orval options.
 
 ### Kubb (`@genxapi/template-kubb`)
 

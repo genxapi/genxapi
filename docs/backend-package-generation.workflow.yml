@@ -19,26 +19,48 @@ jobs:
     permissions:
       contents: write
       packages: write
+    env:
+      GENXAPI_VERSION: 0.2.0
     steps:
       - name: Checkout backend repository
         uses: actions/checkout@v4
 
-      - name: Plan or generate the package
-        id: genx
-        uses: genxapi/genxapi@main
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          config: ./genxapi.config.json
-          contract: ./openapi/petstore.yaml
-          output-path: ./sdk/petstore-sdk
-          contract-version: ${{ github.sha }}
-          dry-run: ${{ github.event_name == 'pull_request' }}
-          publish-mode: ${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}
+          node-version: 22
+
+      # If you want the GitHub-specific wrapper instead of direct CLI wiring,
+      # use the official genxapi-action repository:
+      # https://github.com/genxapi/genxapi-action
+      - name: Plan or generate the package
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          args=(
+            generate
+            --config ./genxapi.config.json
+            --contract ./openapi/petstore.yaml
+            --output-path ./sdk/petstore-sdk
+            --contract-version "${GITHUB_SHA}"
+            --plan-output ./artifacts/genxapi-plan.json
+            --release-manifest-output ./artifacts/genxapi-release.json
+            --publish-mode "${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}"
+          )
+
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            args+=(--dry-run)
+          fi
+
+          npx -y "@genxapi/cli@${GENXAPI_VERSION}" "${args[@]}"
 
       - name: Show resolved plan
         run: |
-          echo '${{ steps.genx.outputs.contracts-json }}'
-          echo '${{ steps.genx.outputs.outputs-json }}'
-          echo '${{ steps.genx.outputs.planned-actions-json }}'
+          cat ./artifacts/genxapi-plan.json
+          if [ -f ./artifacts/genxapi-release.json ]; then
+            cat ./artifacts/genxapi-release.json
+          fi
 
       - name: Verify the generated package boundary
         if: ${{ github.event_name != 'pull_request' }}

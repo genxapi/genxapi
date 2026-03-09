@@ -18,8 +18,7 @@ None of the items above should be read as shipped functionality in the current r
 
 ## Ecosystem Extensions
 
-- **Action wrappers** – build reusable GitHub Actions that wrap the CLI with defaults for your organisation.
-- **Marketplace publication** – revisit GitHub Marketplace only after the current action surface is mature enough to support broader adoption safely.
+- **GitHub workflow wrappers** – keep GitHub-specific wrappers such as the official [GitHub Action](./github-action.md) and organisation-specific actions outside the core CLI repository.
 - **Spec validation** – integrate Spectral or OpenAPI validators in `hooks.beforeGenerate` to catch breaking changes early.
 - **Release orchestration** – pair with semantic-release or Release Please to automate changelog generation across language ecosystems.
 - **Documentation portals** – link generated READMEs to your internal developer portal or Backstage catalog.
@@ -48,7 +47,6 @@ Planned later:
 - Breaking vs non-breaking contract analysis
 - Stronger contract-aware versioning guidance
 - Additional template and ecosystem surfaces
-- Marketplace publication once the action maturity checklist is satisfied
 
 ## Next Steps
 

@@ -38,8 +38,8 @@ export function getNav(): NavItem[] {
       children: [
         { title: "Overview", href: "/docs/ci-integration" },
         {
-          title: "Marketplace readiness",
-          href: "/docs/github-action-marketplace-readiness"
+          title: "GitHub Action",
+          href: "/docs/github-action"
         }
       ]
     },

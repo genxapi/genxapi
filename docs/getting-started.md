@@ -41,6 +41,8 @@ Recommended invocation paths:
 
 The `genxapi` package is the primary alias for the command name. It forwards to the latest `@genxapi/cli`, while `@genxapi/cli` remains the direct installable package.
 
+If you plan to automate from GitHub Actions, keep the CLI as the core product surface and use the official wrapper described in [Official GitHub Action](./github-action.md) when you want a thinner GitHub-specific setup.
+
 When contributing to this repository, bootstrap everything with:
 
 ```bash
@@ -239,4 +241,4 @@ The CLI rewrites the directory relative to your configuration file and keeps pat
 
 - Continue with the [Configuration Reference →](./configuration.md) to explore every option.
 - Read [Architecture boundaries →](./architecture/boundaries.md) before wiring generated packages into other repositories.
-- Jump ahead to [CI Integration →](./ci-integration.md) when you are ready to automate the current workflow with the official GitHub Action or a headless CLI plan.
+- Jump ahead to [CI Integration →](./ci-integration.md) when you are ready to automate the current workflow with direct CLI usage or the official `genxapi-action` wrapper.
