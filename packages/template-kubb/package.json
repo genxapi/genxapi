@@ -1,6 +1,6 @@
 {
   "name": "@genxapi/template-kubb",
-  "version": "0.1.0",
+  "version": "1.1.0",
   "description": "GenX API Kubb template - Adapter for API client generation workflows.",
   "license": "MIT",
   "type": "module",
