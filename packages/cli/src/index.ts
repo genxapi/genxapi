@@ -353,7 +353,7 @@ const diffCommand = buildCommand<DiffFlags, DiffArgs, CliContext>({
   parameters: {
     aliases: {
       b: "base",
-      h: "head",
+      n: "head",
       o: "output",
     },
     flags: {
