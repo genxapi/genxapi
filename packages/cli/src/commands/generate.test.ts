@@ -70,7 +70,15 @@ describe("runGenerateCommand", () => {
       aliases: ["orval"],
       capabilityManifest: {
         summary: "test",
-        capabilities: [],
+        capabilities: [
+          {
+            key: "http-client",
+            label: "HTTP transport",
+            description: "Maps shared transport intent into the template transport settings.",
+            classification: "universal",
+            configPaths: ["project.config.httpClient", "clients[].config.httpClient"],
+          },
+        ],
       },
       schema: z.object({
         project: z.any(),

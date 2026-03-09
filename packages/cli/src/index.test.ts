@@ -1,6 +1,7 @@
 import { mkdtemp, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { loadCliConfig } from "./config/loader";
 import { TEMPLATE_PACKAGE_MAP } from "./utils/templatePackages";
@@ -179,9 +180,8 @@ export default config;
   it("loads an explicit external template contract from a filesystem module", async () => {
     const dir = await mkdtemp(join(tmpdir(), "genxapi-"));
     const configPath = join(dir, "config.json");
-    const fixtureModule = resolve(
-      process.cwd(),
-      "packages/cli/src/config/loader/fixtures/external-template.mjs"
+    const fixtureModule = fileURLToPath(
+      new URL("./config/loader/fixtures/external-template.mjs", import.meta.url)
     );
     const templateModule = "./external-template.mjs";
 
@@ -241,9 +241,8 @@ export default config;
   it("does not allow explicit external template references to fall back to legacy exports", async () => {
     const dir = await mkdtemp(join(tmpdir(), "genxapi-"));
     const configPath = join(dir, "config.json");
-    const templateModule = resolve(
-      process.cwd(),
-      "packages/cli/src/config/loader/fixtures/legacy-template.mjs"
+    const templateModule = fileURLToPath(
+      new URL("./config/loader/fixtures/legacy-template.mjs", import.meta.url)
     );
 
     await writeFile(
