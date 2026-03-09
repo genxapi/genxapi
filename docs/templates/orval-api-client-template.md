@@ -2,6 +2,31 @@
 
 The Orval template scaffolds a TypeScript package and delegates generator-specific behaviour to Orval. This guide covers installation, generated layout, and the correct package consumption boundary.
 
+## Capability Manifest
+
+The Orval template now declares its capability surface explicitly.
+
+Universal:
+
+- Contract inputs and reproducibility metadata.
+- Output layout.
+- `httpClient` and `baseUrl`.
+
+Template first-class:
+
+- `client`
+- `mode`
+- `mock`
+- `prettier`
+- `clean`
+
+Escape hatch:
+
+- `project.templateOptions.path`
+- `project.templateOptions.variables`
+
+The CLI no longer hardcodes Orval translation rules in shared core code. Instead, the Orval template owns unified-config transformation, template-only validation, and dependency planning.
+
 ## Installation
 
 ```bash
@@ -147,10 +172,19 @@ Current behaviour:
 - `generate` can trigger post-generation registry publish when `project.publish` enables it.
 - The generated package exposes a stable package entrypoint after build.
 - `genxapi.manifest.json` records the resolved contract source, checksum, template, and output paths for traceability.
+- Package dependencies are derived from the selected Orval capabilities instead of copied as a fixed bundle.
+- React Query, React, axios, MSW, Faker, and Zod dependencies are only added when the selected Orval feature surface requires them.
 
 Planned later:
 
 - Diff-driven release advice and SemVer intelligence belong to later phases, not this template.
+
+## Dependency Planning Notes
+
+- `client: "fetch"` with mocks disabled no longer pulls React Query, React, or MSW dependencies into the generated package.
+- `client: "react-query"` adds the React Query runtime and peers because the generated package exports those hooks.
+- `httpClient: "axios"` adds axios only when the generated package actually needs it.
+- The template surfaces documentation hints for richer Orval adapters that still need manual framework package pinning.
 
 ## Customising further
 

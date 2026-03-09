@@ -12,6 +12,13 @@ describe("buildTemplateConfig", () => {
         packageManager: "npm" as const,
         runGenerate: true,
         template: ClientApiTemplates.Orval,
+        templateConfig: {
+          customField: "preserved",
+          installDependencies: true,
+          variables: {
+            seed: "existing"
+          }
+        },
         templateOptions: {
           path: "./custom",
           installDependencies: false,
@@ -25,6 +32,7 @@ describe("buildTemplateConfig", () => {
     const result = buildTemplateConfig(config as any, "@genxapi/template-orval");
 
     expect(result.project.template).toEqual({
+      customField: "preserved",
       name: "@genxapi/template-orval",
       installDependencies: false,
       path: "./custom",

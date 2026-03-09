@@ -29,10 +29,19 @@ export async function runGenerateCommand(options: GenerateCommandOptions): Promi
 
     const builtinTemplateKind = inferTemplateKind(options.template.name);
     const templateKind = builtinTemplateKind ?? "custom";
-    options.logger.info(`Generation step 1/6: applying template overrides for ${templateKind}.`);
+    options.logger.info(`Generation step 1/7: applying template overrides for ${templateKind}.`);
     const config = applyTemplateOverrides(options.config, builtinTemplateKind, options.overrides);
-    options.logger.info("Generation step 2/6: building template configuration.");
+    options.logger.info("Generation step 2/7: building template configuration.");
     const templateConfig = buildTemplateConfig(config, options.template.name);
+    await options.template.validateConfig?.(templateConfig);
+    options.logger.info("Generation step 3/7: planning template capabilities and dependencies.");
+    const templatePlan =
+      (await options.template.planGeneration?.(templateConfig, {
+        templateName: options.template.name
+      })) ?? {
+        selectedCapabilities: [],
+        dependencies: []
+      };
     const project = templateConfig.project as {
       readonly name: string;
       readonly directory: string;
@@ -44,7 +53,7 @@ export async function runGenerateCommand(options: GenerateCommandOptions): Promi
     const projectDir = resolve(options.configDir, project.directory);
     const generatedAt = new Date().toISOString();
 
-    options.logger.info("Generation step 3/6: resolving contract sources and reproducibility metadata.");
+    options.logger.info("Generation step 4/7: resolving contract sources and reproducibility metadata.");
     const resolvedContracts = await resolveContractSources({
       configDir: options.configDir,
       projectDir,
@@ -53,7 +62,7 @@ export async function runGenerateCommand(options: GenerateCommandOptions): Promi
     });
 
     options.logger.info(
-      `Generation step 4/6: running ${options.template.name} client generator (runGenerate=${templateConfig.project.runGenerate}).`
+      `Generation step 5/7: running ${options.template.name} client generator (runGenerate=${templateConfig.project.runGenerate}).`
     );
     await options.template.generateClients(templateConfig, {
       configDir: options.configDir,
@@ -62,10 +71,11 @@ export async function runGenerateCommand(options: GenerateCommandOptions): Promi
       resolvedContracts,
       runOrval: project.runGenerate,
       runKubb: project.runGenerate,
+      templatePlan,
       toolVersion: options.toolVersion
     });
 
-    options.logger.info("Generation step 5/6: writing generation manifest.");
+    options.logger.info("Generation step 6/7: writing generation manifest.");
     await writeGenerationManifest({
       clients: manifestClients,
       generatedAt,
@@ -80,7 +90,7 @@ export async function runGenerateCommand(options: GenerateCommandOptions): Promi
 
     spinner.succeed("Clients generated successfully");
 
-    options.logger.info("Generation step 6/6: executing post-generation tasks (repo sync, publish).");
+    options.logger.info("Generation step 7/7: executing post-generation tasks (repo sync, publish).");
     await runPostGenerationTasks({
       ...options,
       config

@@ -21,7 +21,25 @@ describe("applyPackageJson", () => {
       JSON.stringify({
         name: "placeholder",
         files: ["dist"],
-        scripts: {}
+        scripts: {},
+        devDependencies: {
+          "@kubb/cli": "^4.1.3",
+          "@kubb/core": "^4.1.3",
+          "@kubb/plugin-client": "^4.1.3",
+          "@kubb/plugin-oas": "^4.1.3",
+          "@kubb/plugin-ts": "^4.1.3",
+          "@rollup/plugin-typescript": "^12.1.2",
+          "@types/node": "^22.0.0",
+          "axios": "^1.7.9",
+          "rimraf": "^5.0.10",
+          "rollup": "^4.34.0",
+          "rollup-plugin-delete": "^2.1.0",
+          "rollup-plugin-dts": "^6.1.1",
+          "tslib": "^2.8.1",
+          "typescript": "^5.6.3",
+          "vitest": "^3.2.4",
+          "zod": "^3.23.8"
+        }
       }),
       "utf8"
     );
@@ -50,7 +68,92 @@ describe("applyPackageJson", () => {
             }
           }
         ]
-      })
+      }),
+      {
+        selectedCapabilities: ["http-client", "kubb-plugin-client"],
+        dependencies: [
+          {
+            name: "@kubb/cli",
+            section: "devDependencies",
+            reason: "generator"
+          },
+          {
+            name: "@kubb/core",
+            section: "devDependencies",
+            reason: "generator"
+          },
+          {
+            name: "@kubb/plugin-client",
+            section: "devDependencies",
+            reason: "generator"
+          },
+          {
+            name: "@kubb/plugin-oas",
+            section: "devDependencies",
+            reason: "generator"
+          },
+          {
+            name: "@kubb/plugin-ts",
+            section: "devDependencies",
+            reason: "generator"
+          },
+          {
+            name: "@rollup/plugin-typescript",
+            section: "devDependencies",
+            reason: "build"
+          },
+          {
+            name: "@types/node",
+            section: "devDependencies",
+            reason: "build"
+          },
+          {
+            name: "axios",
+            section: "devDependencies",
+            reason: "transport"
+          },
+          {
+            name: "rimraf",
+            section: "devDependencies",
+            reason: "build"
+          },
+          {
+            name: "rollup",
+            section: "devDependencies",
+            reason: "build"
+          },
+          {
+            name: "rollup-plugin-delete",
+            section: "devDependencies",
+            reason: "build"
+          },
+          {
+            name: "rollup-plugin-dts",
+            section: "devDependencies",
+            reason: "build"
+          },
+          {
+            name: "tslib",
+            section: "devDependencies",
+            reason: "build"
+          },
+          {
+            name: "typescript",
+            section: "devDependencies",
+            reason: "build"
+          },
+          {
+            name: "vitest",
+            section: "devDependencies",
+            reason: "test"
+          },
+          {
+            name: "zod",
+            section: "devDependencies",
+            reason: "parser"
+          }
+        ]
+      }
     );
 
     const pkg = JSON.parse(await readFile(join(projectDir, "package.json"), "utf8")) as any;
@@ -60,5 +163,7 @@ describe("applyPackageJson", () => {
     expect(pkg.scripts.publish).toBe("npm run build && npm run publish:npm");
     expect(pkg.scripts["generate-clients"]).toBe("npm run generate");
     expect(pkg.scripts["npm-publish"]).toBe("npm run publish");
+    expect(pkg.devDependencies.axios).toBe("^1.7.9");
+    expect(pkg.devDependencies.zod).toBe("^3.23.8");
   });
 });

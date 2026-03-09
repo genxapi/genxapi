@@ -49,13 +49,25 @@ describe("runGenerateCommand", () => {
 
   it("applies overrides and invokes template generateClients with hydrated template config", async () => {
     const generateClients = vi.fn().mockResolvedValue(undefined);
+    const planGeneration = vi.fn().mockReturnValue({
+      selectedCapabilities: ["http-client"],
+      dependencies: []
+    });
     const template: TemplateModule = {
+      id: "orval",
       name: "@genxapi/template-orval",
+      displayName: "Orval API Client Template",
+      aliases: ["orval"],
+      capabilityManifest: {
+        summary: "test",
+        capabilities: []
+      },
       schema: z.object({
         project: z.any(),
         clients: z.array(z.any()),
         hooks: z.any()
       }),
+      planGeneration,
       generateClients
     };
     const logger = createLogger();
@@ -101,6 +113,7 @@ describe("runGenerateCommand", () => {
     });
     expect(generatedConfig.clients[0].orval.httpClient).toBe("fetch");
     expect(generationOptions.resolvedContracts.pets.generatorInput).toBe("swagger-spec.json");
+    expect(generationOptions.templatePlan.selectedCapabilities).toEqual(["http-client"]);
     expect(writeGenerationManifest).toHaveBeenCalledTimes(1);
   });
 

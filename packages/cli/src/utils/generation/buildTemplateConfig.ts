@@ -33,14 +33,28 @@ type TemplateReadyConfig = Omit<CliConfig, "project"> & {
  */
 export function buildTemplateConfig(config: CliConfig, templateName: string): TemplateReadyConfig {
   const templateOptions = config.project.templateOptions ?? {};
+  const baseTemplateConfig =
+    typeof config.project.templateConfig === "object" && config.project.templateConfig !== null
+      ? config.project.templateConfig
+      : {};
   const template = {
+    ...baseTemplateConfig,
     name: templateName,
-    installDependencies: templateOptions.installDependencies ?? true,
-    path: templateOptions.path,
-    variables: templateOptions.variables ?? {}
+    installDependencies:
+      templateOptions.installDependencies ??
+      (typeof baseTemplateConfig.installDependencies === "boolean"
+        ? baseTemplateConfig.installDependencies
+        : true),
+    path:
+      templateOptions.path ??
+      (typeof baseTemplateConfig.path === "string" ? baseTemplateConfig.path : undefined),
+    variables:
+      templateOptions.variables ??
+      (baseTemplateConfig.variables as Record<string, string> | undefined) ??
+      {}
   };
 
-  const templateConfig: TemplateReadyConfig = {
+  const runtimeConfig: TemplateReadyConfig = {
     ...config,
     project: {
       ...config.project,
@@ -48,5 +62,5 @@ export function buildTemplateConfig(config: CliConfig, templateName: string): Te
     }
   };
 
-  return templateConfig;
+  return runtimeConfig;
 }

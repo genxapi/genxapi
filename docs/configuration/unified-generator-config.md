@@ -95,6 +95,12 @@ Notes:
 
 ## GeneratorOptions
 
+GenX API now treats these settings as three distinct ownership classes:
+
+- Universal options are shared intent that the core understands and templates map into their own native config.
+- Template first-class options are documented, supported parts of a specific template surface.
+- Escape hatch options stay template-owned and are passed through or handled by the template without being promoted as universal API.
+
 | Field | Type | Applies to | Behaviour |
 |-------|------|------------|-----------|
 | `httpClient` | `"axios"` \| `"fetch"` | Orval & Kubb | Sets the HTTP transport (Orval `output.httpClient`, Kubb `plugin-client.client`). |
@@ -107,6 +113,39 @@ Notes:
 | `plugins` / `kubb` | `{ client?: object, ts?: object, oas?: object }` | Kubb | Merged into the corresponding Kubb plugin blocks.
 
 All properties are optional. Merge order is `project.config` → `clients[].config` → CLI overrides.
+
+## Capability Ownership By Template
+
+### Universal
+
+- Contract source selection, auth, snapshot, and checksum.
+- Output layout (`project.output`, `clients[].output`).
+- `httpClient` and `baseUrl`.
+
+### Orval first-class
+
+- `client`
+- `mode`
+- `mock`
+- `prettier`
+- `clean`
+
+### Kubb first-class
+
+- `plugins.client`
+- `plugins.ts`
+- `plugins.oas`
+- `kubb.client`
+- `kubb.ts`
+- `kubb.oas`
+
+### Escape hatches
+
+- `project.templateOptions.path`
+- `project.templateOptions.variables`
+- Raw Kubb plugin pass-through inside `plugins` / `kubb`
+
+Template-specific validation now lives inside the template boundary. For example, the Orval template rejects Kubb-only plugin blocks, and the Kubb template rejects Orval-only `mode` / `mock` style settings.
 
 ## CLI flag parity
 

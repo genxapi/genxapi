@@ -1,7 +1,13 @@
 import { existsSync } from "node:fs";
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { GithubPublishConfig, MultiClientConfig, NpmPublishConfig } from "../types.js";
+import type {
+  GithubPublishConfig,
+  MultiClientConfig,
+  NpmPublishConfig,
+  TemplatePlan,
+  TemplatePlannedDependency
+} from "../types.js";
 
 function resolvePackageName(config: MultiClientConfig): string {
   const baseName = config.project.name;
@@ -19,7 +25,11 @@ function resolvePackageName(config: MultiClientConfig): string {
   return baseName;
 }
 
-export async function applyPackageJson(projectDir: string, config: MultiClientConfig) {
+export async function applyPackageJson(
+  projectDir: string,
+  config: MultiClientConfig,
+  templatePlan?: TemplatePlan
+) {
   const pkgPath = join(projectDir, "package.json");
   if (!existsSync(pkgPath)) {
     return;
@@ -45,6 +55,7 @@ export async function applyPackageJson(projectDir: string, config: MultiClientCo
   });
   pkg.scripts["publish"] = "npm run build && npm run publish:npm";
   pkg.scripts["npm-publish"] = "npm run publish";
+  applyDependencyPlan(pkg, templatePlan?.dependencies);
   await writeFile(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`);
 }
 
@@ -70,4 +81,72 @@ function buildPublishCommand(config: Partial<NpmPublishConfig> | undefined): str
   }
 
   return parts.join(" ");
+}
+
+function applyDependencyPlan(
+  pkg: Record<string, any>,
+  plannedDependencies: readonly TemplatePlannedDependency[] | undefined
+) {
+  if (!plannedDependencies) {
+    return;
+  }
+
+  const versionCatalog = buildVersionCatalog(pkg);
+  const sections = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"] as const;
+  const plannedBySection = new Map<
+    (typeof sections)[number],
+    Record<string, string>
+  >();
+
+  for (const dependency of plannedDependencies) {
+    const version = versionCatalog.get(dependency.name);
+    if (!version) {
+      throw new Error(
+        `Unable to resolve a package version for "${dependency.name}" in the Orval template dependency plan.`
+      );
+    }
+
+    const section = plannedBySection.get(dependency.section) ?? {};
+    section[dependency.name] = version;
+    plannedBySection.set(dependency.section, section);
+  }
+
+  for (const sectionName of sections) {
+    const section = plannedBySection.get(sectionName);
+    if (section && Object.keys(section).length > 0) {
+      pkg[sectionName] = sortObject(section);
+    } else {
+      delete pkg[sectionName];
+    }
+  }
+
+  if (!pkg.peerDependencies || Object.keys(pkg.peerDependencies).length === 0) {
+    delete pkg.peerDependenciesMeta;
+  }
+}
+
+function buildVersionCatalog(pkg: Record<string, any>): Map<string, string> {
+  const catalog = new Map<string, string>();
+  const sections = ["dependencies", "devDependencies", "peerDependencies", "optionalDependencies"] as const;
+
+  for (const sectionName of sections) {
+    const section = pkg[sectionName];
+    if (!section || typeof section !== "object") {
+      continue;
+    }
+
+    for (const [name, version] of Object.entries(section)) {
+      if (typeof version === "string") {
+        catalog.set(name, version);
+      }
+    }
+  }
+
+  return catalog;
+}
+
+function sortObject(value: Record<string, string>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(value).sort(([left], [right]) => left.localeCompare(right))
+  );
 }
