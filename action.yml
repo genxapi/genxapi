@@ -30,6 +30,10 @@ inputs:
     description: "Optional path for the generated JSON plan file."
     required: false
     default: ""
+  release-manifest-output:
+    description: "Optional path for the generated release manifest JSON file."
+    required: false
+    default: ""
   log-level:
     description: "CLI log level."
     required: false
@@ -57,6 +61,9 @@ outputs:
   manifest-path:
     description: "Planned manifest path inside the generated package."
     value: ${{ steps.outputs.outputs.manifest_path }}
+  release-manifest-path:
+    description: "Absolute path to the generated release manifest file when requested."
+    value: ${{ steps.outputs.outputs.release_manifest_path }}
   template-name:
     description: "Resolved template package name."
     value: ${{ steps.outputs.outputs.template_name }}
@@ -81,6 +88,9 @@ outputs:
   planned-actions-json:
     description: "JSON summary of planned GenX API actions for the run."
     value: ${{ steps.outputs.outputs.planned_actions_json }}
+  next-steps-json:
+    description: "JSON summary of recommended next steps for the run."
+    value: ${{ steps.outputs.outputs.next_steps_json }}
   selected-capabilities-json:
     description: "JSON array of template capabilities selected for this run."
     value: ${{ steps.outputs.outputs.selected_capabilities_json }}
@@ -100,6 +110,7 @@ runs:
       env:
         INPUT_CLI_VERSION: ${{ inputs.cli-version }}
         INPUT_PLAN_OUTPUT: ${{ inputs.plan-output }}
+        INPUT_RELEASE_MANIFEST_OUTPUT: ${{ inputs.release-manifest-output }}
       run: |
         set -euo pipefail
 
@@ -118,6 +129,14 @@ runs:
         echo "cli_version=$cli_version" >> "$GITHUB_OUTPUT"
         echo "plan_path=$plan_path" >> "$GITHUB_OUTPUT"
 
+        if [ -n "$INPUT_RELEASE_MANIFEST_OUTPUT" ]; then
+          release_manifest_path="$INPUT_RELEASE_MANIFEST_OUTPUT"
+          if [[ "$release_manifest_path" != /* ]]; then
+            release_manifest_path="$(pwd)/$release_manifest_path"
+          fi
+          echo "release_manifest_path=$release_manifest_path" >> "$GITHUB_OUTPUT"
+        fi
+
     - name: Run GenX API
       id: generate
       shell: bash
@@ -131,6 +150,7 @@ runs:
         INPUT_PUBLISH_MODE: ${{ inputs.publish-mode }}
         INPUT_DRY_RUN: ${{ inputs.dry-run }}
         INPUT_CONTRACT_VERSION: ${{ inputs.contract-version }}
+        INPUT_RELEASE_MANIFEST_OUTPUT: ${{ steps.resolve.outputs.release_manifest_path }}
         INPUT_LOG_LEVEL: ${{ inputs.log-level }}
       run: |
         set -euo pipefail
@@ -157,6 +177,10 @@ runs:
           args+=(--contract-version "$INPUT_CONTRACT_VERSION")
         fi
 
+        if [ -n "$INPUT_RELEASE_MANIFEST_OUTPUT" ]; then
+          args+=(--release-manifest-output "$INPUT_RELEASE_MANIFEST_OUTPUT")
+        fi
+
         npx -y -p "@genxapi/cli@$CLI_VERSION" genxapi "${args[@]}"
 
     - name: Expose action outputs
@@ -164,6 +188,7 @@ runs:
       shell: bash
       env:
         PLAN_PATH: ${{ steps.resolve.outputs.plan_path }}
+        RELEASE_MANIFEST_PATH: ${{ steps.resolve.outputs.release_manifest_path }}
       run: |
         set -euo pipefail
-        node "$GITHUB_ACTION_PATH/.github/actions/write-generate-action-outputs.mjs" "$PLAN_PATH" "$GITHUB_OUTPUT"
+        node "$GITHUB_ACTION_PATH/.github/actions/write-generate-action-outputs.mjs" "$PLAN_PATH" "$GITHUB_OUTPUT" "$RELEASE_MANIFEST_PATH"

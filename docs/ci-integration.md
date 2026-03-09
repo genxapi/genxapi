@@ -7,9 +7,10 @@ title: "CI Integration"
 GenX API now ships an official automation surface for backend-triggered package generation:
 
 - the `generate` command can run headless dry-run planning with a JSON plan file
+- the `diff` command can produce contract comparison output for humans or automation
 - the repository root ships an official GitHub Action
 - the action exposes a stable set of CI inputs and outputs
-- dry runs now resolve contracts, template choice, output paths, and planned lifecycle actions before any files are written
+- dry runs now resolve contracts, template choice, output paths, planned lifecycle actions, and next-step reporting before any files are written
 
 This keeps the boundaries narrow:
 
@@ -46,6 +47,7 @@ Use a tagged release instead of `@main` once you standardise the version you wan
 | `dry-run`           | Validate and emit a plan without writing generated files.                         | `false`                     |
 | `contract-version`  | Optional external contract version string recorded in plan and manifest metadata. | empty                       |
 | `plan-output`       | Optional JSON plan output path.                                                   | runner temp path            |
+| `release-manifest-output` | Optional JSON release manifest path.                                       | empty                       |
 | `log-level`         | CLI logging level.                                                                | `info`                      |
 | `working-directory` | Working directory that contains the config file.                                  | `.`                         |
 | `node-version`      | Node.js version used by the action.                                               | `22`                        |
@@ -58,6 +60,7 @@ Use a tagged release instead of `@main` once you standardise the version you wan
 | `dry-run`                    | Whether the run executed in dry-run mode.             |
 | `plan-path`                  | Absolute path to the generated JSON plan file.        |
 | `manifest-path`              | Planned manifest path inside the generated package.   |
+| `release-manifest-path`      | Absolute path to the generated release manifest file. |
 | `template-name`              | Resolved template package name.                       |
 | `template-kind`              | Resolved template kind.                               |
 | `project-name`               | Generated package name.                               |
@@ -66,6 +69,7 @@ Use a tagged release instead of `@main` once you standardise the version you wan
 | `contracts-json`             | JSON summary of resolved contract sources per client. |
 | `outputs-json`               | JSON summary of resolved output paths per client.     |
 | `planned-actions-json`       | JSON summary of planned GenX API lifecycle actions.   |
+| `next-steps-json`            | JSON summary of recommended next steps.               |
 | `selected-capabilities-json` | JSON array of selected template capabilities.         |
 
 ## Backend-Initiated Example
@@ -103,12 +107,14 @@ jobs:
           output-path: ./sdk/petstore-sdk
           contract-version: ${{ github.sha }}
           dry-run: ${{ github.event_name == 'pull_request' }}
+          release-manifest-output: ./artifacts/genxapi-release.json
           publish-mode: ${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}
       - name: Show resolved plan
         run: |
           echo '${{ steps.genx.outputs.contracts-json }}'
           echo '${{ steps.genx.outputs.outputs-json }}'
           echo '${{ steps.genx.outputs.planned-actions-json }}'
+          echo '${{ steps.genx.outputs.next-steps-json }}'
 ```
 
 Why this is the intended backend flow:
@@ -131,15 +137,23 @@ Why this is the intended backend flow:
 Example:
 
 ```bash
+npx genxapi diff \
+  --base ./openapi/petstore-before.yaml \
+  --head ./openapi/petstore-after.yaml \
+  --format json \
+  --output ./artifacts/genxapi-diff.json \
+  --release-manifest-output ./artifacts/genxapi-release.json
+
 npx genxapi generate \
   --config ./genxapi.config.json \
   --dry-run \
   --plan-output ./artifacts/genxapi-plan.json \
+  --release-manifest-output ./artifacts/genxapi-release.json \
   --contract ./openapi/petstore.yaml \
   --output-path ./sdk/petstore-sdk
 ```
 
-The JSON plan file is the recommended CI hand-off artifact before you allow generation or publishing.
+The JSON plan file is the recommended CI hand-off artifact before you allow generation or publishing. The release manifest is the recommended place to join contract diff output and generation metadata into one CI artifact.
 
 ## CLI Automation Overrides
 
@@ -150,6 +164,7 @@ The supported CI-facing `generate` overrides are intentionally small:
 - `--publish-mode` flips publish automation between `config`, `off`, `npm`, `github`, and `both`
 - `--contract-version` records external contract version metadata in the plan and manifest
 - `--plan-output` writes a JSON plan file for CI parsing
+- `--release-manifest-output` writes release lifecycle metadata that can be shared with `genxapi diff`
 
 These flags do not collapse template behavior into the shared automation surface. They only control orchestration inputs that belong in GenX API core.
 
@@ -179,16 +194,18 @@ npx genxapi generate \
   --output-path ./sdk/petstore-sdk \
   --publish-mode off \
   --dry-run \
-  --plan-output ./artifacts/genxapi-plan.json
+  --plan-output ./artifacts/genxapi-plan.json \
+  --release-manifest-output ./artifacts/genxapi-release.json
 ```
 
 This is the supported path for other CI providers as well.
 
 ## What Is Still Not Shipped
 
-This phase does not add:
+This phase still does not add:
 
-- first-class diff or release classification
+- breaking vs non-breaking structural diffing
+- automatic SemVer decisions or release-note generation
 - template flattening between Orval and Kubb
 - consumer-repo coupling or dist-path based automation
 
@@ -198,6 +215,7 @@ Those stay in later phases.
 
 - Read [Generation Manifest](./generation-manifest.md) for the metadata produced after a real run.
 - Read [Versioning and releases](./versioning.md) for the current publish and release surface.
+- Read [Release lifecycle](./release-lifecycle.md) for the current diff-to-generation handoff.
 
 ---
 

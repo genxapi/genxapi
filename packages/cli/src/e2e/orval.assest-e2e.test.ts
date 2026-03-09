@@ -7,7 +7,7 @@ import { execa } from "execa";
 import fs from "fs-extra";
 import { describe, expect, it, beforeAll, afterAll } from "vitest";
 
-const CLI_BIN = fileURLToPath(new URL("../../dist/index.js", import.meta.url));
+const CLI_BIN = fileURLToPath(new URL("../../dist/cli.js", import.meta.url));
 
 describe.sequential("assest end to end orval", () => {
   let server: Server | undefined;

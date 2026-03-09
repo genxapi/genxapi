@@ -98,5 +98,7 @@ describe("planReport", () => {
     expect(rendered).toContain("GenX API generation plan");
     expect(rendered).toContain("contract source: https://api.example.com/openapi.json");
     expect(rendered).toContain("run Publish to npm registry");
+    expect(rendered).toContain("Next steps:");
+    expect(report.nextSteps[0].id).toBe("run-generate-from-plan");
   });
 });

@@ -4,18 +4,22 @@ title: "Versioning & Releases"
 
 # Versioning & Releases
 
-Consistent versioning keeps generated SDKs trustworthy. This guide separates the shipped release surface from the contract-aware workflow GenX API is intended to grow into.
+Consistent versioning keeps generated SDKs trustworthy. GenX API now ships contract-aware release signals, but the final version decision still stays with you or your surrounding release tooling.
 
 ## Current State
 
-GenX API does **not** currently infer SemVer bumps from contract diffs.
+GenX API still does **not** automatically infer the final SemVer bump from contract diffs.
 
 Current shipped behaviour:
 
+- `diff` compares two OpenAPI documents and emits structured classification.
+- Classification currently distinguishes `none`, `documentation`, `additive`, and `structural`.
+- `additive` is exposed as a minor-version candidate, while `structural` requires manual review.
+- `generate --release-manifest-output` can join generation planning metadata with diff metadata for CI traceability.
 - Generated packages keep their own version in `package.json`.
 - `generate` can publish to npm or GitHub Packages when `project.publish` enables those post-generation steps.
 - `publish` creates a GitHub release when you pass explicit release metadata.
-- Version choice for generated SDKs remains your responsibility or the responsibility of your surrounding release tooling.
+- The final version choice for generated SDKs remains your responsibility or the responsibility of your surrounding release tooling.
 
 For this monorepo's own scoped packages, releases are now managed in CI with `semantic-release` plus a repo-local package-scoped commit filter.
 
@@ -115,68 +119,41 @@ Example `semantic-release` configuration for a generated package:
 
 With that setup, your generated package CI can run `semantic-release` after generation and review. GenX API does not manage that generated-package pipeline directly today.
 
-## Planned Contract-Aware Release Flow
-
-The intended later-phase workflow is broader than the current CLI surface. Planned behaviour includes:
-
-- contract-aware change classification before generation or release
-- release guidance that helps select major, minor, or patch bumps
-- richer release metadata derived from contract and generated output
-- CI-friendly summaries for reviewers and maintainers
-
-Target workflow example:
-
-1. Compare the previous and next API contracts.
-2. Generate updated packages.
-3. Produce a reviewer summary with changed files and contract impact.
-4. Feed that information into package versioning and release tooling.
-5. Publish packages and create GitHub releases with richer release notes.
-
-This is target design context for upcoming phases, not shipped behaviour in the current CLI.
-
-## Planned Semantic Diffing
-
-GenX API does not ship a public `diff` command today. The following section describes the intended contract-aware workflow for later phases.
-
-Target command shape:
+## Current Contract-Aware Workflow
 
 ```bash
 npx genxapi diff \
-  --base specs/petstore-v1.yaml \
-  --head specs/petstore-v2.yaml \
-  --format markdown \
-  --output ./reports/petstore-diff.md
+  --base ./contracts/petstore-before.json \
+  --head ./contracts/petstore-after.json \
+  --format json \
+  --output ./artifacts/genxapi-diff.json \
+  --release-manifest-output ./artifacts/genxapi-release.json
+
+npx genxapi generate \
+  --config ./genxapi.config.json \
+  --dry-run \
+  --plan-output ./artifacts/genxapi-plan.json \
+  --release-manifest-output ./artifacts/genxapi-release.json
 ```
 
-Target uses for that diff output:
+This gives you:
 
-- classify breaking and non-breaking contract changes
-- feed PR summaries or reviewer guidance
-- inform SemVer decisions in surrounding release tooling
+- a structured diff report
+- a structured classification signal
+- a generation plan
+- one release manifest tying those artifacts together
 
-Illustrative commit and release heuristics for later phases:
-
-- `feat(api): add POST /pets` -> likely MINOR guidance
-- `fix(api): correct schema for Pet.status` -> likely PATCH guidance
-- breaking contract changes -> major-version guidance or explicit `!` commits in downstream tooling
-
-Planned PR and release context may include:
-
-- summary of generated files
-- contract diff summary when first-class diff support lands
-- guidance for reviewers on testing steps
+See [Release lifecycle](./release-lifecycle.md) for the detailed workflow and classification meaning.
 
 ## Planned CI Pattern
 
-One intended later-phase CI flow is:
+One later-phase CI improvement path is:
 
-1. Run contract validation and diffing.
+1. Run contract validation and diffing with stronger structural analysis.
 2. Generate packages with `genxapi generate`.
-3. Open or update a review PR with generated changes and contract summary.
+3. Open or update a review PR with generated changes and richer contract summary.
 4. Let external tooling such as `semantic-release` or Release Please decide and publish the release.
 5. Optionally use `genxapi publish` to create or enrich the GitHub release step.
-
-Until those phases land, treat this as roadmap context rather than operational product guidance.
 
 ## Next Steps
 

@@ -1,6 +1,6 @@
 import { appendFileSync, readFileSync } from "node:fs";
 
-const [planPath, githubOutputPath] = process.argv.slice(2);
+const [planPath, githubOutputPath, releaseManifestPath = ""] = process.argv.slice(2);
 
 if (!planPath || !githubOutputPath) {
   throw new Error("Usage: node write-generate-action-outputs.mjs <plan-path> <github-output-path>");
@@ -12,6 +12,7 @@ const outputs = {
   dry_run: String(plan.dryRun ?? false),
   plan_path: planPath,
   manifest_path: plan.manifest?.path ?? "",
+  release_manifest_path: releaseManifestPath,
   template_name: plan.template?.name ?? "",
   template_kind: plan.template?.kind ?? "",
   project_name: plan.project?.name ?? "",
@@ -34,6 +35,7 @@ const outputs = {
       : [],
   ),
   planned_actions_json: JSON.stringify(plan.plannedActions ?? []),
+  next_steps_json: JSON.stringify(plan.nextSteps ?? []),
   selected_capabilities_json: JSON.stringify(plan.templatePlan?.selectedCapabilities ?? []),
 };
 

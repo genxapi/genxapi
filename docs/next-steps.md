@@ -8,8 +8,8 @@ Ready to go beyond the basics? This page outlines the roadmap and clearly labels
 
 ## Roadmap Highlights
 
-1. **Contract diffing** - add a first-class `genxapi diff` command with custom reporters and automated PR annotations.
-2. **Release intelligence** – add contract-aware SemVer guidance and richer release metadata.
+1. **Deeper contract diffing** - add custom reporters, PR annotations, and stronger breaking-change analysis on top of the shipped `genxapi diff` command.
+2. **Release intelligence** – move from manual review signals to stronger SemVer guidance and richer release metadata.
 3. **Additional language workflows** – standardise post-generate scripts for Python, Go, .NET, and Java SDKs.
 4. **Plugin API** – allow external packages to provide custom generators that run alongside Orval or Kubb.
 5. **Insight dashboards** – aggregate run metadata (generation time, diff summaries) for platform teams.
@@ -36,13 +36,15 @@ Although the current first-party templates are TypeScript-focused, the architect
 Current release:
 
 - Orchestration via `generate`
+- Contract diffing via `diff`
+- Release metadata via generation and release manifests
 - GitHub release creation via `publish`
 - First-party Orval and Kubb templates
 
 Planned later:
 
-- First-class `diff`
-- Contract-aware versioning guidance
+- Breaking vs non-breaking contract analysis
+- Stronger contract-aware versioning guidance
 - Additional template and ecosystem surfaces
 
 ## Next Steps

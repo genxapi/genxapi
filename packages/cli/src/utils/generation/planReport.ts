@@ -3,6 +3,7 @@ import { dirname, join } from "node:path";
 import fs from "fs-extra";
 import type { CliConfig } from "src/config/loader";
 import type { TemplateGenerationPlan, TemplateModule } from "src/config/loader/templateModule";
+import type { OrchestrationNextStep } from "src/utils/release";
 import type { NpmPublishConfig } from "src/services/npm";
 import type { ResolvedContractSource } from "src/utils/contracts";
 import { sanitiseSourceForLog } from "src/utils/contracts";
@@ -74,6 +75,7 @@ export interface GenerationPlanReport {
     readonly output?: PlanClientShape["output"];
   }>;
   readonly plannedActions: readonly GenerationPlanAction[];
+  readonly nextSteps: readonly OrchestrationNextStep[];
 }
 
 export interface BuildGenerationPlanReportOptions {
@@ -94,6 +96,7 @@ export function buildGenerationPlanReport(
   options: BuildGenerationPlanReportOptions,
 ): GenerationPlanReport {
   const manifestPath = join(options.projectDir, "genxapi.manifest.json");
+  const plannedActions = buildPlannedActions(options.config);
 
   return {
     schemaVersion: 1,
@@ -138,7 +141,8 @@ export function buildGenerationPlanReport(
         output: client.output,
       };
     }),
-    plannedActions: buildPlannedActions(options.config),
+    plannedActions,
+    nextSteps: buildNextSteps(plannedActions, options.dryRun),
   };
 }
 
@@ -199,6 +203,12 @@ export function renderGenerationPlanReport(report: GenerationPlanReport): string
         action.reason ? ` (${action.reason})` : ""
       }`,
     );
+  }
+
+  lines.push("");
+  lines.push("Next steps:");
+  for (const step of report.nextSteps) {
+    lines.push(`- ${step.label}${step.reason ? ` (${step.reason})` : ""}`);
   }
 
   return `${lines.join("\n")}\n`;
@@ -278,6 +288,91 @@ function buildPlannedActions(config: CliConfig): readonly GenerationPlanAction[]
         : undefined,
     },
   ];
+}
+
+function buildNextSteps(
+  plannedActions: readonly GenerationPlanAction[],
+  dryRun: boolean,
+): readonly OrchestrationNextStep[] {
+  if (dryRun) {
+    return [
+      {
+        id: "run-generate-from-plan",
+        label:
+          "Run generate without --dry-run to write clients, the generation manifest, and any configured post-generation actions.",
+        kind: "generate",
+        automated: false,
+      },
+      ...plannedActions
+        .filter((action) =>
+          [
+            "synchronize-repository",
+            "build-generated-package",
+            "publish-npm",
+            "publish-github",
+          ].includes(action.id) && action.enabled,
+        )
+        .map((action) => ({
+          id: `planned-${action.id}`,
+          label: action.label,
+          kind: mapActionKind(action.id),
+          automated: true,
+          actionId: action.id,
+        })),
+    ];
+  }
+
+  const nextSteps: OrchestrationNextStep[] = [
+    {
+      id: "review-generated-output",
+      label:
+        "Review generated package changes together with genxapi.manifest.json before promoting or tagging a release.",
+      kind: "review",
+      automated: false,
+    },
+  ];
+
+  if (plannedActions.some((action) => action.id === "synchronize-repository" && action.enabled)) {
+    nextSteps.push({
+      id: "verify-repository-sync",
+      label: "Verify the repository synchronization result produced by this run.",
+      kind: "review",
+      automated: false,
+      actionId: "synchronize-repository",
+    });
+  }
+
+  if (
+    plannedActions.some((action) =>
+      ["publish-npm", "publish-github"].includes(action.id) && action.enabled,
+    )
+  ) {
+    nextSteps.push({
+      id: "verify-published-artifacts",
+      label: "Verify registry or package-hosting results for the publish automation triggered by this run.",
+      kind: "publish",
+      automated: false,
+    });
+  }
+
+  return nextSteps;
+}
+
+function mapActionKind(actionId: GenerationPlanAction["id"]): OrchestrationNextStep["kind"] {
+  switch (actionId) {
+    case "build-generated-package":
+      return "build";
+    case "publish-npm":
+    case "publish-github":
+      return "publish";
+    case "synchronize-repository":
+      return "release";
+    case "resolve-contracts":
+    case "generate-clients":
+    case "write-generation-manifest":
+    default:
+      return "generate";
+  }
 }
 
 function normaliseGithubPublish(

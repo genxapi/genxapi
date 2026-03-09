@@ -1,5 +1,6 @@
 import { analyzeComponents } from "./components";
 import { analyzePaths } from "./paths";
+import { buildChangeClassification } from "./classification";
 import { buildSummary, determineResultType } from "./summary";
 import type { SchemaChangeResult } from "./types";
 import type { DiffReport } from "./types";
@@ -38,6 +39,7 @@ export function analyzeSwaggerDiff(
 
   const type = determineResultType(diff);
   const summary = buildSummary(type, diff);
+  const classification = buildChangeClassification(type, diff);
 
-  return { type, summary, diff };
+  return { type, summary, diff, classification };
 }

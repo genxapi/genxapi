@@ -7,7 +7,7 @@ import { execa } from "execa";
 import fs from "fs-extra";
 import { describe, expect, it, beforeAll, afterAll, vi } from "vitest";
 
-const CLI_BIN = fileURLToPath(new URL("../../dist/index.js", import.meta.url));
+const CLI_BIN = fileURLToPath(new URL("../../dist/cli.js", import.meta.url));
 
 describe.sequential("assest end to end kubb", () => {
   let server: Server | undefined;
@@ -37,9 +37,7 @@ describe.sequential("assest end to end kubb", () => {
         "--http-client",
         "fetch",
         "--base-url",
-        baseUrl,
-        "--mock-type",
-        "off"
+        baseUrl
       ],
       { cwd: workspaceDir, stdio: "pipe" }
     );
@@ -161,8 +159,7 @@ async function prepareWorkspace(baseUrl: string): Promise<{
       output: "./src",
       config: {
         baseUrl,
-        httpClient: "fetch",
-        mock: { type: "off" }
+        httpClient: "fetch"
       }
     },
     clients: [
@@ -176,8 +173,7 @@ async function prepareWorkspace(baseUrl: string): Promise<{
         },
         config: {
           baseUrl,
-          httpClient: "fetch",
-          mock: { type: "off" }
+          httpClient: "fetch"
         }
       }
     ],

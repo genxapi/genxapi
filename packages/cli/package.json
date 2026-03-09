@@ -43,7 +43,7 @@
     "prepack": "npm run build && npm run smoke:cli",
     "release": "semantic-release",
     "smoke:cli": "npm run genxapi:cli -- --help",
-    "test": "vitest run"
+    "test": "npm run build && vitest run"
   },
   "dependencies": {
     "@genxapi/template-kubb": "^1.0.0",
