@@ -104,18 +104,21 @@ export interface ResolveContractSourcesOptions {
   readonly projectDir: string;
   readonly clients: readonly ClientContractInput[];
   readonly logger?: ContractResolutionLogger;
+  readonly writeSnapshots?: boolean;
 }
 
 export async function resolveContractSources(
-  options: ResolveContractSourcesOptions
+  options: ResolveContractSourcesOptions,
 ): Promise<Record<string, ResolvedContractSource>> {
-  await fs.ensureDir(options.projectDir);
+  if (options.writeSnapshots !== false) {
+    await fs.ensureDir(options.projectDir);
+  }
 
   const resolvedEntries = await Promise.all(
     options.clients.map(async (client) => {
       const resolved = await resolveClientContract(client, options);
       return [client.name, resolved] as const;
-    })
+    }),
   );
 
   return Object.fromEntries(resolvedEntries);
@@ -123,7 +126,7 @@ export async function resolveContractSources(
 
 async function resolveClientContract(
   client: ClientContractInput,
-  options: ResolveContractSourcesOptions
+  options: ResolveContractSourcesOptions,
 ): Promise<ResolvedContractSource> {
   const source = client.contract?.source ?? client.swagger;
   if (!source) {
@@ -137,19 +140,19 @@ async function resolveClientContract(
 
   if (type === "remote" && auth && !snapshot.enabled) {
     throw new Error(
-      `Client "${client.name}" disables snapshotting for an authenticated remote contract. Protected remote contracts must be snapshotted so generators do not need direct access to secrets.`
+      `Client "${client.name}" disables snapshotting for an authenticated remote contract. Protected remote contracts must be snapshotted so generators do not need direct access to secrets.`,
     );
   }
 
   if (type === "local" && auth) {
     options.logger?.warn?.(
-      `Client "${client.name}" defines contract auth for a local source. The auth block is ignored for local files.`
+      `Client "${client.name}" defines contract auth for a local source. The auth block is ignored for local files.`,
     );
   }
 
   if (type === "remote" && !snapshot.enabled) {
     options.logger?.warn?.(
-      `Client "${client.name}" uses a live remote contract without snapshotting. Generation will remain sensitive to upstream changes.`
+      `Client "${client.name}" uses a live remote contract without snapshotting. Generation will remain sensitive to upstream changes.`,
     );
   }
 
@@ -161,12 +164,12 @@ async function resolveClientContract(
   const checksum = checksumAlgorithm
     ? {
         algorithm: checksumAlgorithm,
-        value: createHash(checksumAlgorithm).update(loaded.content).digest("hex")
+        value: createHash(checksumAlgorithm).update(loaded.content).digest("hex"),
       }
     : undefined;
 
   const snapshotPath = snapshot.enabled ? normaliseSnapshotPath(snapshot.path, client) : undefined;
-  if (snapshotPath) {
+  if (snapshotPath && options.writeSnapshots !== false) {
     const snapshotAbsolute = resolve(options.projectDir, snapshotPath);
     await fs.ensureDir(dirname(snapshotAbsolute));
     await writeFile(snapshotAbsolute, loaded.content, "utf8");
@@ -185,14 +188,14 @@ async function resolveClientContract(
     generatorInput,
     snapshot: {
       enabled: snapshot.enabled,
-      path: snapshotPath
+      path: snapshotPath,
     },
     checksum,
     metadata: {
       ...loaded.metadata,
-      auth: loaded.metadata.auth
+      auth: loaded.metadata.auth,
     },
-    info: buildSwaggerInfo(loaded.content, source)
+    info: buildSwaggerInfo(loaded.content, source),
   };
 }
 
@@ -200,7 +203,7 @@ async function loadLocalContract(
   clientName: string,
   source: string,
   configDir: string,
-  logger?: ContractResolutionLogger
+  logger?: ContractResolutionLogger,
 ): Promise<{
   readonly content: string;
   readonly resolvedSource: string;
@@ -214,8 +217,8 @@ async function loadLocalContract(
     content,
     resolvedSource: absolute,
     metadata: {
-      sizeBytes: Buffer.byteLength(content, "utf8")
-    }
+      sizeBytes: Buffer.byteLength(content, "utf8"),
+    },
   };
 }
 
@@ -223,7 +226,7 @@ async function loadRemoteContract(
   clientName: string,
   source: string,
   auth: ContractAuthInput | undefined,
-  logger?: ContractResolutionLogger
+  logger?: ContractResolutionLogger,
 ): Promise<{
   readonly content: string;
   readonly resolvedSource: string;
@@ -235,16 +238,16 @@ async function loadRemoteContract(
 
   const { headers, authMetadata } = buildRemoteHeaders(clientName, auth);
   logger?.info?.(
-    `Resolving remote contract for ${clientName} from ${sanitiseSourceForLog(source)}${describeAuthSuffix(authMetadata)}.`
+    `Resolving remote contract for ${clientName} from ${sanitiseSourceForLog(source)}${describeAuthSuffix(authMetadata)}.`,
   );
 
   const response = await fetch(source, {
-    headers
+    headers,
   });
 
   if (!response.ok) {
     throw new Error(
-      `Failed to fetch remote contract for "${clientName}" from ${sanitiseSourceForLog(source)} (${response.status} ${response.statusText}).`
+      `Failed to fetch remote contract for "${clientName}" from ${sanitiseSourceForLog(source)} (${response.status} ${response.statusText}).`,
     );
   }
 
@@ -260,14 +263,14 @@ async function loadRemoteContract(
       etag: response.headers.get("etag") ?? undefined,
       lastModified: response.headers.get("last-modified") ?? undefined,
       sizeBytes: Buffer.byteLength(content, "utf8"),
-      auth: authMetadata
-    }
+      auth: authMetadata,
+    },
   };
 }
 
 function buildRemoteHeaders(
   clientName: string,
-  auth: ContractAuthInput | undefined
+  auth: ContractAuthInput | undefined,
 ): {
   readonly headers: Record<string, string>;
   readonly authMetadata: ResolvedContractSource["metadata"]["auth"];
@@ -275,7 +278,7 @@ function buildRemoteHeaders(
   if (!auth) {
     return {
       headers: {},
-      authMetadata: undefined
+      authMetadata: undefined,
     };
   }
 
@@ -285,13 +288,13 @@ function buildRemoteHeaders(
       const scheme = auth.scheme ?? "Bearer";
       return {
         headers: {
-          Authorization: `${scheme} ${token}`
+          Authorization: `${scheme} ${token}`,
         },
         authMetadata: {
           type: "bearer",
           tokenEnv: auth.tokenEnv,
-          scheme
-        }
+          scheme,
+        },
       };
     }
     case "basic": {
@@ -300,33 +303,33 @@ function buildRemoteHeaders(
       const encoded = Buffer.from(`${username}:${password}`).toString("base64");
       return {
         headers: {
-          Authorization: `Basic ${encoded}`
+          Authorization: `Basic ${encoded}`,
         },
         authMetadata: {
           type: "basic",
           usernameEnv: auth.usernameEnv,
-          passwordEnv: auth.passwordEnv
-        }
+          passwordEnv: auth.passwordEnv,
+        },
       };
     }
     case "header": {
       const value = requireEnv(auth.valueEnv, clientName);
       return {
         headers: {
-          [auth.headerName]: auth.prefix ? `${auth.prefix} ${value}` : value
+          [auth.headerName]: auth.prefix ? `${auth.prefix} ${value}` : value,
         },
         authMetadata: {
           type: "header",
           headerName: auth.headerName,
           valueEnv: auth.valueEnv,
-          prefix: auth.prefix
-        }
+          prefix: auth.prefix,
+        },
       };
     }
     default:
       return {
         headers: {},
-        authMetadata: undefined
+        authMetadata: undefined,
       };
   }
 }
@@ -335,7 +338,7 @@ function requireEnv(name: string, clientName: string): string {
   const value = process.env[name];
   if (!value) {
     throw new Error(
-      `Missing environment variable ${name} required to resolve the contract for client "${clientName}".`
+      `Missing environment variable ${name} required to resolve the contract for client "${clientName}".`,
     );
   }
   return value;
@@ -360,7 +363,7 @@ function describeAuthSuffix(auth: ResolvedContractSource["metadata"]["auth"]): s
 
 function normaliseSnapshot(
   client: ClientContractInput,
-  sourceType: "local" | "remote"
+  sourceType: "local" | "remote",
 ): {
   readonly enabled: boolean;
   readonly path?: string;
@@ -372,41 +375,38 @@ function normaliseSnapshot(
   if (snapshot && typeof snapshot === "object") {
     return {
       enabled: true,
-      path: snapshot.path
+      path: snapshot.path,
     };
   }
 
   if (typeof client.copySwagger === "boolean") {
     return {
-      enabled: client.copySwagger
+      enabled: client.copySwagger,
     };
   }
 
   return {
-    enabled: sourceType === "remote"
+    enabled: sourceType === "remote",
   };
 }
 
-function normaliseSnapshotPath(
-  path: string | undefined,
-  client: ClientContractInput
-): string {
+function normaliseSnapshotPath(path: string | undefined, client: ClientContractInput): string {
   const resolved = path ?? client.swaggerCopyTarget;
   if (!resolved) {
     throw new Error(
-      `Client "${client.name}" enables contract snapshots but does not define a snapshot path.`
+      `Client "${client.name}" enables contract snapshots but does not define a snapshot path.`,
     );
   }
   if (isAbsolute(resolved)) {
     throw new Error(
-      `Client "${client.name}" defines snapshot path "${resolved}", but snapshot paths must stay within the generated project.`
+      `Client "${client.name}" defines snapshot path "${resolved}", but snapshot paths must stay within the generated project.`,
     );
   }
   return resolved.replace(/\\/g, "/");
 }
 
 function normaliseChecksumAlgorithm(
-  checksum: ContractChecksumInput | undefined
+  checksum: ContractChecksumInput | undefined,
 ): "sha256" | "sha512" | undefined {
   if (!checksum) {
     return undefined;
@@ -436,7 +436,7 @@ function buildSwaggerInfo(text: string, source: string): ResolvedSwaggerInfo | n
   }
   return {
     ...parsed,
-    source
+    source,
   };
 }
 
@@ -448,7 +448,7 @@ function parseSwaggerSpec(text: string): Omit<ResolvedSwaggerInfo, "source"> | n
       return {
         title: typeof info.title === "string" ? info.title : undefined,
         description: typeof info.description === "string" ? info.description : undefined,
-        version: typeof info.version === "string" ? info.version : undefined
+        version: typeof info.version === "string" ? info.version : undefined,
       };
     }
   } catch {
@@ -459,7 +459,7 @@ function parseSwaggerSpec(text: string): Omit<ResolvedSwaggerInfo, "source"> | n
         return {
           title: typeof info.title === "string" ? info.title : undefined,
           description: typeof info.description === "string" ? info.description : undefined,
-          version: typeof info.version === "string" ? info.version : undefined
+          version: typeof info.version === "string" ? info.version : undefined,
         };
       }
     } catch {
@@ -469,7 +469,7 @@ function parseSwaggerSpec(text: string): Omit<ResolvedSwaggerInfo, "source"> | n
   return null;
 }
 
-function sanitiseSourceForLog(source: string): string {
+export function sanitiseSourceForLog(source: string): string {
   if (!isHttp(source)) {
     return source;
   }

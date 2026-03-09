@@ -22,15 +22,10 @@ describe("resolveContractSources", () => {
     await fs.ensureDir(join(configDir, "specs"));
     await writeFile(
       join(configDir, "specs", "pets.yaml"),
-      [
-        "openapi: 3.0.0",
-        "info:",
-        "  title: Pets API",
-        "  version: 1.2.3",
-        "paths: {}",
-        ""
-      ].join("\n"),
-      "utf8"
+      ["openapi: 3.0.0", "info:", "  title: Pets API", "  version: 1.2.3", "paths: {}", ""].join(
+        "\n",
+      ),
+      "utf8",
     );
 
     const resolved = await resolveContractSources({
@@ -43,20 +38,20 @@ describe("resolveContractSources", () => {
             source: "./specs/pets.yaml",
             checksum: true,
             snapshot: {
-              path: ".genxapi/contracts/pets.yaml"
-            }
-          }
-        }
-      ]
+              path: ".genxapi/contracts/pets.yaml",
+            },
+          },
+        },
+      ],
     });
 
     expect(resolved.pets.type).toBe("local");
     expect(resolved.pets.generatorInput).toBe(".genxapi/contracts/pets.yaml");
     expect(resolved.pets.checksum?.algorithm).toBe("sha256");
     expect(resolved.pets.info?.title).toBe("Pets API");
-    expect(
-      await readFile(join(projectDir, ".genxapi/contracts/pets.yaml"), "utf8")
-    ).toContain("Pets API");
+    expect(await readFile(join(projectDir, ".genxapi/contracts/pets.yaml"), "utf8")).toContain(
+      "Pets API",
+    );
   });
 
   it("fetches authenticated remote contracts without leaking secret values into metadata", async () => {
@@ -68,18 +63,18 @@ describe("resolveContractSources", () => {
           openapi: "3.0.0",
           info: {
             title: "Secure API",
-            version: "9.9.9"
+            version: "9.9.9",
           },
-          paths: {}
+          paths: {},
         }),
         {
           status: 200,
           headers: {
             "content-type": "application/json",
-            etag: "\"abc123\"",
-            "last-modified": "Sun, 08 Mar 2026 12:00:00 GMT"
-          }
-        }
+            etag: '"abc123"',
+            "last-modified": "Sun, 08 Mar 2026 12:00:00 GMT",
+          },
+        },
       );
     });
 
@@ -99,17 +94,17 @@ describe("resolveContractSources", () => {
             source: "https://api.example.com/openapi.json",
             auth: {
               type: "bearer",
-              tokenEnv: "OPENAPI_TOKEN"
+              tokenEnv: "OPENAPI_TOKEN",
             },
             checksum: {
-              algorithm: "sha512"
+              algorithm: "sha512",
             },
             snapshot: {
-              path: "contracts/secure.json"
-            }
-          }
-        }
-      ]
+              path: "contracts/secure.json",
+            },
+          },
+        },
+      ],
     });
 
     expect(receivedAuthHeader).toBe("Bearer super-secret-token");
@@ -118,11 +113,11 @@ describe("resolveContractSources", () => {
     expect(resolved.secure.metadata.auth).toEqual({
       type: "bearer",
       tokenEnv: "OPENAPI_TOKEN",
-      scheme: "Bearer"
+      scheme: "Bearer",
     });
     expect(JSON.stringify(resolved.secure)).not.toContain("super-secret-token");
     expect(await readFile(join(projectDir, "contracts/secure.json"), "utf8")).toContain(
-      "Secure API"
+      "Secure API",
     );
   });
 
@@ -142,13 +137,48 @@ describe("resolveContractSources", () => {
               source: "https://api.example.com/openapi.json",
               auth: {
                 type: "bearer",
-                tokenEnv: "OPENAPI_TOKEN"
+                tokenEnv: "OPENAPI_TOKEN",
               },
-              snapshot: false
-            }
-          }
-        ]
-      })
+              snapshot: false,
+            },
+          },
+        ],
+      }),
     ).rejects.toThrow(/must be snapshotted/);
+  });
+
+  it("does not write snapshots during dry-run planning", async () => {
+    const workspace = await mkdtemp(join(tmpdir(), "genxapi-contracts-"));
+    tempDirs.push(workspace);
+    const configDir = join(workspace, "config");
+    const projectDir = join(workspace, "project");
+    await fs.ensureDir(join(configDir, "specs"));
+    await writeFile(
+      join(configDir, "specs", "pets.yaml"),
+      ["openapi: 3.0.0", "info:", "  title: Pets API", "  version: 1.2.3", "paths: {}", ""].join(
+        "\n",
+      ),
+      "utf8",
+    );
+
+    const resolved = await resolveContractSources({
+      configDir,
+      projectDir,
+      writeSnapshots: false,
+      clients: [
+        {
+          name: "pets",
+          contract: {
+            source: "./specs/pets.yaml",
+            snapshot: {
+              path: ".genxapi/contracts/pets.yaml",
+            },
+          },
+        },
+      ],
+    });
+
+    expect(resolved.pets.generatorInput).toBe(".genxapi/contracts/pets.yaml");
+    expect(await fs.pathExists(join(projectDir, ".genxapi/contracts/pets.yaml"))).toBe(false);
   });
 });

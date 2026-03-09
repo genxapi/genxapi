@@ -23,6 +23,7 @@ Read the full boundary definition in [docs/architecture/boundaries.md](docs/arch
 - Apply shared overrides such as `--template`, `--http-client`, `--client`, `--mode`, and `--mock-*`.
 - Resolve local or remote contracts into reproducible generation inputs with optional snapshots, checksums, and manifest output.
 - Scaffold package files and stable package entrypoints for generated SDKs.
+- Run generation through an official GitHub Action or directly through the CLI in CI.
 - Run hooks plus optional post-generation GitHub sync and npm or GitHub Packages publish steps when configured.
 - Create a GitHub release with the `publish` command.
 
@@ -41,10 +42,10 @@ The roadmap remains visible in [docs/next-steps.md](docs/next-steps.md).
 
 The shipped CLI currently exposes two commands:
 
-| Command | What it does today |
-| ------- | ------------------ |
+| Command    | What it does today                                                                                                              |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------- |
 | `generate` | Loads config, resolves the template, generates clients, and may run post-generation GitHub or registry actions when configured. |
-| `publish` | Creates a GitHub release for an explicit `owner` / `repo` / `tag`. |
+| `publish`  | Creates a GitHub release for an explicit `owner` / `repo` / `tag`.                                                              |
 
 There is no public `diff` command in the current CLI contract.
 
@@ -92,30 +93,33 @@ Minimal config:
     "config": {
       "httpClient": "axios",
       "client": "react-query",
-      "mock": { "type": "msw" }
+      "mock": { "type": "msw" },
     },
     "publish": {
-      "npm": { "enabled": false }
-    }
+      "npm": { "enabled": false },
+    },
   },
   "clients": [
     {
       "name": "pets",
-      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json"
-    }
+      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
+    },
   ],
   "hooks": {
     "beforeGenerate": [],
-    "afterGenerate": []
-  }
+    "afterGenerate": [],
+  },
 }
 ```
 
 Useful commands:
 
 ```bash
-# Validate config without writing files
-npx genxapi generate --config ./genxapi.config.json --dry-run
+# Validate config, resolve contracts, and emit a CI plan without writing files
+npx genxapi generate \
+  --config ./genxapi.config.json \
+  --dry-run \
+  --plan-output ./artifacts/genxapi-plan.json
 
 # Switch templates or generator-facing options for a single run
 npx genxapi generate \
@@ -138,15 +142,15 @@ npx genxapi generate \
         "source": "https://api.example.com/openapi.json",
         "auth": {
           "type": "bearer",
-          "tokenEnv": "OPENAPI_TOKEN"
+          "tokenEnv": "OPENAPI_TOKEN",
         },
         "snapshot": {
-          "path": ".genxapi/contracts/pets.json"
+          "path": ".genxapi/contracts/pets.json",
         },
-        "checksum": true
-      }
-    }
-  ]
+        "checksum": true,
+      },
+    },
+  ],
 }
 ```
 
@@ -177,23 +181,37 @@ Planned:
 ## CI Example
 
 ```yaml
-name: Refresh SDKs
+name: Backend Package Generation
 
 on:
-  workflow_dispatch:
+  pull_request:
+    paths:
+      - openapi/**/*
+      - genxapi.config.json
+  push:
+    branches:
+      - main
+    paths:
+      - openapi/**/*
+      - genxapi.config.json
 
 jobs:
   generate:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - id: genx
+        uses: genxapi/genxapi@main
         with:
-          node-version: 20
-          cache: npm
-      - run: npm ci
-      - run: npx genxapi generate --config ./genxapi.config.json --log-level info
+          config: ./genxapi.config.json
+          contract: ./openapi/petstore.yaml
+          output-path: ./sdk/petstore-sdk
+          contract-version: ${{ github.sha }}
+          dry-run: ${{ github.event_name == 'pull_request' }}
+          publish-mode: ${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}
 ```
+
+The action also emits JSON outputs for resolved contracts, output paths, planned actions, and selected template capabilities. For the full CI surface, see [CI integration](docs/ci-integration.md).
 
 If you want contract diff gates today, add your own external diff step or hook. A first-class GenX API `diff` command is planned, not shipped.
 

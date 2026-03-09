@@ -70,19 +70,19 @@ Start with a minimal JSON config:
     "config": {
       "httpClient": "axios",
       "client": "react-query",
-      "mock": { "type": "msw" }
+      "mock": { "type": "msw" },
     },
     "publish": {
-      "npm": { "enabled": false }
-    }
+      "npm": { "enabled": false },
+    },
   },
   "clients": [
     {
       "name": "petstore",
       "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
-      "config": { "baseUrl": "https://api.petstore.local" }
-    }
-  ]
+      "config": { "baseUrl": "https://api.petstore.local" },
+    },
+  ],
 }
 ```
 
@@ -99,15 +99,15 @@ const config: UnifiedGeneratorConfig = {
     output: "./src",
     config: {
       httpClient: "axios",
-      client: "react-query"
-    }
+      client: "react-query",
+    },
   },
   clients: [
     {
       name: "petstore",
-      swagger: "https://petstore3.swagger.io/api/v3/openapi.json"
-    }
-  ]
+      swagger: "https://petstore3.swagger.io/api/v3/openapi.json",
+    },
+  ],
 };
 
 export default config;
@@ -143,9 +143,9 @@ Set `project.template` to `"kubb"` (or run with `--template kubb`) and provide p
     "config": {
       "httpClient": "fetch",
       "plugins": {
-        "client": { "dataReturnType": "data" }
-      }
-    }
+        "client": { "dataReturnType": "data" },
+      },
+    },
   },
   "clients": [
     {
@@ -153,11 +153,11 @@ Set `project.template` to `"kubb"` (or run with `--template kubb`) and provide p
       "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
       "config": {
         "plugins": {
-          "client": { "dataReturnType": "data" }
-        }
-      }
-    }
-  ]
+          "client": { "dataReturnType": "data" },
+        },
+      },
+    },
+  ],
 }
 ```
 
@@ -175,10 +175,10 @@ The CLI:
 4. Executes configured hooks.
 5. Optionally syncs GitHub changes and publishes packages if the config enables those post-generation steps.
 
-Dry-run the process to validate configuration without modifying files:
+Dry-run the process to validate configuration, resolve contracts, and inspect the planned outputs without modifying files:
 
 ```bash
-npx genxapi generate --dry-run
+npx genxapi generate --dry-run --plan-output ./artifacts/genxapi-plan.json
 ```
 
 Export tokens to unlock automation:
@@ -239,4 +239,4 @@ The CLI rewrites the directory relative to your configuration file and keeps pat
 
 - Continue with the [Configuration Reference →](./configuration.md) to explore every option.
 - Read [Architecture boundaries →](./architecture/boundaries.md) before wiring generated packages into other repositories.
-- Jump ahead to [CI Integration →](./ci-integration.md) when you are ready to automate the current workflow in pipelines.
+- Jump ahead to [CI Integration →](./ci-integration.md) when you are ready to automate the current workflow with the official GitHub Action or a headless CLI plan.
