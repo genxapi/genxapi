@@ -56,7 +56,7 @@ npx genxapi publish \
 
 You can wrap that in a project script if you want a shorter release command. This example assumes a POSIX shell:
 
-```jsonc
+```json
 {
   "scripts": {
     "release:github": "genxapi publish --token $GITHUB_TOKEN --owner acme --repo petstore-sdk --tag v$npm_package_version --title \"Release $npm_package_version\""
@@ -94,7 +94,7 @@ That automation lives in the generated package or consumer repository, not insid
 
 Example `semantic-release` configuration for a generated package:
 
-```jsonc
+```json
 {
   "release": {
     "branches": ["main"],

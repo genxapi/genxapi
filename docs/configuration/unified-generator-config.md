@@ -12,7 +12,7 @@ Declare generator intent once and let the CLI translate it into the correct temp
 
 ## Top-level structure
 
-```jsonc
+```json
 {
   "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/packages/cli/schemas/genxapi.schema.json",
   "project": {
@@ -20,7 +20,10 @@ Declare generator intent once and let the CLI translate it into the correct temp
     "directory": "../examples/multi-client-demo",
     "template": "orval",
     "output": "./src",
-    "config": { /* GeneratorOptions */ }
+    "config": {
+      "httpClient": "axios",
+      "client": "react-query"
+    }
   },
   "clients": [
     {
@@ -29,7 +32,9 @@ Declare generator intent once and let the CLI translate it into the correct temp
         "source": "https://petstore3.swagger.io/api/v3/openapi.json",
         "snapshot": true
       },
-      "config": { /* overrides */ }
+      "config": {
+        "baseUrl": "https://api.pets.local"
+      }
     }
   ],
   "hooks": {
@@ -53,12 +58,12 @@ Every client can declare its contract in one of two ways:
 - `swagger: "https://..."` or `swagger: "./specs/pets.yaml"` for the compact form.
 - `contract: { ... }` for reproducible workflows, authenticated remote fetches, and manifest metadata.
 
-| Field | Type | Behaviour |
-|-------|------|-----------|
-| `contract.source` | `string` | Local path or remote URL for the OpenAPI/Swagger document. |
-| `contract.auth` | `{ type: "bearer", tokenEnv }` or `{ type: "basic", usernameEnv, passwordEnv }` or `{ type: "header", headerName, valueEnv, prefix? }` | Uses environment variables at generation time so secrets stay out of config files and logs. |
-| `contract.snapshot` | `boolean` or `{ path?: string }` | Writes a local snapshot that the generator consumes. This is the recommended mode for remote inputs and is required for authenticated remote contracts. |
-| `contract.checksum` | `boolean` or `{ algorithm?: "sha256" \| "sha512" }` | Calculates a checksum and records it in `genxapi.manifest.json`. |
+| Field               | Type                                                                                                                                   | Behaviour                                                                                                                                               |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `contract.source`   | `string`                                                                                                                               | Local path or remote URL for the OpenAPI/Swagger document.                                                                                              |
+| `contract.auth`     | `{ type: "bearer", tokenEnv }` or `{ type: "basic", usernameEnv, passwordEnv }` or `{ type: "header", headerName, valueEnv, prefix? }` | Uses environment variables at generation time so secrets stay out of config files and logs.                                                             |
+| `contract.snapshot` | `boolean` or `{ path?: string }`                                                                                                       | Writes a local snapshot that the generator consumes. This is the recommended mode for remote inputs and is required for authenticated remote contracts. |
+| `contract.checksum` | `boolean` or `{ algorithm?: "sha256" \| "sha512" }`                                                                                    | Calculates a checksum and records it in `genxapi.manifest.json`.                                                                                        |
 
 Notes:
 
@@ -68,7 +73,7 @@ Notes:
 
 ### Secure remote contract example
 
-```jsonc
+```json
 {
   "clients": [
     {
@@ -101,16 +106,16 @@ GenX API now treats these settings as three distinct ownership classes:
 - Template first-class options are documented, supported parts of a specific template surface.
 - Escape hatch options stay template-owned and are passed through or handled by the template without being promoted as universal API.
 
-| Field | Type | Applies to | Behaviour |
-|-------|------|------------|-----------|
-| `httpClient` | `"axios"` \| `"fetch"` | Orval & Kubb | Sets the HTTP transport (Orval `output.httpClient`, Kubb `plugin-client.client`). |
-| `client` | `"react-query"`, `"swr"`, `"vue-query"`, `"svelte-query"`, `"axios"`, `"axios-functions"`, `"angular"`, `"zod"`, `"fetch"` | Orval | Selects the runtime client flavour (see [`client` options](../../.context/orval-output-api-options.md#client)). |
-| `mode` | `"single"`, `"split"`, `"split-tag"`, `"split-tags"`, `"tags"`, `"tags-split"` | Orval | Maps to Orval’s output mode. |
-| `baseUrl` | `string` | Orval & Kubb | Injects a default base URL (`output.baseUrl`, `plugin-client.baseURL`). |
-| `mock` | `boolean` or `{ type: "msw" \| "off", delay?: number, useExamples?: boolean }` | Orval | Controls MSW mock generation. `type: "off"` disables mocks. |
-| `prettier` | `boolean` | Orval | Toggles Prettier formatting in generated files. |
-| `clean` | `boolean` | Orval | Toggles cleanup of Orval output before writing new files. |
-| `plugins` / `kubb` | `{ client?: object, ts?: object, oas?: object }` | Kubb | Merged into the corresponding Kubb plugin blocks.
+| Field              | Type                                                                                                                       | Applies to   | Behaviour                                                                                                       |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------- | ------------ | --------------------------------------------------------------------------------------------------------------- |
+| `httpClient`       | `"axios"` \| `"fetch"`                                                                                                     | Orval & Kubb | Sets the HTTP transport (Orval `output.httpClient`, Kubb `plugin-client.client`).                               |
+| `client`           | `"react-query"`, `"swr"`, `"vue-query"`, `"svelte-query"`, `"axios"`, `"axios-functions"`, `"angular"`, `"zod"`, `"fetch"` | Orval        | Selects the runtime client flavour (see [`client` options](../../.context/orval-output-api-options.md#client)). |
+| `mode`             | `"single"`, `"split"`, `"split-tag"`, `"split-tags"`, `"tags"`, `"tags-split"`                                             | Orval        | Maps to Orval’s output mode.                                                                                    |
+| `baseUrl`          | `string`                                                                                                                   | Orval & Kubb | Injects a default base URL (`output.baseUrl`, `plugin-client.baseURL`).                                         |
+| `mock`             | `boolean` or `{ type: "msw" \| "off", delay?: number, useExamples?: boolean }`                                             | Orval        | Controls MSW mock generation. `type: "off"` disables mocks.                                                     |
+| `prettier`         | `boolean`                                                                                                                  | Orval        | Toggles Prettier formatting in generated files.                                                                 |
+| `clean`            | `boolean`                                                                                                                  | Orval        | Toggles cleanup of Orval output before writing new files.                                                       |
+| `plugins` / `kubb` | `{ client?: object, ts?: object, oas?: object }`                                                                           | Kubb         | Merged into the corresponding Kubb plugin blocks.                                                               |
 
 All properties are optional. Merge order is `project.config` → `clients[].config` → CLI overrides.
 
@@ -149,16 +154,16 @@ Template-specific validation now lives inside the template boundary. For example
 
 ## CLI flag parity
 
-| Flag | Config field | Notes |
-|------|--------------|-------|
-| `--template` | `project.template` | Same alias resolution as the config file. |
-| `--http-client` | `config.httpClient` | Applies to every client post-parse. |
-| `--client` | `config.client` | Only used by Orval. |
-| `--mode` | `config.mode` | Orval output mode override. |
-| `--base-url` | `config.baseUrl` | Overwrites both Orval and Kubb defaults. |
-| `--mock-type` | `config.mock.type` | Use `msw` or `off`. |
-| `--mock-delay` | `config.mock.delay` | Integer milliseconds. |
-| `--mock-use-examples` | `config.mock.useExamples = true` | Flag (omit to leave unchanged). |
+| Flag                  | Config field                     | Notes                                     |
+| --------------------- | -------------------------------- | ----------------------------------------- |
+| `--template`          | `project.template`               | Same alias resolution as the config file. |
+| `--http-client`       | `config.httpClient`              | Applies to every client post-parse.       |
+| `--client`            | `config.client`                  | Only used by Orval.                       |
+| `--mode`              | `config.mode`                    | Orval output mode override.               |
+| `--base-url`          | `config.baseUrl`                 | Overwrites both Orval and Kubb defaults.  |
+| `--mock-type`         | `config.mock.type`               | Use `msw` or `off`.                       |
+| `--mock-delay`        | `config.mock.delay`              | Integer milliseconds.                     |
+| `--mock-use-examples` | `config.mock.useExamples = true` | Flag (omit to leave unchanged).           |
 
 The CLI merges overrides after validation, ensuring they win over file-based values.
 
@@ -166,27 +171,27 @@ The CLI merges overrides after validation, ensuring they win over file-based val
 
 ### Orval (`@genxapi/template-orval`)
 
-| Unified option | Orval output | Notes |
-|----------------|--------------|-------|
-| `httpClient` | `output.httpClient` | Only emitted when provided. |
-| `client` | `output.client` | Values align with Orval’s client catalogue. |
-| `mode` | `output.mode` | Supports `split`, `split-tags`, etc. |
-| `baseUrl` | `output.baseUrl` | Leave undefined to keep Orval’s default. |
-| `mock` | `output.mock` | Boolean or MSW object. `{ type: "off" }` becomes `false`. |
-| `prettier` | `output.prettier` | Mirrors Orval toggle. |
-| `clean` | `output.clean` | Mirrors Orval toggle. |
+| Unified option | Orval output        | Notes                                                     |
+| -------------- | ------------------- | --------------------------------------------------------- |
+| `httpClient`   | `output.httpClient` | Only emitted when provided.                               |
+| `client`       | `output.client`     | Values align with Orval’s client catalogue.               |
+| `mode`         | `output.mode`       | Supports `split`, `split-tags`, etc.                      |
+| `baseUrl`      | `output.baseUrl`    | Leave undefined to keep Orval’s default.                  |
+| `mock`         | `output.mock`       | Boolean or MSW object. `{ type: "off" }` becomes `false`. |
+| `prettier`     | `output.prettier`   | Mirrors Orval toggle.                                     |
+| `clean`        | `output.clean`      | Mirrors Orval toggle.                                     |
 
 > ℹ️ Dive into [.context/orval-output-api-options.md](../../.context/orval-output-api-options.md) for the exhaustive list of supported Orval options.
 
 ### Kubb (`@genxapi/template-kubb`)
 
-| Unified option | Kubb plugin | Notes |
-|----------------|-------------|-------|
-| `httpClient` | `plugin-client.client` | Accepts `fetch` or `axios`. |
-| `baseUrl` | `plugin-client.baseURL` | Optional base URL. |
-| `plugins.client` | `plugin-client` | Merge additional fields (`dataReturnType`, `operations`, etc.). |
-| `plugins.ts` | `plugin-ts` | Controls enum style, barrel strategy, syntax. |
-| `plugins.oas` | `plugin-oas` | Controls validation, output path, discriminator handling. |
+| Unified option   | Kubb plugin             | Notes                                                           |
+| ---------------- | ----------------------- | --------------------------------------------------------------- |
+| `httpClient`     | `plugin-client.client`  | Accepts `fetch` or `axios`.                                     |
+| `baseUrl`        | `plugin-client.baseURL` | Optional base URL.                                              |
+| `plugins.client` | `plugin-client`         | Merge additional fields (`dataReturnType`, `operations`, etc.). |
+| `plugins.ts`     | `plugin-ts`             | Controls enum style, barrel strategy, syntax.                   |
+| `plugins.oas`    | `plugin-oas`            | Controls validation, output path, discriminator handling.       |
 
 Any extra keys under `plugins.*` are copied verbatim to `kubb.config.ts`.
 
@@ -194,7 +199,7 @@ Any extra keys under `plugins.*` are copied verbatim to `kubb.config.ts`.
 
 ### Orval-flavoured project
 
-```jsonc
+```json
 {
   "project": {
     "template": "orval",
@@ -225,7 +230,7 @@ Any extra keys under `plugins.*` are copied verbatim to `kubb.config.ts`.
 
 ### Kubb-flavoured project
 
-```jsonc
+```json
 {
   "project": {
     "template": "kubb",

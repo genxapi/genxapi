@@ -59,7 +59,7 @@ By default the CLI looks for config in the current working directory. Supported 
 
 Start with a minimal JSON config:
 
-```jsonc
+```json
 {
   "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/packages/cli/schemas/genxapi.schema.json",
   "project": {
@@ -70,19 +70,19 @@ Start with a minimal JSON config:
     "config": {
       "httpClient": "axios",
       "client": "react-query",
-      "mock": { "type": "msw" },
+      "mock": { "type": "msw" }
     },
     "publish": {
-      "npm": { "enabled": false },
-    },
+      "npm": { "enabled": false }
+    }
   },
   "clients": [
     {
       "name": "petstore",
       "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
-      "config": { "baseUrl": "https://api.petstore.local" },
-    },
-  ],
+      "config": { "baseUrl": "https://api.petstore.local" }
+    }
+  ]
 }
 ```
 
@@ -134,7 +134,7 @@ Aliases:
 
 Set `project.template` to `"kubb"` (or run with `--template kubb`) and provide plugin overrides via `config`:
 
-```jsonc
+```json
 {
   "project": {
     "name": "petstore-sdk",
@@ -143,9 +143,9 @@ Set `project.template` to `"kubb"` (or run with `--template kubb`) and provide p
     "config": {
       "httpClient": "fetch",
       "plugins": {
-        "client": { "dataReturnType": "data" },
-      },
-    },
+        "client": { "dataReturnType": "data" }
+      }
+    }
   },
   "clients": [
     {
@@ -153,11 +153,11 @@ Set `project.template` to `"kubb"` (or run with `--template kubb`) and provide p
       "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
       "config": {
         "plugins": {
-          "client": { "dataReturnType": "data" },
-        },
-      },
-    },
-  ],
+          "client": { "dataReturnType": "data" }
+        }
+      }
+    }
+  ]
 }
 ```
 

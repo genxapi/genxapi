@@ -82,7 +82,7 @@ npx genxapi generate --config ./genxapi.config.json --log-level info
 
 Minimal config:
 
-```jsonc
+```json
 {
   "$schema": "https://raw.githubusercontent.com/genxapi/genxapi/main/packages/cli/schemas/genxapi.schema.json",
   "project": {
@@ -93,22 +93,22 @@ Minimal config:
     "config": {
       "httpClient": "axios",
       "client": "react-query",
-      "mock": { "type": "msw" },
+      "mock": { "type": "msw" }
     },
     "publish": {
-      "npm": { "enabled": false },
-    },
+      "npm": { "enabled": false }
+    }
   },
   "clients": [
     {
       "name": "pets",
-      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json",
-    },
+      "swagger": "https://petstore3.swagger.io/api/v3/openapi.json"
+    }
   ],
   "hooks": {
     "beforeGenerate": [],
-    "afterGenerate": [],
-  },
+    "afterGenerate": []
+  }
 }
 ```
 
@@ -133,7 +133,7 @@ npx genxapi generate \
 
 `clients[].swagger` remains the shorthand for a contract source. Use `clients[].contract` when you need explicit snapshotting, checksums, or authenticated remote fetches.
 
-```jsonc
+```json
 {
   "clients": [
     {
@@ -142,15 +142,15 @@ npx genxapi generate \
         "source": "https://api.example.com/openapi.json",
         "auth": {
           "type": "bearer",
-          "tokenEnv": "OPENAPI_TOKEN",
+          "tokenEnv": "OPENAPI_TOKEN"
         },
         "snapshot": {
-          "path": ".genxapi/contracts/pets.json",
+          "path": ".genxapi/contracts/pets.json"
         },
-        "checksum": true,
-      },
-    },
-  ],
+        "checksum": true
+      }
+    }
+  ]
 }
 ```
 
