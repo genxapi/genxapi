@@ -189,7 +189,8 @@ Planned later:
 ## Customising further
 
 - Use `project.templateOptions.variables` to inject your own placeholder values inside template files.
-- Override Orval entirely by providing a local template (`project.templateOptions.path`) while keeping the orchestrator workflow.
+- Use `project.templateOptions.path` to swap Orval scaffold files while keeping the Orval template contract.
+- If you need a different generator contract instead of an Orval scaffold tweak, create an explicit external template rather than stretching `project.templateOptions.path` into a plugin system.
 - Combine with hooks to run tests, linting, or custom bundling steps. Hooks run after dependency installation but before publishing automation.
 
 ## Resources

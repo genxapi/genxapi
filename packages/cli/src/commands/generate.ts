@@ -1,6 +1,7 @@
 import ora from "ora";
 import { resolve } from "node:path";
 import type { CliConfig, TemplateModule } from "../config/loader";
+import { validateTemplateGenerationPlan } from "../template-contract";
 import { applyTemplateOverrides } from "../utils/overrides";
 import type { TemplateOverrides } from "../types";
 import type { Logger } from "../utils/logger";
@@ -36,19 +37,23 @@ export async function runGenerateCommand(options: GenerateCommandOptions): Promi
 
   try {
     const builtinTemplateKind = inferTemplateKind(options.template.name);
-    const templateKind = builtinTemplateKind ?? "custom";
+    const templateKind = builtinTemplateKind ?? "external";
     options.logger.info(`Generation step 1/7: applying template overrides for ${templateKind}.`);
     const config = applyTemplateOverrides(options.config, builtinTemplateKind, options.overrides);
     options.logger.info("Generation step 2/7: building template configuration.");
     const templateConfig = buildTemplateConfig(config, options.template.name);
     await options.template.validateConfig?.(templateConfig);
     options.logger.info("Generation step 3/7: planning template capabilities and dependencies.");
-    const templatePlan = (await options.template.planGeneration?.(templateConfig, {
-      templateName: options.template.name,
-    })) ?? {
-      selectedCapabilities: [],
-      dependencies: [],
-    };
+    const templatePlan = validateTemplateGenerationPlan(
+      options.template.name,
+      options.template.capabilityManifest,
+      (await options.template.planGeneration?.(templateConfig, {
+        templateName: options.template.name,
+      })) ?? {
+        selectedCapabilities: [],
+        dependencies: [],
+      }
+    );
     const project = templateConfig.project as {
       readonly name: string;
       readonly directory: string;

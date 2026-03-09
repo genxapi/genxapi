@@ -5,7 +5,7 @@ GenX API is an orchestration layer for contract-driven client and package genera
 ## Current Capabilities
 
 - Unified config for multi-client generation.
-- First-party Orval and Kubb templates, plus custom template package support.
+- First-party Orval and Kubb templates, plus explicit external template contract support.
 - First-class `diff` command for OpenAPI comparisons with text and JSON output.
 - Structured change classification with the current supported levels: `none`, `documentation`, `additive`, and `structural`.
 - Release manifest support that can collect diff and generation metadata into one machine-readable file.
@@ -58,6 +58,6 @@ The shipped command surface is currently:
 
 - **Orval template**: package scaffolding plus Orval-specific client, mock, and bundling behaviour.
 - **Kubb template**: package scaffolding plus Kubb plugin configuration and output assembly.
-- **Custom templates**: packages that export the same template surface and keep generator-specific richness on the template side.
+- **External templates**: packages or local modules that export the same template contract and keep generator-specific richness on the template side.
 
 Next steps: read [Getting Started](./getting-started.md), then [Configuration](./configuration.md), [Release lifecycle](./release-lifecycle.md), [Templates](./templates.md), and [Next steps](./next-steps.md).

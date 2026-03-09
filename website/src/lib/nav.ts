@@ -28,10 +28,21 @@ export function getNav(): NavItem[] {
       children: [
         { title: "Overview", href: "/docs/templates" },
         { title: "Orval template", href: "/docs/templates/orval-api-client-template" },
-        { title: "Kubb template", href: "/docs/templates/kubb-api-client-template" }
+        { title: "Kubb template", href: "/docs/templates/kubb-api-client-template" },
+        { title: "External authoring", href: "/docs/templates/external-template-authoring" },
+        { title: "Custom guidance", href: "/docs/templates/custom-template-guidance" }
       ]
     },
-    { title: "CI integration", href: "/docs/ci-integration" },
+    {
+      title: "CI integration",
+      children: [
+        { title: "Overview", href: "/docs/ci-integration" },
+        {
+          title: "Marketplace readiness",
+          href: "/docs/github-action-marketplace-readiness"
+        }
+      ]
+    },
     {
       title: "Versioning & releases",
       children: [

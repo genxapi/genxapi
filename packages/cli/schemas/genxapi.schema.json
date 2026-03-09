@@ -22,7 +22,14 @@
           "enum": ["npm", "pnpm", "yarn", "bun"],
           "default": "npm"
         },
-        "template": { "type": "string", "default": "orval" },
+        "template": {
+          "default": "orval",
+          "oneOf": [
+            { "type": "string" },
+            { "$ref": "#/definitions/builtinTemplateReference" },
+            { "$ref": "#/definitions/externalTemplateReference" }
+          ]
+        },
         "templateOptions": {
           "type": "object",
           "properties": {
@@ -98,6 +105,25 @@
     }
   },
   "definitions": {
+    "builtinTemplateReference": {
+      "type": "object",
+      "required": ["provider", "name"],
+      "properties": {
+        "provider": { "type": "string", "enum": ["builtin"] },
+        "name": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "externalTemplateReference": {
+      "type": "object",
+      "required": ["provider", "module"],
+      "properties": {
+        "provider": { "type": "string", "enum": ["external"] },
+        "module": { "type": "string" },
+        "export": { "type": "string", "default": "genxTemplate" }
+      },
+      "additionalProperties": false
+    },
     "generatorOptions": {
       "type": "object",
       "properties": {

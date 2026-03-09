@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { TEMPLATE_PACKAGE_MAP, resolveTemplatePackage } from "../../utils/templatePackages";
 import { inferTemplateFromConfig, resolveTemplateAlias } from "./utils/templateResolution";
 import { readConfigAtPath, searchConfig } from "./utils/readConfig";
 import { extractTemplateOptions } from "./utils/templateOptions";
@@ -61,13 +60,14 @@ export async function loadCliConfig(options: LoadCliConfigOptions = {}): Promise
   const overrideTemplate = options.template ? resolveTemplateAlias(options.template) : undefined;
   const unifiedParsed = UnifiedGeneratorConfigSchema.safeParse(rawConfig);
 
-  let templateName: string;
   let payload: unknown;
 
-  templateName = unifiedParsed.success
-    ? resolveTemplatePackage(overrideTemplate ?? unifiedParsed.data.project.template)
+  const templateSelector = unifiedParsed.success
+    ? overrideTemplate ?? unifiedParsed.data.project.template
     : overrideTemplate ?? inferTemplateFromConfig(rawConfig);
-  const template = await loadTemplateModule(templateName);
+  const template = await loadTemplateModule(templateSelector, {
+    configDir: rawResult.dir
+  });
 
   if (unifiedParsed.success) {
     if (!template.transformUnifiedConfig) {
