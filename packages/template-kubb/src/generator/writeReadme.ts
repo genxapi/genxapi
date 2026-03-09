@@ -1,12 +1,13 @@
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import type { MultiClientConfig } from "../types.js";
+import type { MultiClientConfig, TemplatePlan } from "../types.js";
 import type { SwaggerInfo } from "./handleSwaggerDocuments.js";
 
 export async function writeReadme(
   projectDir: string,
   config: MultiClientConfig,
-  swaggerInfos: Record<string, SwaggerInfo | null>
+  swaggerInfos: Record<string, SwaggerInfo | null>,
+  templatePlan?: TemplatePlan
 ): Promise<void> {
   const readmeConfig = config.project.readme;
   const lines: string[] = [];
@@ -51,6 +52,49 @@ export async function writeReadme(
   lines.push("");
   lines.push(...usageLines);
   lines.push("");
+
+  if (templatePlan) {
+    lines.push("## Template Boundaries");
+    lines.push("");
+    if (templatePlan.selectedCapabilities.length > 0) {
+      lines.push(
+        `Selected template capabilities: ${templatePlan.selectedCapabilities
+          .map((capability) => `\`${capability}\``)
+          .join(", ")}.`
+      );
+      lines.push("");
+    }
+    if (templatePlan.output?.configFiles?.length) {
+      lines.push(
+        `Template-owned config files: ${templatePlan.output.configFiles
+          .map((file) => `\`${file}\``)
+          .join(", ")}.`
+      );
+      lines.push("");
+    }
+    if (templatePlan.output?.entrypoints?.length) {
+      lines.push(
+        `Generated package entrypoints: ${templatePlan.output.entrypoints
+          .map((file) => `\`${file}\``)
+          .join(", ")}.`
+      );
+      lines.push("");
+    }
+    if (templatePlan.output?.notes?.length) {
+      for (const note of templatePlan.output.notes) {
+        lines.push(note);
+        lines.push("");
+      }
+    }
+    if (templatePlan.documentationHints?.length) {
+      for (const hint of templatePlan.documentationHints) {
+        lines.push(`### ${hint.title}`);
+        lines.push("");
+        lines.push(hint.body);
+        lines.push("");
+      }
+    }
+  }
 
   if (readmeConfig?.additionalSections) {
     for (const section of readmeConfig.additionalSections) {

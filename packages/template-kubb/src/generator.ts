@@ -28,7 +28,7 @@ export async function generateClients(
     dereference: true
   });
 
-  await applyPackageJson(projectDir, config);
+  await applyPackageJson(projectDir, config, options.templatePlan);
   await applyTemplateVariables(projectDir, config);
   await ensureClientWorkspaces(projectDir, config.clients);
   const { targets: swaggerTargets, infos: swaggerInfos } = await handleSwaggerDocuments(
@@ -38,7 +38,7 @@ export async function generateClients(
     logger
   );
   await writeKubbConfig(projectDir, config, swaggerTargets);
-  await writeReadme(projectDir, config, swaggerInfos);
+  await writeReadme(projectDir, config, swaggerInfos, options.templatePlan);
 
   if (config.project.template.installDependencies) {
     await installDependencies(projectDir, config.project.packageManager, logger);

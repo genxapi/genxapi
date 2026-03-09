@@ -2,6 +2,30 @@
 
 The Kubb template wraps the [Kubb](https://kubb.dev/) plugin ecosystem so you can orchestrate package generation with the same unified config used by the CLI. This guide explains how to install the template, what it generates, and how to override plugins through configuration.
 
+## Capability Manifest
+
+The Kubb template now declares its capability surface explicitly.
+
+Universal:
+
+- Contract inputs and reproducibility metadata.
+- Output layout.
+- `httpClient` and `baseUrl`.
+
+Template first-class:
+
+- `plugins.client` / `kubb.client`
+- `plugins.ts` / `kubb.ts`
+- `plugins.oas` / `kubb.oas`
+
+Escape hatch:
+
+- Raw plugin pass-through in `plugins` / `kubb`
+- `project.templateOptions.path`
+- `project.templateOptions.variables`
+
+The CLI no longer hardcodes Kubb translation rules in shared core code. Instead, the Kubb template owns unified-config transformation, template-only validation, and dependency planning.
+
 ## Installation
 
 ```bash
@@ -157,10 +181,18 @@ Current behaviour:
 - `generate` can trigger registry publish when `project.publish` enables it.
 - The generated package exposes a stable root entrypoint after build.
 - `genxapi.manifest.json` records the resolved contract source, checksum, template, and output paths for traceability.
+- Package dependencies are derived from the selected Kubb capability plan instead of copied as a static template bundle.
+- Axios and Zod are only added when the chosen Kubb client/plugin settings require them.
 
 Planned later:
 
 - Diff-driven release decisions and SemVer inference are not part of the current Kubb template surface.
+
+## Dependency Planning Notes
+
+- Default fetch-based Kubb output keeps the generated package free of extra React-specific dependencies.
+- Selecting `httpClient: "axios"` adds axios only when the generated client actually uses it.
+- Selecting `plugins.client.parser: "zod"` adds Zod only when the chosen client helper surface requires it.
 
 ## Resources
 

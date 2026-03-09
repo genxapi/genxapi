@@ -1,5 +1,9 @@
-import type { KubbClientConfig } from "src/build/buildKubbConfig";
 import { TemplateOverrides } from "src/types";
+
+type KubbClientConfig = {
+  readonly kubb?: Record<string, unknown>;
+  readonly [key: string]: unknown;
+};
 
 export function applyKubbOverrides(
   clients: KubbClientConfig[],

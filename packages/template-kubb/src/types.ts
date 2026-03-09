@@ -242,6 +242,30 @@ export type GithubPublishConfig = z.infer<typeof GithubPublishConfigSchema>;
 export type ProjectReadmeConfig = z.infer<typeof ProjectReadmeSchema>;
 export type ReadmeSection = z.infer<typeof ReadmeSectionSchema>;
 
+export interface TemplatePlannedDependency {
+  readonly name: string;
+  readonly section: "dependencies" | "devDependencies" | "peerDependencies" | "optionalDependencies";
+  readonly reason: string;
+}
+
+export interface TemplateDocumentationHint {
+  readonly title: string;
+  readonly body: string;
+}
+
+export interface TemplateOutputMetadata {
+  readonly configFiles?: readonly string[];
+  readonly entrypoints?: readonly string[];
+  readonly notes?: readonly string[];
+}
+
+export interface TemplatePlan {
+  readonly selectedCapabilities: readonly string[];
+  readonly dependencies: readonly TemplatePlannedDependency[];
+  readonly documentationHints?: readonly TemplateDocumentationHint[];
+  readonly output?: TemplateOutputMetadata;
+}
+
 export interface GenerateClientsOptions {
   readonly runKubb?: boolean;
   readonly logger?: {
@@ -253,6 +277,7 @@ export interface GenerateClientsOptions {
   readonly configDir?: string;
   readonly toolVersion?: string;
   readonly generatedAt?: string;
+  readonly templatePlan?: TemplatePlan;
   readonly resolvedContracts?: Record<
     string,
     {

@@ -1,6 +1,10 @@
-import type { OrvalClientConfig } from "src/build/buildOrvalConfig";
 import { normaliseMockValue } from "src/utils/normaliseMockValue";
 import { TemplateOverrides } from "src/types";
+
+type OrvalClientConfig = {
+  readonly orval?: Record<string, unknown>;
+  readonly [key: string]: unknown;
+};
 
 export function applyOrvalOverrides(
   clients: OrvalClientConfig[],

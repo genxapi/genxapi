@@ -29,6 +29,9 @@ GenX API core does not own generator-specific code generation behaviour. It shou
 Templates own generator-specific capabilities:
 
 - Map unified intent into generator-native configuration.
+- Declare capability manifests so ownership is explicit instead of implicit.
+- Validate template-only options and reject capabilities that belong to another template.
+- Plan generated package dependencies from selected template capabilities.
 - Scaffold project files, build scripts, and package metadata for the generated package.
 - Decide how generator outputs are assembled into a stable package interface.
 - Keep generator-specific richness available instead of hiding it behind fake generic abstractions.
@@ -61,9 +64,10 @@ Consumers should not be coupled to Orval files, Kubb files, repo layout, or the 
 Good coupling keeps each boundary narrow and explicit:
 
 - Backend publishes `openapi.json`; GenX API reads that contract and delegates generation to a template.
-- GenX API passes `project.config` and `clients[].config` into a template; the template maps those settings to Orval or Kubb.
+- GenX API passes `project.config` and `clients[].config` into a template; the template maps those settings to Orval or Kubb and declares the capability ownership for that mapping.
 - A generated package exposes `import { pets } from "petstore-sdk"`; consumer apps import that package boundary.
 - Generation-time publish settings live in `project.publish`; GenX API decides when to run the publish step, while npm still owns registry behaviour.
+- Template-specific dependency choices are derived from the template plan, not from hardcoded assumptions in the shared core.
 
 ## Bad Coupling
 

@@ -1,5 +1,6 @@
 export { loadTemplateConfig, searchTemplateConfig } from "./config.js";
 export { generateClients } from "./generator.js";
+export { genxTemplate } from "./genxTemplate.js";
 export {
   MultiClientConfigSchema,
   ProjectConfigSchema,

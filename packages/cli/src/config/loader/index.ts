@@ -1,6 +1,5 @@
 import { z } from "zod";
 import { TEMPLATE_PACKAGE_MAP, resolveTemplatePackage } from "../../utils/templatePackages";
-import { generateTemplateConfig } from "../generateTemplateConfig";
 import { inferTemplateFromConfig, resolveTemplateAlias } from "./utils/templateResolution";
 import { readConfigAtPath, searchConfig } from "./utils/readConfig";
 import { extractTemplateOptions } from "./utils/templateOptions";
@@ -26,6 +25,7 @@ export interface CliConfig {
     readonly runGenerate: boolean;
     readonly template: ClientApiTemplates | string;
     readonly templateOptions?: TemplateOptions;
+    readonly templateConfig?: Record<string, unknown>;
     readonly repository?: Record<string, unknown>;
     readonly publish?: {
       readonly npm?: Record<string, unknown>;
@@ -64,32 +64,47 @@ export async function loadCliConfig(options: LoadCliConfigOptions = {}): Promise
   let templateName: string;
   let payload: unknown;
 
+  templateName = unifiedParsed.success
+    ? resolveTemplatePackage(overrideTemplate ?? unifiedParsed.data.project.template)
+    : overrideTemplate ?? inferTemplateFromConfig(rawConfig);
+  const template = await loadTemplateModule(templateName);
+
   if (unifiedParsed.success) {
-    templateName = resolveTemplatePackage(overrideTemplate ?? unifiedParsed.data.project.template);
-    const transformed = generateTemplateConfig(unifiedParsed.data, templateName);
+    if (!template.transformUnifiedConfig) {
+      throw new Error(
+        `Template "${template.name}" does not expose unified config transformation. Use a native template config or a template that exports genxTemplate.transformUnifiedConfig.`
+      );
+    }
+
+    const transformed = await template.transformUnifiedConfig(unifiedParsed.data, {
+      templateName: template.name
+    });
     payload = {
-      ...transformed.config,
+      ...(transformed as Record<string, unknown>),
       logLevel: unifiedParsed.data.logLevel
     };
   } else {
-    templateName = overrideTemplate ?? inferTemplateFromConfig(rawConfig);
     payload = rawConfig;
   }
-
-  const template = await loadTemplateModule(templateName);
 
   const cliSchema = template.schema.extend({
     logLevel: LogLevelSchema
   });
 
   const parsed = cliSchema.parse(payload) as CliConfig;
+  await template.validateConfig?.(parsed as unknown);
   const templateOptions = extractTemplateOptions(parsed.project.template);
+  const templateConfig =
+    typeof parsed.project.template === "object" && parsed.project.template !== null
+      ? (parsed.project.template as Record<string, unknown>)
+      : undefined;
   const configWithTemplate: CliConfig = {
     ...parsed,
     project: {
       ...parsed.project,
-      template: templateName,
-      templateOptions
+      template: template.name,
+      templateOptions,
+      templateConfig
     }
   };
 

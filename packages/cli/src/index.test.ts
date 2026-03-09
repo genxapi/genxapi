@@ -35,10 +35,12 @@ describe("loadCliConfig", () => {
       "utf8"
     );
 
-    const { config } = await loadCliConfig({ file: configPath });
+    const { config, template } = await loadCliConfig({ file: configPath });
     expect(config.project.name).toBe("demo");
     expect(config.project.publish?.npm?.enabled).toBe(false);
     expect(config.project.template).toBe(TEMPLATE_PACKAGE_MAP.orval);
+    expect(template.id).toBe("orval");
+    expect(template.capabilityManifest.capabilities.length).toBeGreaterThan(0);
   });
 
   it("overrides template when provided via CLI option", async () => {
