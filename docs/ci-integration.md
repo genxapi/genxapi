@@ -4,12 +4,12 @@ title: "CI Integration"
 
 # CI Integration
 
-GenX API stays CLI-first in automation:
+GenX API stays CLI-first as a product, but GitHub workflows should usually start with the official `genxapi-action` wrapper:
 
+- `genxapi-action` is the recommended GitHub workflow entrypoint
 - the `generate` command can run headless dry-run planning with a JSON plan file
 - the `diff` command can produce contract comparison output for humans or automation
-- direct CLI execution works in GitHub Actions and other CI systems
-- the official GitHub Action wrapper lives in the separate `genxapi-action` repository
+- direct CLI execution still works in GitHub Actions and other CI systems
 - dry runs resolve contracts, template choice, output paths, planned lifecycle actions, and next-step reporting before any files are written
 
 This keeps the boundaries narrow:
@@ -21,14 +21,14 @@ This keeps the boundaries narrow:
 
 ## Choose your automation path
 
-- Use the CLI directly when you want the most flexible path, need custom install or pinning control, or want the same automation pattern across GitHub Actions, GitLab CI, CircleCI, and local runners.
-- Use the official GitHub Action when your automation already lives in GitHub Actions and you want the thinnest workflow wrapper.
+- Use the official GitHub Action when your automation already lives in GitHub Actions and you want the canonical workflow wrapper around GenX API.
+- Use the CLI directly when you want the most flexible path, need the same automation pattern across GitHub Actions, GitLab CI, CircleCI, and local runners, or want full control over installation and invocation.
 
 See [Official GitHub Action](./github-action.md) for the wrapper repository and migration note.
 
-## GitHub Actions with direct CLI usage
+## Recommended for GitHub Actions
 
-This repository documents the CLI-first flow. A GitHub Actions workflow can call the CLI directly:
+Use the official action as the default GitHub workflow surface:
 
 ```yaml
 name: Backend Package Generation
@@ -51,37 +51,22 @@ jobs:
     permissions:
       contents: write
       packages: write
-    env:
-      GENXAPI_VERSION: 0.2.0
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - id: genx
+        uses: genxapi/genxapi-action@main
         with:
-          node-version: 22
-      - name: Run GenX API
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          args=(
-            generate
-            --config ./genxapi.config.json
-            --contract ./openapi/petstore.yaml
-            --output-path ./sdk/petstore-sdk
-            --contract-version "${GITHUB_SHA}"
-            --plan-output ./artifacts/genxapi-plan.json
-            --release-manifest-output ./artifacts/genxapi-release.json
-            --publish-mode "${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}"
-          )
-
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            args+=(--dry-run)
-          fi
-
-          npx -y "@genxapi/cli@${GENXAPI_VERSION}" "${args[@]}"
+          config: ./genxapi.config.json
+          contract: ./openapi/petstore.yaml
+          output-path: ./sdk/petstore-sdk
+          contract-version: ${{ github.sha }}
+          dry-run: ${{ github.event_name == 'pull_request' }}
+          plan-output: ./artifacts/genxapi-plan.json
+          release-manifest-output: ./artifacts/genxapi-release.json
+          publish-mode: ${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}
 ```
 
-If you want the GitHub-specific wrapper instead of direct CLI wiring, use the official `genxapi-action` repository described in [Official GitHub Action](./github-action.md).
+Use a pinned release tag from `genxapi-action` once you standardise the version you want in production.
 
 ## Backend-Initiated Example
 
@@ -108,39 +93,24 @@ jobs:
     permissions:
       contents: write
       packages: write
-    env:
-      GENXAPI_VERSION: 0.2.0
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - id: genx
+        uses: genxapi/genxapi-action@main
         with:
-          node-version: 22
-      - name: Plan or generate the package
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          args=(
-            generate
-            --config ./genxapi.config.json
-            --contract ./openapi/petstore.yaml
-            --output-path ./sdk/petstore-sdk
-            --contract-version "${GITHUB_SHA}"
-            --plan-output ./artifacts/genxapi-plan.json
-            --release-manifest-output ./artifacts/genxapi-release.json
-            --publish-mode "${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}"
-          )
-
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            args+=(--dry-run)
-          fi
-
-          npx -y "@genxapi/cli@${GENXAPI_VERSION}" "${args[@]}"
+          config: ./genxapi.config.json
+          contract: ./openapi/petstore.yaml
+          output-path: ./sdk/petstore-sdk
+          contract-version: ${{ github.sha }}
+          dry-run: ${{ github.event_name == 'pull_request' }}
+          plan-output: ./artifacts/genxapi-plan.json
+          release-manifest-output: ./artifacts/genxapi-release.json
+          publish-mode: ${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}
       - name: Show resolved plan
         run: |
-          cat ./artifacts/genxapi-plan.json
-          if [ -f ./artifacts/genxapi-release.json ]; then
-            cat ./artifacts/genxapi-release.json
+          cat "${{ steps.genx.outputs.plan-path }}"
+          if [ -n "${{ steps.genx.outputs.release-manifest-path }}" ]; then
+            cat "${{ steps.genx.outputs.release-manifest-path }}"
           fi
 ```
 
@@ -150,6 +120,37 @@ Why this is the intended backend flow:
 - the only GenX API inputs are the config file plus optional automation overrides
 - the generated package boundary remains the package directory, not internal generator output paths
 - publish behavior stays opt-in and config-driven unless CI explicitly overrides it
+
+## Alternative: direct CLI wiring
+
+If you want to wire the CLI yourself inside GitHub Actions or reuse the same pattern in another CI system, prefer the human-facing command:
+
+```yaml
+- uses: actions/checkout@v4
+- uses: actions/setup-node@v4
+  with:
+    node-version: 22
+- name: Run GenX API directly
+  shell: bash
+  run: |
+    args=(
+      --config ./genxapi.config.json
+      --contract ./openapi/petstore.yaml
+      --output-path ./sdk/petstore-sdk
+      --contract-version "${GITHUB_SHA}"
+      --plan-output ./artifacts/genxapi-plan.json
+      --release-manifest-output ./artifacts/genxapi-release.json
+      --publish-mode "${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}"
+    )
+
+    if [ "${{ github.event_name }}" = "pull_request" ]; then
+      npx genxapi -- generate "${args[@]}" --dry-run
+    else
+      npx genxapi -- generate "${args[@]}"
+    fi
+```
+
+This keeps the command surface product-aligned while avoiding a GitHub-specific wrapper.
 
 ## Headless Dry Run and Plan Output
 

@@ -19,47 +19,28 @@ jobs:
     permissions:
       contents: write
       packages: write
-    env:
-      GENXAPI_VERSION: 0.2.0
     steps:
       - name: Checkout backend repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Run GenX API through the official action
+        id: genx
+        uses: genxapi/genxapi-action@main
         with:
-          node-version: 22
-
-      # If you want the GitHub-specific wrapper instead of direct CLI wiring,
-      # use the official genxapi-action repository:
-      # https://github.com/genxapi/genxapi-action
-      - name: Plan or generate the package
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          args=(
-            generate
-            --config ./genxapi.config.json
-            --contract ./openapi/petstore.yaml
-            --output-path ./sdk/petstore-sdk
-            --contract-version "${GITHUB_SHA}"
-            --plan-output ./artifacts/genxapi-plan.json
-            --release-manifest-output ./artifacts/genxapi-release.json
-            --publish-mode "${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}"
-          )
-
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            args+=(--dry-run)
-          fi
-
-          npx -y "@genxapi/cli@${GENXAPI_VERSION}" "${args[@]}"
+          config: ./genxapi.config.json
+          contract: ./openapi/petstore.yaml
+          output-path: ./sdk/petstore-sdk
+          contract-version: ${{ github.sha }}
+          dry-run: ${{ github.event_name == 'pull_request' }}
+          plan-output: ./artifacts/genxapi-plan.json
+          release-manifest-output: ./artifacts/genxapi-release.json
+          publish-mode: ${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}
 
       - name: Show resolved plan
         run: |
-          cat ./artifacts/genxapi-plan.json
-          if [ -f ./artifacts/genxapi-release.json ]; then
-            cat ./artifacts/genxapi-release.json
+          cat "${{ steps.genx.outputs.plan-path }}"
+          if [ -n "${{ steps.genx.outputs.release-manifest-path }}" ]; then
+            cat "${{ steps.genx.outputs.release-manifest-path }}"
           fi
 
       - name: Verify the generated package boundary

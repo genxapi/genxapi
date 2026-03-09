@@ -74,7 +74,7 @@ Notes:
 
 ## GitHub Actions
 
-GenX API is the core product and CLI surface. For GitHub-native workflow adoption, use the official [`genxapi-action`](https://github.com/genxapi/genxapi-action) wrapper repository. Use the CLI directly when you want the most flexible path across GitHub Actions, other CI providers, or custom orchestration.
+GenX API is the core product and CLI surface. For GitHub-native workflow adoption, [`genxapi-action`](https://github.com/genxapi/genxapi-action) is the official and recommended workflow wrapper. Use the CLI directly when you want provider-agnostic automation or fully custom orchestration.
 
 ## Quickstart
 
@@ -198,7 +198,7 @@ Planned:
 
 ## CI Example
 
-GitHub workflow example using the CLI directly:
+GitHub workflow example using the official action:
 
 ```yaml
 name: Backend Package Generation
@@ -221,37 +221,22 @@ jobs:
     permissions:
       contents: write
       packages: write
-    env:
-      GENXAPI_VERSION: 0.2.0
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - id: genx
+        uses: genxapi/genxapi-action@main
         with:
-          node-version: 22
-      - name: Run GenX API
-        shell: bash
-        run: |
-          set -euo pipefail
-
-          args=(
-            generate
-            --config ./genxapi.config.json
-            --contract ./openapi/petstore.yaml
-            --output-path ./sdk/petstore-sdk
-            --contract-version "${GITHUB_SHA}"
-            --plan-output ./artifacts/genxapi-plan.json
-            --release-manifest-output ./artifacts/genxapi-release.json
-            --publish-mode "${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}"
-          )
-
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            args+=(--dry-run)
-          fi
-
-          npx -y "@genxapi/cli@${GENXAPI_VERSION}" "${args[@]}"
+          config: ./genxapi.config.json
+          contract: ./openapi/petstore.yaml
+          output-path: ./sdk/petstore-sdk
+          contract-version: ${{ github.sha }}
+          dry-run: ${{ github.event_name == 'pull_request' }}
+          plan-output: ./artifacts/genxapi-plan.json
+          release-manifest-output: ./artifacts/genxapi-release.json
+          publish-mode: ${{ github.ref == 'refs/heads/main' && 'config' || 'off' }}
 ```
 
-If you want the GitHub-specific wrapper instead of direct CLI wiring, use the official `genxapi-action` repository linked above. For the CLI-first automation surface, see [CI integration](docs/ci-integration.md).
+Use a pinned release tag from `genxapi-action` once you standardise the version you want in production workflows. If you want to wire the CLI yourself, see [CI integration](docs/ci-integration.md) for the `npx genxapi -- ...` alternative.
 
 If you want contract diff gates today, run `genxapi diff` before generation and feed the same `--release-manifest-output` file into both steps.
 
