@@ -36,6 +36,8 @@ Use the repository root action in GitHub Actions:
 
 Use a tagged release instead of `@main` once you standardise the version you want to pin in CI.
 
+Marketplace publication is intentionally deferred. See [GitHub Action Marketplace readiness](./github-action-marketplace-readiness.md) for the current checklist and decision.
+
 ### Supported inputs
 
 | Input               | Meaning                                                                           | Default                     |

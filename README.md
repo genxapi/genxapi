@@ -10,7 +10,7 @@ GenX API sits between your API contract and your generated package. It loads Ope
 
 - Backend boundary: OpenAPI or Swagger contract.
 - Consumer boundary: generated package interface.
-- Template boundary: Orval, Kubb, or a custom template package own generator-specific behaviour.
+- Template boundary: Orval, Kubb, or an explicit external template contract own generator-specific behaviour.
 - Core boundary: GenX API owns orchestration, lifecycle, metadata, and shared workflow concerns.
 
 Read the full boundary definition in [docs/architecture/boundaries.md](docs/architecture/boundaries.md).
@@ -18,7 +18,7 @@ Read the full boundary definition in [docs/architecture/boundaries.md](docs/arch
 ## Current Capabilities
 
 - Run multi-client generation from one config file.
-- Delegate generation through first-party Orval and Kubb templates, or a custom template package.
+- Delegate generation through first-party Orval and Kubb templates, or an explicit external template contract.
 - Scaffold generated packages into monorepo-friendly directories via `project.directory` and per-client outputs.
 - Apply shared overrides such as `--template`, `--http-client`, `--client`, `--mode`, and `--mock-*`.
 - Resolve local or remote contracts into reproducible generation inputs with optional snapshots, checksums, and manifest output.
@@ -250,7 +250,9 @@ npx genxapi generate \
 - [Generation manifest](docs/generation-manifest.md)
 - [Release lifecycle](docs/release-lifecycle.md)
 - [Templates](docs/templates.md)
+- [External template authoring](docs/templates/external-template-authoring.md)
 - [CI integration](docs/ci-integration.md)
+- [GitHub Action Marketplace readiness](docs/github-action-marketplace-readiness.md)
 - [Versioning and releases](docs/versioning.md)
 - [Roadmap](docs/next-steps.md)
 
@@ -258,7 +260,7 @@ npx genxapi generate \
 
 - **Orval template (`@genxapi/template-orval`)** — the default adapter for TypeScript + React Query workflows. [Usage guide](docs/templates/orval-api-client-template.md).
 - **Kubb template (`@genxapi/template-kubb`)** — exposes the Kubb plugin ecosystem for multi-language SDKs. [Usage guide](docs/templates/kubb-api-client-template.md).
-- **Custom engines** — wire in additional generators by extending templates or invoking them from lifecycle hooks.
+- **External templates** — load additional generators through an explicit template contract without moving generator-specific behaviour into core.
 
 Templates are versioned alongside the orchestrator so teams can upgrade the workflow without rewriting scripts.
 

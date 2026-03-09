@@ -30,6 +30,7 @@ export default defineConfig([
       "octokit",
       "ora",
       "execa",
+      "node:module",
       "node:fs",
       "node:fs/promises",
       "node:path",

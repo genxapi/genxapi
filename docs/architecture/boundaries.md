@@ -16,7 +16,7 @@ GenX API is an orchestration layer for contract-driven client and package genera
 GenX API core owns the orchestration layer:
 
 - Discover and validate `genxapi` configuration files.
-- Resolve the selected template package and pass unified config into it.
+- Resolve the selected template package or explicit external template module and pass unified config into it.
 - Apply shared command-line overrides such as `--template`, `--http-client`, `--client`, and `--mock-*`.
 - Coordinate lifecycle steps such as dry-run validation, template execution, hooks, repository sync, and registry publish.
 - Define the public CLI command surface and document what is shipped today.
@@ -68,6 +68,7 @@ Good coupling keeps each boundary narrow and explicit:
 - A generated package exposes `import { pets } from "petstore-sdk"`; consumer apps import that package boundary.
 - Generation-time publish settings live in `project.publish`; GenX API decides when to run the publish step, while npm still owns registry behaviour.
 - Template-specific dependency choices are derived from the template plan, not from hardcoded assumptions in the shared core.
+- External templates are loaded through an explicit contract reference, not through hidden dynamic discovery.
 
 ## Bad Coupling
 

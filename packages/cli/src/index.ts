@@ -540,6 +540,18 @@ if (isDirectInvocation()) {
 
 export { UnifiedGeneratorConfigSchema } from "./types";
 export type { UnifiedGeneratorConfig, UnifiedClientOptions, TemplateOverrides } from "./types";
+export type {
+  GenxTemplate,
+  GenxTemplateContext,
+  TemplateCapability,
+  TemplateCapabilityClassification,
+  TemplateCapabilityManifest,
+  TemplateDependencySection,
+  TemplateDocumentationHint,
+  TemplateGenerationPlan,
+  TemplateOutputMetadata,
+  TemplatePlannedDependency
+} from "./template-contract";
 
 function buildOverridesFromFlags(flags: GenerateFlags): TemplateOverrides | undefined {
   const overrides: TemplateOverrides = {};

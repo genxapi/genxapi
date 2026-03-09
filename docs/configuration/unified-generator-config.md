@@ -44,7 +44,7 @@ Declare generator intent once and let the CLI translate it into the correct temp
 }
 ```
 
-- **`project.template`** accepts aliases (`"orval"`, `"kubb"`) or fully-qualified packages (`@genxapi/template-orval`).
+- **`project.template`** accepts built-in aliases (`"orval"`, `"kubb"`), fully-qualified package names, or an explicit external template reference object.
 - **`project.output`** defines the base directory for derived workspaces. Defaults to `./src/<client-name>` if omitted.
 - **`project.config`** sets generator defaults; `clients[].config` provides per-client overrides.
 - **`clients[].swagger`** remains the shorthand contract field; **`clients[].contract`** is the first-class form for auth, snapshots, and checksums.
@@ -152,6 +152,38 @@ All properties are optional. Merge order is `project.config` → `clients[].conf
 
 Template-specific validation now lives inside the template boundary. For example, the Orval template rejects Kubb-only plugin blocks, and the Kubb template rejects Orval-only `mode` / `mock` style settings.
 
+## Template Selection
+
+### Built-in template
+
+```json
+{
+  "project": {
+    "template": "orval"
+  }
+}
+```
+
+### Explicit external template
+
+```json
+{
+  "project": {
+    "template": {
+      "provider": "external",
+      "module": "@acme/genxapi-template",
+      "export": "genxTemplate"
+    }
+  }
+}
+```
+
+`module` can be a package name or a relative/absolute filesystem path. Relative paths resolve from the config file directory.
+
+Use the explicit external form when you want a real external template contract with capability manifests, validation hooks, config transformation, generation hooks, dependency planning, and plan/report participation.
+
+Use `project.templateOptions.path` only to swap scaffold files inside an already selected template.
+
 ## CLI flag parity
 
 | Flag                  | Config field                     | Notes                                     |
@@ -166,6 +198,8 @@ Template-specific validation now lives inside the template boundary. For example
 | `--mock-use-examples` | `config.mock.useExamples = true` | Flag (omit to leave unchanged).           |
 
 The CLI merges overrides after validation, ensuring they win over file-based values.
+
+Note: `--template` accepts alias and package strings. Use the config file when you need an explicit external template object with `provider`, `module`, or a non-default export name.
 
 ## Mapping to templates
 
@@ -265,7 +299,7 @@ Any extra keys under `plugins.*` are copied verbatim to `kubb.config.ts`.
 
 ## Migration tips
 
-1. Set `project.template` to `"orval"` or `"kubb"`.
+1. Set `project.template` to `"orval"` or `"kubb"` (or an explicit external template reference if you own a custom template contract).
 2. Move shared fields from `clients[].orval` / `clients[].kubb` into `project.config`.
 3. Replace template-specific blocks with `clients[].config` overrides.
 4. (Optional) Introduce `project.output` so path defaults are derived automatically.
@@ -281,4 +315,4 @@ The CLI still understands the legacy structure, but new capabilities (HTTP clien
 
 With this unified interface you can add engines, rotate defaults, or run per-environment overrides without rewriting configuration files.
 
-For the manifest structure emitted by generation, see [Generation manifest](../generation-manifest.md).
+For the manifest structure emitted by generation, see [Generation manifest](../generation-manifest.md). For external template authoring guidance, see [External template authoring](../templates/external-template-authoring.md).

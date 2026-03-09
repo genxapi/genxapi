@@ -200,6 +200,7 @@ Planned later:
 
 - [Kubb configuration docs](https://kubb.dev/getting-started/configure#plugins)
 - [Unified generator config](../configuration/unified-generator-config.md)
+- [Custom template guidance](./custom-template-guidance.md)
 - [CLI reference](../../README.md#command-reference)
 
 With the unified configuration you can drive fetch vs. axios, enum syntax, and plugin behaviour without touching `kubb.config.ts`. The template handles the translation so the orchestrator can regenerate and publish SDKs consistently.

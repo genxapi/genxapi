@@ -9,7 +9,7 @@ GenX API reads a single JSON, YAML, or TypeScript configuration file and maps th
 - **Supported files today**: `genxapi.config.json`, `genxapi.config.yaml`, `genxapi.config.yml`, `genxapi.config.ts`, plus `genxapirc*` JSON/YAML/TS variants.
 - **Unified schema**: One set of fields expresses generator intent (`httpClient`, `client`, `mode`, `mock`, plugin overrides). The CLI maps these options onto the selected template.
 - **Contract workflow**: Use `clients[].swagger` for the shorthand form or `clients[].contract` when you need authenticated remote fetches, snapshots, and checksums.
-- **Template selection**: `project.template` accepts the aliases `"orval"` and `"kubb"` (or a full package name such as `@genxapi/template-orval`).
+- **Template selection**: `project.template` accepts the aliases `"orval"` and `"kubb"`, full package names, or an explicit external template reference object.
 - **Per-client overrides**: `clients[].config` can override any project-level option.
 - **CLI flags**: `--template`, `--http-client`, `--client`, `--mode`, `--mock-*`, and `--base-url` mirror their config counterparts for one-off runs or CI jobs.
 
@@ -84,7 +84,7 @@ Earlier versions required template-specific sections (`clients[].orval` / `clien
 
 1. Move common options into `project.config`.
 2. Replace `clients[].orval` or `clients[].kubb` with `clients[].config`.
-3. Set `project.template` to `"orval"` or `"kubb"` (or the fully-qualified package name).
+3. Set `project.template` to `"orval"` or `"kubb"` (or an explicit external template reference if you own a custom template contract).
 4. Delete redundant `output.workspace/target` fields if you want the orchestrator to derive them from `project.output`.
 
 The CLI will continue to resolve the legacy format, but new features (HTTP client overrides, advanced mock settings, plugin merges) are only available via the unified schema.
