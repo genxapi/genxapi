@@ -1,10 +1,18 @@
 # GenX API
 
-> Orchestration for contract-driven client and package generation.
+> Core generator and orchestration for contract-driven SDK packages.
 
-GenX API sits between your API contract and your generated package. It loads OpenAPI-driven configuration, delegates generator-specific work to templates, and coordinates shared lifecycle concerns such as scaffolding, hooks, repository sync, and optional registry publishing.
+GenX API is the core generator product in the open source ecosystem. It sits between a published API contract and the generated SDK package, loading OpenAPI-driven configuration, delegating generator-specific work to templates, and coordinating shared lifecycle concerns such as scaffolding, hooks, repository sync, and optional registry publishing.
 
 > Configuration files can be JSON, YAML, or TypeScript: `genxapi.config.json`, `genxapi.config.yaml`, `genxapi.config.yml`, or `genxapi.config.ts`.
+
+## Open Source Ecosystem
+
+| Repository | Role in the ecosystem | Use it when |
+| --- | --- | --- |
+| [`genxapi`](https://github.com/genxapi/genxapi) | Core generator product and CLI | You want the canonical GenX API command surface for local development, custom CI, or provider-agnostic automation |
+| [`genxapi-action`](https://github.com/genxapi/genxapi-action) | Official GitHub Actions adoption path | Your automation already lives in GitHub Actions and you want the maintained wrapper around the CLI |
+| [`genxapi-ecosystem-demo`](https://github.com/genxapi/genxapi-ecosystem-demo) | End-to-end proof of contract publication, SDK generation, and multi-consumer adoption | You want to see the full service contract -> GenX API -> SDK -> consumer app workflow in one place, with demo artifacts isolated under `@genxapi-labs/*` instead of the core `@genxapi/*` scope |
 
 ## Product Boundaries
 
@@ -74,7 +82,7 @@ Notes:
 
 ## GitHub Actions
 
-GenX API is the core product and CLI surface. For GitHub-native workflow adoption, [`genxapi-action`](https://github.com/genxapi/genxapi-action) is the official and recommended workflow wrapper. Use the CLI directly when you want provider-agnostic automation or fully custom orchestration.
+GenX API is the core product and CLI surface. For GitHub-native workflow adoption, [`genxapi-action`](https://github.com/genxapi/genxapi-action) is the official and recommended workflow wrapper. Use the CLI directly when you want provider-agnostic automation or fully custom orchestration. If you want to show the resulting end-to-end workflow across services and consumers, see [`genxapi-ecosystem-demo`](https://github.com/genxapi/genxapi-ecosystem-demo).
 
 ## Quickstart
 
